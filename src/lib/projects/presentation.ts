@@ -1,0 +1,38 @@
+import {galleryInput,projectVideoSource} from "./media";
+export type ProjectPresentation = {
+ kind:"plots"|"development"|"other";
+ showFinancials:boolean;
+ showMilestones:boolean;
+ gallery:string[];
+ videoUrl:string;
+ metrics:{label:string;value:string}[];
+ milestones:{label:string;status:"planned"|"in_progress"|"completed"}[];
+};
+export const defaultPresentation:ProjectPresentation={kind:"plots",showFinancials:true,showMilestones:false,gallery:[],videoUrl:"",metrics:[],milestones:[]};
+export function presentationInput(value:unknown):ProjectPresentation {
+ if(!value||typeof value!=="object"||Array.isArray(value))throw new Error("Choose project presentation settings.");
+ const v=value as Record<string,unknown>;
+ if(!["plots","development","other"].includes(String(v.kind))||typeof v.showFinancials!=="boolean")throw new Error("Choose a valid project format and financial visibility.");
+ if(!Array.isArray(v.metrics)||v.metrics.length>3||!Array.isArray(v.milestones)||v.milestones.length>12)throw new Error("Use up to three project details and twelve milestones.");
+ if(v.showMilestones!==undefined&&typeof v.showMilestones!=="boolean")throw new Error("Choose whether milestones are shown publicly.");
+ const gallery=galleryInput(v.gallery);
+ if(v.videoUrl!==undefined&&(typeof v.videoUrl!=="string"||v.videoUrl.length>1000))throw new Error("Enter a video URL up to 1,000 characters.");
+ const videoUrl=(v.videoUrl as string|undefined)?.trim()??"";projectVideoSource(videoUrl);
+ const metrics=v.metrics.map((row:unknown)=>{
+  if(!row||typeof row!=="object")throw new Error("Invalid project detail.");
+  const r=row as Record<string,unknown>;
+  if(typeof r.label!=="string"||typeof r.value!=="string"||r.label.length>40||r.value.length>100)throw new Error("Project details need a label (up to 40 characters) and value (up to 100).");
+  const label=r.label.trim(),value=r.value.trim();if(!label||!value)throw new Error("Complete both the label and value, or remove the project detail.");return {label,value};
+ });
+ const milestones=v.milestones.map((row:unknown)=>{
+  if(!row||typeof row!=="object")throw new Error("Invalid milestone.");const r=row as Record<string,unknown>;
+  if(typeof r.label!=="string"||!r.label.trim()||r.label.length>120||!["planned","in_progress","completed"].includes(String(r.status)))throw new Error("Each milestone needs a name and valid status.");
+  return {label:r.label.trim(),status:r.status as ProjectPresentation["milestones"][number]["status"]};
+ });
+ return {kind:v.kind as ProjectPresentation["kind"],showFinancials:v.showFinancials,showMilestones:v.showMilestones===undefined?milestones.length>0:v.showMilestones,gallery,videoUrl,metrics,milestones};
+}
+export function readPresentation(json:string|null|undefined):ProjectPresentation {
+ if(!json)return {...defaultPresentation,metrics:[],milestones:[]};
+ return presentationInput(JSON.parse(json));
+}
+export const milestoneLabels={planned:"Planned",in_progress:"In progress",completed:"Completed"};

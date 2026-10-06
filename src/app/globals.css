@@ -1,0 +1,296 @@
+@import "tailwindcss";
+
+:root {
+  --arvo-black: #07090b;
+  --arvo-charcoal: #0c1016;
+  --arvo-cream: #fbf4ef;
+  --arvo-white: #fff9f5;
+  --arvo-gold: #e2a98e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--arvo-black);
+  color: white;
+  font-family: var(--font-satoshi), system-ui, sans-serif;
+}
+
+::selection {
+  background: rgba(217, 182, 111, 0.35);
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,.5) 1px, transparent 0);
+  background-size: 4px 4px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+:root {
+  --metal-rose-1: #8f624b;
+  --metal-rose-2: #c9846a;
+  --metal-rose-3: #e2a98e;
+  --metal-rose-4: #f1d8c9;
+  --metal-gold-dark: #c9846a;
+  --metal-slate: #566a80;
+}
+
+.text-metal {
+  background: linear-gradient(135deg, #c9846a 0%, #e2a98e 45%, #f1d8c9 62%, #d6a86f 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.bg-metal {
+  background: linear-gradient(135deg, #d6a86f 0%, #e2a98e 38%, #f0d2b0 58%, #d6a86f 100%);
+}
+
+.metal-border {
+  border-color: rgba(229, 184, 165, 0.22);
+}
+
+.text-soft-white {
+  background: linear-gradient(180deg, #ffffff 0%, #e8e3dc 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+:root {
+  --arvo-cream: #fbf4ef;
+  --arvo-soft: #fff9f5;
+  --arvo-rose: #c9846a;
+  --arvo-pink: #e2a98e;
+  --arvo-gold: #d6a86f;
+  --arvo-purple: #8c6cff;
+}
+
+.text-soft-white {
+  color: #f7f3ef;
+}
+
+.text-rose-gold {
+  background: linear-gradient(135deg, #d6a86f 0%, #e2a98e 48%, #f0d2b0 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.bg-rose-gold {
+  background: linear-gradient(135deg, #d6a86f 0%, #e2a98e 50%, #f0d2b0 100%);
+}
+
+:root {
+  --arvo-rose-gold: #c9846a;
+  --arvo-rose-light: #e2b09a;
+  --arvo-champagne: #f0d2b0;
+  --arvo-violet: #8b5cf6;
+  --arvo-cyan: #14f1d9;
+  --arvo-cream: #fbf4ef;
+  --arvo-soft: #fff9f5;
+}
+
+.text-vibrant-metal {
+  background: linear-gradient(120deg, #c9846a 0%, #f0d2b0 36%, #e2b09a 58%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.bg-vibrant-metal {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.35), transparent 28%),
+    linear-gradient(135deg, #b9775d 0%, #e2a98e 38%, #f0d2b0 58%, #8b5cf6 130%);
+}
+
+.arvo-vibrant-glow {
+  background:
+    radial-gradient(circle at 72% 38%, rgba(139,92,246,.26), transparent 30%),
+    radial-gradient(circle at 82% 55%, rgba(20,241,217,.14), transparent 28%),
+    radial-gradient(circle at 63% 48%, rgba(226,176,154,.22), transparent 34%);
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  width: max-content;
+  animation: ticker 28s linear infinite;
+}
+
+.kicker {
+  font-size: 0.82rem;
+  font-weight: 650;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.display-xl {
+  font-size: clamp(4.7rem, 8vw, 8rem);
+  line-height: 0.88;
+  letter-spacing: -0.028em;
+  font-weight: 650;
+}
+
+.section-title {
+  font-size: clamp(3.4rem, 6vw, 6.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.024em;
+  font-weight: 650;
+}
+
+.subheading {
+  font-size: clamp(1.35rem, 2vw, 1.65rem);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.body-copy {
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+.small-copy {
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  width: max-content;
+  animation: ticker 72s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.ticker-highlight {
+  color: #d89b87;
+}
+
+/* Arvo platform teaser */
+@keyframes platformFloat {
+  0%, 100% {
+    transform: rotateX(1deg) rotateY(-1.2deg) translateY(0);
+  }
+  50% {
+    transform: rotateX(0deg) rotateY(1deg) translateY(-9px);
+  }
+}
+
+.platform-float {
+  transform-style: preserve-3d;
+  animation: platformFloat 8s ease-in-out infinite;
+}
+
+@keyframes platformScreenEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.platform-screen-enter {
+  animation: platformScreenEnter 650ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-float,
+  .platform-screen-enter {
+    animation: none;
+  }
+}
+
+/* Arvo platform teaser */
+@keyframes platformFloat {
+  0%, 100% {
+    transform: rotateX(1deg) rotateY(-1.2deg) translateY(0);
+  }
+  50% {
+    transform: rotateX(0deg) rotateY(1deg) translateY(-9px);
+  }
+}
+
+.platform-float {
+  transform-style: preserve-3d;
+  animation: platformFloat 8s ease-in-out infinite;
+}
+
+@keyframes platformScreenEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.platform-screen-enter {
+  animation: platformScreenEnter 650ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-float,
+  .platform-screen-enter {
+    animation: none;
+  }
+}
+
+
+/* Arvo App CTA */
+@keyframes app-cta-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.13);
+  }
+}
+
+.app-cta-pulse {
+  animation: app-cta-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-cta-pulse {
+    animation: none;
+  }
+}

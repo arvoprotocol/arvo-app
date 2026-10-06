@@ -1,0 +1,23 @@
+import {queueSupportEmail,dispatchSupportEmails,markSupportRead} from "@/lib/support/notifications";
+import {randomBytes} from "node:crypto";
+import {prisma} from "@/lib/prisma";
+import {access,accessHash,body,createFields,credentials,failure,limit,publicRate,rateIdentity,response,revision,SupportError,text,ticketId,ticketInclude,view,status} from "@/lib/support/server";
+import {requireWalletSession} from "@/lib/wallet/session";
+export const dynamic="force-dynamic";
+export const runtime="nodejs";
+export async function GET(request:Request){try{await access(request,false,false);const session=await requireWalletSession(request);await publicRate(request);const page=Number(new URL(request.url).searchParams.get("page")||"1");if(!Number.isSafeInteger(page)||page<1||page>10000)throw new SupportError("Invalid ticket page.");const selected=new URL(request.url).searchParams.get("status")||"";const where={ownerWallet:session.address,...(selected?{status:status(selected)}:{})};const [tickets,total]=await prisma.$transaction([prisma.supportTicket.findMany({where,orderBy:[{updatedAt:"desc"},{id:"desc"}],skip:(page-1)*20,take:20,select:{id:true,subject:true,category:true,status:true,createdAt:true,updatedAt:true,lastAdminMessageId:true,lastReadAdminMessageId:true,_count:{select:{messages:true}}}}),prisma.supportTicket.count({where})]);return response({tickets:tickets.map(row=>({...row,messageCount:row._count.messages,unread:row.lastAdminMessageId>row.lastReadAdminMessageId,lastAdminMessageId:undefined,lastReadAdminMessageId:undefined,_count:undefined})),total,page});}catch(error){return failure(error);}}
+export async function POST(request:Request){try{
+ await access(request);const session=await requireWalletSession(request);await publicRate(request);const value=await body(request);
+ if(value.action==="create"){
+  if(value.website)throw new SupportError("Unable to create this ticket.");const fields=createFields({...value,wallet:session.address}),id=randomBytes(16).toString("hex");
+  const row=await prisma.$transaction(async tx=>{await limit(tx,`create-wallet:${session.address}`,5,3600000);await limit(tx,`create:${rateIdentity(request)}`,10,3600000);const {message,...data}=fields;const created=await tx.supportTicket.create({data:{...data,id,ownerWallet:session.address,accessHash:accessHash(randomBytes(32).toString("hex")),messages:{create:{author:"user",body:message}}},include:ticketInclude});await queueSupportEmail(tx,created.id,created.messages[0].id,"created");return created;});await dispatchSupportEmails();return response({ticket:view(row)},201);
+ }
+ if(value.action==="restore"){
+  const {id,hash}=credentials(value);const row=await prisma.supportTicket.findFirst({where:{id,accessHash:hash,OR:[{ownerWallet:null},{ownerWallet:session.address}]}});if(!row)throw new SupportError("Saved ticket could not be restored.",404);
+  if(!row.ownerWallet){const result=await prisma.supportTicket.updateMany({where:{id,accessHash:hash,ownerWallet:null},data:{ownerWallet:session.address,wallet:session.address,revision:{increment:1}}});if(result.count!==1)throw new SupportError("Ticket ownership changed. Refresh and try again.",409);}return response({restored:true});
+ }
+ const id=ticketId(value.id),row=await prisma.supportTicket.findFirst({where:{id,ownerWallet:session.address},include:ticketInclude});if(!row)throw new SupportError("Ticket not found.",404);
+ if(value.action==="view"){await markSupportRead(session.address,row.id,row.lastAdminMessageId);return response({ticket:{...view(row),unread:false}});}
+ if(value.action!=="reply")throw new SupportError("Invalid support action.");const expected=revision(value.revision),message=text(value.message,"Message",5000);
+ const updated=await prisma.$transaction(async tx=>{await limit(tx,`reply:${id}`,30,3600000);if(row.status==="closed")throw new SupportError("This ticket is closed. Create a new ticket if you need more help.",409);if(row._count.messages>=500)throw new SupportError("This conversation is full. Please create a new ticket.",409);const result=await tx.supportTicket.updateMany({where:{id,ownerWallet:session.address,revision:expected,status:{not:"closed"}},data:{revision:{increment:1},status:"open"}});if(result.count!==1)throw new SupportError("This ticket changed. Refresh before sending your reply.",409);const sent=await tx.supportMessage.create({data:{ticketId:id,author:"user",body:message}});await queueSupportEmail(tx,id,sent.id,"reply");return tx.supportTicket.findUniqueOrThrow({where:{id},include:ticketInclude});});await dispatchSupportEmails();return response({ticket:view(updated)});
+ }catch(error){return failure(error);}}
