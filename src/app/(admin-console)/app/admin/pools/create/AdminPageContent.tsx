@@ -139,11 +139,29 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
     try {
       // Revalidate timestamps immediately before requesting a transaction.
       const prepared = preparePool(poolType, standardKind, values, products);
+      const terms = validateDraft({ title, poolType, standardKind, values, products, visibility, sortOrder: Number(sortOrder) });
+      const savedResponse = await fetch(savedDraft ? `/api/admin/vault-drafts/${savedDraft.id}` : "/api/admin/vault-drafts", {
+        method: savedDraft ? "PATCH" : "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...terms, revision: savedDraft?.revision }),
+      });
+      const savedData = await savedResponse.json();
+      if (!savedResponse.ok) throw new Error(savedData.error || "Unable to save the vault name and terms. No transaction requested.");
+      const currentDraft = savedData.draft as VaultDraft;
+      setSavedDraft(currentDraft);
       const created = await submitPool(prepared, (transactionHash) => {
         submittedHash.current = transactionHash;
         setHash(transactionHash);
       });
       setResult({ poolId: created.poolId });
+      if (created.poolId !== null) {
+        const linkedResponse = await fetch(`/api/admin/vault-drafts/${currentDraft.id}`, {
+          method: "PATCH", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "link", revision: currentDraft.revision, poolId: created.poolId }),
+        });
+        const linkedData = await linkedResponse.json();
+        if (!linkedResponse.ok) throw new Error(linkedData.error || "Pool created, but its saved name was not linked. Use Verify and link pool in the registry.");
+        setSavedDraft(linkedData.draft);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to create pool.";
       setError(submittedHash.current ? `Transaction was submitted. ${message} Check its receipt before creating another pool.` : message);
@@ -510,18 +528,8 @@ function ProductControls() {
       <div className="grid gap-3 p-5 sm:grid-cols-2 md:p-6">
         {Object.values(productLabels).map(label => <ToggleRow key={label} title={label} />)}
 
-        <div className="flex items-center justify-between rounded-xl border border-black/[0.07] bg-black/[0.02] px-4 py-3 opacity-55">
-          <div>
-            <p className="text-sm font-semibold">Mixed rewards</p>
-            <p className="mt-0.5 text-[11px] text-black/40">
-              Oracle required
-            </p>
-          </div>
-
-          <span className="rounded-full bg-black/[0.06] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em]">
-            Disabled
-          </span>
-        </div>
+        <MixedShareField />
+        <p className="text-xs leading-5 text-black/50">Dual rewards pay ARVO from the ARVO deposit and USDC from the USDC deposit using the chosen weighting. An acquisition pool is configured after creation in Pools → Acquisition vaults, before its opening time.</p>
       </div>
     </Panel>
   );
@@ -686,3 +694,5 @@ function SummaryRow({
     </div>
   );
 }
+
+function MixedShareField(){const {values,products,changeValue}=usePoolForm();return products.dualMixed?<label className="block text-xs">ARVO share of dual rewards (%)<input value={values.mixedShare} onChange={e=>changeValue("mixedShare",e.target.value)} inputMode="decimal" className="mt-2 w-full rounded-xl border border-black/10 p-3"/><span className="mt-2 block text-black/50">USDC uses the remaining share. Must be above 0% and below 100%.</span></label>:null;}

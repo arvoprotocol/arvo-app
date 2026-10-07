@@ -15,7 +15,7 @@ export function walletSnapshot(){return snapshot;}
 export function walletServerSnapshot(){return empty;}
 export function getWalletProvider(){return provider;}
 function remember(choice:string){try{localStorage.setItem(storage,choice);}catch{}}
-async function clearLogin(){try{await fetch("/app/wallet/session",{method:"DELETE"});}catch{}window.dispatchEvent(new Event("arvo-wallet-session-change"));}
+async function clearLogin(){try{await fetch("/app/wallet/session",{method:"DELETE",signal:AbortSignal.timeout(5000)});}catch{}window.dispatchEvent(new Event("arvo-wallet-session-change"));}
 async function update(p:WalletProvider,version:number){
  const accounts=await p.request({method:"eth_accounts"}) as string[],chain=await p.request({method:"eth_chainId"}) as string;
  if(version!==selection||p!==provider)return;
@@ -48,8 +48,8 @@ async function phoneProvider(){
  if(!/^[a-f0-9]{32}$/i.test(projectId))throw new Error("Phone wallet connection is not configured yet.");
  phoneInit=(async()=>{const {EthereumProvider}=await import("@walletconnect/ethereum-provider");
   const id=Number(process.env.NEXT_PUBLIC_STAKING_CHAIN_ID),rpc=process.env.NEXT_PUBLIC_STAKING_RPC_URL,valid=Number.isSafeInteger(id)&&id>0;
-  const optionalChains=valid&&id!==1?[id,1]:[1];
-  const p=await EthereumProvider.init({projectId,optionalChains:optionalChains as [number,...number[]],optionalMethods:["personal_sign","eth_sendTransaction","wallet_switchEthereumChain","wallet_addEthereumChain"],optionalEvents:["accountsChanged","chainChanged"],showQrModal:true,customStoragePrefix:"arvo-public-wallet",rpcMap:valid&&rpc?{[id]:rpc}:undefined,metadata:{name:"Arvo",description:"Connect to Arvo staking and support.",url:location.origin,icons:[new URL("/icon.png",location.origin).href]},qrModalOptions:{themeMode:"light",themeVariables:{"--wcm-accent-color":"#ad7058","--wcm-z-index":"120"}}});
+  const requiredChain=valid?id:1;const optionalChains=requiredChain!==1?[1]:[];
+  const p=await EthereumProvider.init({projectId,chains:[requiredChain],optionalChains,optionalMethods:["personal_sign","eth_sendTransaction","wallet_switchEthereumChain","wallet_addEthereumChain"],optionalEvents:["accountsChanged","chainChanged"],showQrModal:true,customStoragePrefix:"arvo-public-wallet",rpcMap:valid&&rpc?{[id]:rpc}:undefined,metadata:{name:"Arvo",description:"Connect to Arvo staking and support.",url:location.origin,icons:[new URL("/icon.png",location.origin).href]},qrModalOptions:{themeMode:"light",themeVariables:{"--wcm-accent-color":"#ad7058","--wcm-z-index":"120"}}});
   phone=p as unknown as WalletProvider;return phone;
  })().catch(error=>{phoneInit=null;throw error;});return phoneInit;
 }
@@ -63,6 +63,16 @@ export async function initializeWallet(){
  })().catch(()=>{});return initializing;
 }
 export async function connectBrowserWallet(wallet:BrowserWallet,signal?:AbortSignal){const request=wallet.provider.request({method:"eth_requestAccounts"});await (signal?waitForLogin(request,signal):request);if(signal?.aborted)return;await clearLogin();signal?.throwIfAborted();await attach(wallet.provider,wallet.id);if(!snapshot.account)throw new Error("Choose a wallet account.");}
-export async function connectPhoneWallet(signal?:AbortSignal){const init=phoneProvider();const p=await (signal?waitForLogin(init,signal):init);if(!p.session){const request=(p as WalletProvider&{connect():Promise<void>}).connect();await (signal?waitForLogin(request,signal):request);}if(signal?.aborted)return;await clearLogin();signal?.throwIfAborted();await attach(p,"walletconnect");if(!snapshot.account)throw new Error("No wallet account was selected.");}
-export async function disconnectWallet(){const p=provider;removeProviderListeners();provider=null;selection++;snapshot=empty;remember("disconnected");emit();await clearLogin();if(p?.session)await p.disconnect?.().catch(()=>{});}
+export async function connectPhoneWallet(signal?:AbortSignal){
+ const init=phoneProvider();const p=await (signal?waitForLogin(init,signal):init);
+ const id=Number(process.env.NEXT_PUBLIC_STAKING_CHAIN_ID),chainId=Number.isSafeInteger(id)&&id>0?id:1;
+ const wait=<T,>(promise:Promise<T>)=>signal?waitForLogin(promise,signal):promise;
+ if(!p.session)await wait((p as WalletProvider&{connect(options:{chains:number[]}):Promise<void>}).connect({chains:[chainId]}));
+ signal?.throwIfAborted();
+ const chain=await wait(p.request({method:"eth_chainId"}));
+ if(Number(chain)!==chainId){await wait(p.request({method:"wallet_switchEthereumChain",params:[{chainId:`0x${chainId.toString(16)}`}]}));const current=await wait(p.request({method:"eth_chainId"}));if(Number(current)!==chainId)throw new Error(`WalletConnect is on chain ${Number(current)}; select chain ${chainId} in MetaMask.`);}
+ await wait(clearLogin());signal?.throwIfAborted();await wait(attach(p,"walletconnect"));signal?.throwIfAborted();
+ if(!snapshot.account)throw new Error("No wallet account was selected.");
+}
+export async function disconnectWallet(){const p=provider;removeProviderListeners();provider=null;selection++;snapshot=empty;remember("disconnected");emit();await clearLogin();if(p?.session){await p.disconnect?.().catch(()=>{});if(p===phone){phone=null;phoneInit=null;}}}
 export function openWalletPicker(){window.dispatchEvent(new Event("arvo-open-wallet-picker"));}

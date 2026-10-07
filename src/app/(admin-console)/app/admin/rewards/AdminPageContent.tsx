@@ -359,7 +359,7 @@ function AssetAccounting({ asset }: { asset: "ARVO" | "USDC" }) {
     <Panel>
       <PanelHeader
         eyebrow={`${asset} accounting`}
-        title={`${asset} reserve`}
+        title={`${asset === "USDC" ? "Ordinary USDC" : asset} reserve`}
         action={
           <span className="flex items-center gap-1.5 text-[10px] font-semibold text-black/35">
             <ShieldCheck size={13} />
@@ -369,6 +369,7 @@ function AssetAccounting({ asset }: { asset: "ARVO" | "USDC" }) {
       />
 
       <div className="divide-y divide-black/[0.06] px-5 md:px-6">
+        {asset==="USDC"&&<p className="py-4 text-xs leading-5 text-black/50">This reserve covers ordinary staking only. Acquisition cash and future USDC commitments are managed separately under Pools → Acquisition vaults.</p>}
         <AccountingRow label="Contract balance" value={amount(accounting, asset, "balance")} />
         <AccountingRow label="User principal liability" value={amount(accounting, asset, "principal")} />
         <AccountingRow label="Committed reward liability" value={amount(accounting, asset, "committed")} />

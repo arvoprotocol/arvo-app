@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ARVO app
 
-## Getting Started
+Next.js website and staking interface with wallet connections, vault publishing,
+project management, portfolios, reward schedules and acquisition-vault controls.
+The staking contracts are maintained separately in `arvoprotocol/arvo-contracts`.
 
-First, run the development server:
+## Local setup
 
-```bash
+Use Node.js 22–24. Install the locked dependencies with `npm ci`. Create a private
+`.env.local` using `.env.example` as a guide, then run:
+
+```sh
+npx prisma generate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Use a separate development SQLite database. The initial Prisma migration predates
+several app features; review `scripts/install-*.mjs` before setting up a new database.
+Do not assume the initial migration alone creates the complete current schema.
+Do not run database installation scripts against production without a backup.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Validation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sh
+node --test tooling/test_*.cjs
+python3 tooling/test_acquisition_deploy.py
+npx tsc --noEmit
+npm run build
+```
 
-## Learn More
+## Repository contents
 
-To learn more about Next.js, take a look at the following resources:
+`src` contains the current website, API routes and app. `public` contains referenced
+logos, team images, social previews, market icons and the Satoshi font. `prisma`
+contains schema and migrations, while `scripts` and `tooling` contain setup,
+operational helpers and regression tests.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Secrets, private databases, uploaded project media, build output, patch archives,
+backup revisions and unused logo experiments are excluded. Uploads are stored
+outside source control using `PROJECT_UPLOAD_DIR`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Operation
 
-## Deploy on Vercel
+Configure public staking variables for the intended chain and proxy. WalletConnect
+needs a project ID; administrator and support features need their own private
+settings. Copying source does not configure a chain, fund rewards or activate a
+vault. Testnet reward minting helpers are explicitly restricted to testnet.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Build with `npm run build`, then restart only the website process managed for this
+app. The support notification worker is a separate service.
