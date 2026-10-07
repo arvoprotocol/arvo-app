@@ -39,3 +39,9 @@ export async function verifyDraftPool(draft: VaultDraft, poolId: number) {
   if (draft.values.opens && (String(state.opensAt) !== String(prepared.args[2]) || String(state.closesAt) !== String(prepared.args[3]))) throw new Error("On-chain opening or closing time differs from the saved draft.");
   return { linkedChainId: c.chain.id, linkedProxy: c.address.toLowerCase(), linkedPoolId: poolId };
 }
+
+export async function publicPoolTitles(){
+ const c=stakingConnection();if(!c)return [];
+ const rows=await prisma.stakingVaultDraft.findMany({where:{linkedChainId:c.chain.id,linkedProxy:c.address.toLowerCase(),linkedPoolId:{not:null}},orderBy:[{sortOrder:"asc"},{id:"asc"}],take:200,select:{linkedPoolId:true,title:true,sortOrder:true}});
+ const seen=new Set<number>();return rows.flatMap(row=>{if(row.linkedPoolId===null||seen.has(row.linkedPoolId))return [];seen.add(row.linkedPoolId);return [{poolId:row.linkedPoolId,title:row.title,sortOrder:row.sortOrder}];});
+}

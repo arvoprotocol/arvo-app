@@ -1,3 +1,5 @@
+"use client";
+import {useAdminContractData,displayAmount} from "@/hooks/useAdminContractData";
 import {
   AlertTriangle,
   ArrowRight,
@@ -20,6 +22,9 @@ import {
 } from "@/components/protocol/ProtocolUI";
 
 export default function AdminOverviewPage() {
+  const {data,error,loading,refresh}=useAdminContractData();
+  const amount=(asset:"ARVO"|"USDC",key:"balance"|"principal"|"committed"|"reserved"|"available")=>data?displayAmount(data[asset][key],data[asset].decimals):"—";
+  const pair=(key:"principal"|"committed"|"reserved")=>data?`${amount("ARVO",key)} ARVO · ${amount("USDC",key)} USDC`:"—";
   return (
     <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
       <PageTitle
@@ -35,42 +40,41 @@ export default function AdminOverviewPage() {
         />
         <div>
           <p className="text-sm font-semibold text-amber-950">
-            Contract not connected
+            {data ? "Contract connected" : loading ? "Reading contract…" : "Contract data unavailable"}
           </p>
           <p className="mt-1 text-xs leading-5 text-amber-950/55">
-            The admin console is in pre-deployment mode. Live balances,
-            liabilities and protocol controls will become available after the
-            Robinhood Chain testnet deployment is connected.
+            {data ? `Chain ${data.chainId} · Snapshot block ${data.block.toLocaleString()} · Read-only contract snapshot.` : error || "Checking the network, proxy and protected balances."}
           </p>
         </div>
       </div>
 
+      <button type="button" onClick={refresh} disabled={loading} className="mt-4 rounded-xl border border-black/10 px-4 py-2 text-xs font-semibold disabled:opacity-40">{loading?"Refreshing…":"Refresh contract data"}</button>
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="User principal"
-          value="—"
+          value={pair("principal")}
           detail="ARVO + USDC liabilities"
           icon={<LockKeyhole size={16} />}
         />
 
         <StatCard
           label="Committed rewards"
-          value="—"
+          value={pair("committed")}
           detail="Rewards owed to positions"
           icon={<Coins size={16} />}
         />
 
         <StatCard
           label="Reserved rewards"
-          value="—"
+          value={pair("reserved")}
           detail="Uncommitted pool budgets"
           icon={<CircleDollarSign size={16} />}
         />
 
         <StatCard
-          label="Active pools"
-          value="—"
-          detail="Enabled staking pools"
+          label="Enabled pools"
+          value={data?.enabledPools?.toLocaleString() ?? "—"}
+          detail="Enabled, non-finalized pools; may not yet be open"
           icon={<Boxes size={16} />}
         />
       </section>
@@ -80,25 +84,27 @@ export default function AdminOverviewPage() {
           <PanelHeader
             eyebrow="Solvency"
             title="Protocol coverage"
-            action={<StatusPill>Awaiting contract</StatusPill>}
+            action={<StatusPill>{data ? (data.ARVO.solvent && data.USDC.solvent ? "Covered" : "Reserve shortfall") : "Awaiting data"}</StatusPill>}
           />
 
           <div className="p-5 md:p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <AssetCoverage
                 asset="ARVO"
-                balance="—"
-                principal="—"
-                rewards="—"
-                reserved="—"
+                balance={amount("ARVO","balance")}
+                principal={amount("ARVO","principal")}
+                rewards={amount("ARVO","committed")}
+                reserved={amount("ARVO","reserved")}
+                status={data ? (data.ARVO.solvent ? "Covered" : "Shortfall") : "Pending"}
               />
 
               <AssetCoverage
                 asset="USDC"
-                balance="—"
-                principal="—"
-                rewards="—"
-                reserved="—"
+                balance={amount("USDC","balance")}
+                principal={amount("USDC","principal")}
+                rewards={amount("USDC","committed")}
+                reserved={amount("USDC","reserved")}
+                status={data ? (data.USDC.solvent ? "Covered" : "Shortfall") : "Pending"}
               />
             </div>
 
@@ -131,19 +137,19 @@ export default function AdminOverviewPage() {
           <div className="divide-y divide-black/[0.06] px-5 md:px-6">
             <SystemRow
               label="Network"
-              value="Not connected"
+              value={data ? `Chain ${data.chainId}` : "Unavailable"}
             />
             <SystemRow
               label="Staking proxy"
-              value="Not deployed"
+              value={data?.proxy ?? "Unverified"}
             />
             <SystemRow
               label="Protocol state"
-              value="Unavailable"
+              value={data ? (data.paused ? "Paused" : "Not paused") : "Unavailable"}
             />
             <SystemRow
               label="Governance"
-              value="Not configured"
+              value="Handoff pending"
             />
           </div>
         </Panel>
@@ -197,14 +203,12 @@ export default function AdminOverviewPage() {
 
           <div className="p-5 md:p-6">
             <div className="grid grid-cols-2 gap-3">
-              <MiniStat label="ARVO available" value="—" />
-              <MiniStat label="USDC available" value="—" />
+              <MiniStat label="ARVO available" value={amount("ARVO","available")} />
+              <MiniStat label="USDC available" value={amount("USDC","available")} />
             </div>
 
             <p className="mt-4 text-xs leading-5 text-black/38">
-              Available reward funding will be calculated from contract
-              balances after protected principal, committed rewards and
-              reserved budgets are accounted for.
+              Available capacity excludes protected principal, committed rewards and reserved pool budgets. Refresh after a transaction confirms.
             </p>
           </div>
         </Panel>
@@ -242,12 +246,14 @@ function AssetCoverage({
   principal,
   rewards,
   reserved,
+  status,
 }: {
   asset: string;
   balance: string;
   principal: string;
   rewards: string;
   reserved: string;
+  status: string;
 }) {
   return (
     <div className="rounded-2xl border border-black/[0.07] bg-white/65 p-5">
@@ -255,7 +261,7 @@ function AssetCoverage({
         <p className="text-lg font-semibold tracking-[-0.025em]">
           {asset}
         </p>
-        <StatusPill>Pending</StatusPill>
+        <StatusPill>{status}</StatusPill>
       </div>
 
       <div className="mt-5 space-y-3">
@@ -278,7 +284,7 @@ function Metric({
   return (
     <div className="flex items-center justify-between gap-4">
       <span className="text-xs text-black/38">{label}</span>
-      <span className="text-sm font-semibold">{value}</span>
+      <span className="min-w-0 break-all text-right text-sm font-semibold">{value}</span>
     </div>
   );
 }
@@ -293,7 +299,7 @@ function SystemRow({
   return (
     <div className="flex items-center justify-between gap-5 py-4">
       <span className="text-xs text-black/38">{label}</span>
-      <span className="text-xs font-semibold">{value}</span>
+      <span className="max-w-[65%] break-all text-right text-xs font-semibold">{value}</span>
     </div>
   );
 }

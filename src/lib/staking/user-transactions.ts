@@ -4,7 +4,7 @@ import {stakingConnection,stakingAbi} from "./pool-transactions";
 let transactionPending: Hash | null = null;
 let requestingTransaction = false;
 export async function connectStakingWallet(){openWalletPicker();}
-export async function transact(functionName:string,args:readonly unknown[],onHash:(hash:Hash)=>void,role?:string,token?:Address,expectedAccount?:Address) {
+export async function transact(functionName:string,args:readonly unknown[],onHash:(hash:Hash)=>void,role?:string,token?:Address,expectedAccount?:Address,target?:{address:Address;abi:Abi}) {
  const c=stakingConnection(),provider=getWalletProvider();if(!c||!provider)throw new Error("Staking connection or wallet is unavailable.");
  if(requestingTransaction)throw new Error("Another wallet transaction is being processed.");
  if(transactionPending){try{await c.publicClient.getTransactionReceipt({hash:transactionPending});transactionPending=null;}catch{throw new Error(`Wait for the pending transaction ${transactionPending} before sending another.`);}}
@@ -16,9 +16,11 @@ export async function transact(functionName:string,args:readonly unknown[],onHas
  const account=accounts[0] as Address;
  if(expectedAccount&&account.toLowerCase()!==expectedAccount.toLowerCase())throw new Error("Wallet account changed. Review and retry.");
  async function check(){const xs=await provider!.request({method:"eth_accounts"}) as string[];const chain=await provider!.request({method:"eth_chainId"}) as string;if(getWalletProvider()!==provider||xs[0]?.toLowerCase()!==account.toLowerCase()||Number(BigInt(chain))!==c!.chain.id)throw new Error("Wallet account or network changed. Review and retry.");}
+ const activeChain=await provider.request({method:"eth_chainId"}) as string;
+ if(Number(BigInt(activeChain))!==c.chain.id)await provider.request({method:"wallet_switchEthereumChain",params:[{chainId:`0x${c.chain.id.toString(16)}`}]});
  await check();
  if(role){const id=await c.publicClient.readContract({address:c.address,abi:stakingAbi,functionName:role});if(await c.publicClient.readContract({address:c.address,abi:stakingAbi,functionName:"hasRole",args:[id,account]})!==true)throw new Error("This wallet does not have the required contract role.");}
- const {request}=await c.publicClient.simulateContract({address:token??c.address,abi:token?erc20Abi as Abi:stakingAbi,functionName,args,account});
+ const {request}=await c.publicClient.simulateContract({address:target?.address??token??c.address,abi:target?.abi??(token?erc20Abi as Abi:stakingAbi),functionName,args,account});
  await check();const wallet=createWalletClient({account,chain:c.chain,transport:custom(provider as EIP1193Provider)});
  const hash=await wallet.writeContract(request);transactionPending=hash;onHash(hash);
  const receipt=await c.publicClient.waitForTransactionReceipt({hash});transactionPending=null;if(receipt.status!=="success")throw new Error("Transaction reverted.");

@@ -1,3 +1,4 @@
+import {mixedRewards} from "./acquisition-math";
 import type {PoolRow} from "@/hooks/useStakingData";
 export function assetCapacity(used: bigint, cap: bigint, allocated: bigint = 0n) {
  const filled = used + allocated;
@@ -6,7 +7,7 @@ export function assetCapacity(used: bigint, cap: bigint, allocated: bigint = 0n)
  return {remaining, percent: basisPoints === null ? null : basisPoints / 100};
 }
 export function enabledProducts(row: PoolRow): number[] {
- if (row.products) return [0,1,2,3,4].filter(i => (row.products & 2 ** i) !== 0);
+ if (row.products) return [0,1,2,3,4,5].filter(i => (row.products & 2 ** i) !== 0);
  const c = row.vault;
  return [0,2,3,4].filter(i => i === 0 ? c.arvoStakeEnabled && c.arvoRewardEnabled : i === 2 ? c.usdcStakeEnabled && c.usdcRewardEnabled : c.dualStakeEnabled && (i === 3 ? c.arvoRewardEnabled : c.usdcRewardEnabled));
 }
@@ -15,6 +16,7 @@ export function productAvailability(row: PoolRow, product: number): {available:b
  const arvo = assetCapacity(row.arvoPrincipal, row.pool.maxArvoPrincipal, row.pool.protocolArvoAllocation), usdc = assetCapacity(row.usdcPrincipal, row.pool.maxUsdcPrincipal, row.pool.protocolUsdcAllocation);
  const minArvo = product === 1 ? row.crossMinimum : row.vault.minArvo;
  if ((product !== 2 && arvo.remaining !== null && arvo.remaining < minArvo) || (product >= 2 && usdc.remaining !== null && usdc.remaining < row.vault.minUsdc)) return {available:false,reason:"Vault full"};
+ if(product===5){const reward=mixedRewards(minArvo,row.vault.minUsdc,row.vault.arvoRewardBps,row.vault.usdcRewardBps,Math.min(row.vault.dualBoostBps,row.vault.combinedBoostCapBps),row.vault.mixedArvoShareBps);return row.pool.arvoRewardBudgetRemaining>=reward.arvo&&row.pool.usdcRewardBudgetRemaining>=reward.usdc&&reward.arvo>0n&&reward.usdc>0n?{available:true,reason:"Available"}:{available:false,reason:"Reward allocation unavailable"};}
  const arvoReward = product === 0 || product === 3;
  const budget = arvoReward ? row.pool.arvoRewardBudgetRemaining : row.pool.usdcRewardBudgetRemaining;
  // Cross rewards require the live oracle quote; do not substitute a display price.

@@ -114,10 +114,7 @@ export default function AdminPoolsPage() {
               </h2>
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-white/42">
-                Creating a pool does not create reward capital. Rewards must
-                already be funded to the staking contract before a pool budget
-                can be reserved. This keeps principal and reward accounting
-                separate.
+                Creating a pool does not create reward capital. Ordinary reward budgets require funds in the staking contract. Acquisition USDC vaults use a separate future reward limit and isolated escrow repayments. Configure these under Acquisition vaults below before opening.
               </p>
             </div>
 

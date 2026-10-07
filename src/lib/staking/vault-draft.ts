@@ -2,7 +2,7 @@ import { initialValues, initialProducts, preparePool, poolDateSeconds, standardP
 
 export type DraftInput = { title: string; poolType: PoolType; standardKind: StandardKind; values: FormValues; products: Products; visibility: "hidden" | "openingSoon"; sortOrder: number };
 export type VaultDraft = DraftInput & { id: number; revision: number; updatedAt: string; linkedChainId: number | null; linkedProxy: string | null; linkedPoolId: number | null };
-export type DraftPreview = { id: number; title: string; days: number; arvoRate: string; usdcRate: string; minArvo: string; minArvoUsdc: string; minUsdc: string; products: Products; dualBoost: string; boostCap: string; opensAt: string | null; closesAt: string | null; maxArvo: string; maxUsdc: string };
+export type DraftPreview = { sortOrder?: number; id: number; title: string; days: number; arvoRate: string; usdcRate: string; minArvo: string; minArvoUsdc: string; minUsdc: string; products: Products; dualBoost: string; boostCap: string; opensAt: string | null; closesAt: string | null; maxArvo: string; maxUsdc: string; mixedShare?: string; acquisition?: boolean };
 
 export function validateDraft(raw: unknown): DraftInput {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Invalid draft.");
@@ -15,12 +15,12 @@ export function validateDraft(raw: unknown): DraftInput {
   const values = {} as FormValues, products = {} as Products;
   if (!x.values || typeof x.values !== "object" || !x.products || typeof x.products !== "object") throw new Error("Draft terms are missing.");
   for (const key of Object.keys(initialValues) as (keyof FormValues)[]) {
-    const value = (x.values as Record<string, unknown>)[key];
+    const value = (x.values as Record<string, unknown>)[key] ?? (key === "mixedShare" ? "50" : undefined);
     if (typeof value !== "string" || value.length > 96) throw new Error(`Invalid ${key}.`);
     values[key] = value.trim();
   }
   for (const key of Object.keys(initialProducts) as (keyof Products)[]) {
-    const value = (x.products as Record<string, unknown>)[key];
+    const value = (x.products as Record<string, unknown>)[key] ?? (key === "dualMixed" ? false : undefined);
     if (typeof value !== "boolean") throw new Error(`Invalid ${productLabels[key]} selection.`);
     products[key] = value;
   }
@@ -36,11 +36,11 @@ export function validateDraft(raw: unknown): DraftInput {
 export function draftPreview(draft: DraftInput & { id: number }): DraftPreview {
   const preset = standardPools.find(p => p.kind === draft.standardKind)!;
   const custom = draft.poolType === "custom", v = draft.values;
-  return { id: draft.id, title: draft.title, days: custom ? Number(v.duration) : preset.days,
+  return { id: draft.id, sortOrder: draft.sortOrder, title: draft.title, days: custom ? Number(v.duration) : preset.days,
     arvoRate: custom ? v.arvoRate : preset.arvo, usdcRate: custom ? v.usdcRate : preset.usdc,
     minArvo: v.minArvo, minArvoUsdc: v.minArvoUsdc, minUsdc: v.minUsdc,
     opensAt: v.opens ? new Date(poolDateSeconds(v.opens) * 1000).toISOString() : null, closesAt: v.closes ? new Date(poolDateSeconds(v.closes) * 1000).toISOString() : null, maxArvo: v.maxArvo, maxUsdc: v.maxUsdc,
-    products: draft.products, dualBoost: custom ? v.dualBoost : "10", boostCap: custom ? v.boostCap : "15" };
+    products: draft.products, dualBoost: custom ? v.dualBoost : "10", boostCap: custom ? v.boostCap : "15", mixedShare: v.mixedShare };
 }
 
 export function standardDrafts(values: FormValues = initialValues): (DraftInput & { seedKey: string })[] {

@@ -31,7 +31,22 @@ export async function submitPool(pool: PreparedPool, onHash: (hash: Hash) => voi
   if (!accounts[0] || !isAddress(accounts[0])) throw new Error("No wallet account was selected.");
   const account = accounts[0] as Address;
   const walletChain = await provider.request({ method: "eth_chainId" }) as string;
-  if (Number(BigInt(walletChain)) !== chain.id) throw new Error(`Switch your wallet to chain ${chain.id}, then retry.`);
+  // Request the required network through the connected wallet.
+  if (Number(BigInt(walletChain)) !== chain.id) {
+    await provider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: `0x${chain.id.toString(16)}` }],
+    });
+    const switchedChain = await provider.request({ method: "eth_chainId" }) as string;
+    const switchedAccounts = await provider.request({ method: "eth_accounts" }) as string[];
+    if (
+      getWalletProvider() !== provider ||
+      switchedAccounts[0]?.toLowerCase() !== account.toLowerCase() ||
+      Number(BigInt(switchedChain)) !== chain.id
+    ) {
+      throw new Error("Wallet account or network changed. Reconnect your transaction wallet and retry.");
+    }
+  }
   const role = await publicClient.readContract({ address, abi: stakingAbi, functionName: "VAULT_MANAGER_ROLE" });
   const authorised = await publicClient.readContract({ address, abi: stakingAbi, functionName: "hasRole", args: [role, account] });
   if (authorised !== true) throw new Error("This wallet does not hold the contract's vault manager role. Admin website access alone does not grant pool creation permission.");
@@ -59,7 +74,10 @@ export async function confirmPoolTransaction(hash: Hash) {
     if (log.address.toLowerCase() !== address.toLowerCase()) continue;
     try {
       const decoded = decodeEventLog({ abi: stakingAbi, data: log.data, topics: log.topics, eventName: "PoolCreated" });
+      if (decoded.eventName !== "PoolCreated") continue;
       const args = decoded.args as unknown as { poolId: number | bigint };
+      if (typeof args.poolId !== "number" && typeof args.poolId !== "bigint") continue;
+      if (BigInt(args.poolId) < BigInt(0) || BigInt(args.poolId) > BigInt("4294967295")) continue;
       return { hash, poolId: String(args.poolId) };
     } catch { /* Other events emitted by this transaction. */ }
   }

@@ -49,7 +49,13 @@ export async function readRewardAccounting(account?: Address): Promise<RewardAcc
       stakingRead(`available${title}RewardCapacity`), stakingRead(`is${title}Solvent`),
       account ? publicClient.readContract({ address: token, abi: erc20Abi, functionName: "balanceOf", args: [account], blockNumber: block.number }) : Promise.resolve(null),
     ]);
-    return { token, decimals, balance, principal: principal as bigint, committed: committed as bigint, reserved: reserved as bigint, available: available as bigint, solvent: solvent === true, walletBalance };
+    let ordinaryPrincipal=principal as bigint,ordinaryCommitted=committed as bigint,ordinaryReserved=reserved as bigint;
+    if(asset==="USDC"){
+      const [p,r,b]=await Promise.all([stakingRead("acquisitionUsdcPrincipal"),stakingRead("acquisitionUsdcRewards"),stakingRead("acquisitionUsdcBudget")]);
+      ordinaryPrincipal-=p as bigint;ordinaryCommitted-=r as bigint;ordinaryReserved-=b as bigint;
+      if(ordinaryPrincipal<0n||ordinaryCommitted<0n||ordinaryReserved<0n)throw new Error("Acquisition accounting exceeds total liabilities.");
+    }
+    return { token, decimals, balance, principal: ordinaryPrincipal, committed: ordinaryCommitted, reserved: ordinaryReserved, available: available as bigint, solvent: asset==="USDC"?balance>=ordinaryPrincipal+ordinaryCommitted+ordinaryReserved:solvent===true, walletBalance };
   }
   const [ARVO, USDC] = await Promise.all([assetAccounting("ARVO"), assetAccounting("USDC")]);
   if (ARVO.token.toLowerCase() === USDC.token.toLowerCase()) throw new Error("Staking contract returned identical token addresses.");
@@ -69,6 +75,7 @@ export async function reviewRewardAction(action: RewardAction, expected?: Addres
     if (allowance < action.amount) approval = allowance === BigInt(0) ? "approve" : "reset";
     summary.push(["Operation", `Fund ${action.asset} reserve`], ["Amount", `${formatUnits(action.amount, asset.decimals)} ${action.asset}`], ["Token", token], ["Current allowance", formatUnits(allowance, asset.decimals)], ["Pool allocation", "Separate reservation step"]);
   } else if (action.kind === "reserve") {
+    if(action.usdcAmount>0n&&await context.publicClient.readContract({address:context.address,abi:stakingAbi,functionName:"acquisitionPools",args:[action.poolId]})===true)throw new Error("Acquisition USDC uses a future reward limit under Pools → Acquisition vaults. Reserve ARVO rewards here separately.");
     const exists = await context.publicClient.readContract({ address: context.address, abi: stakingAbi, functionName: "poolExists", args: [action.poolId] });
     if (exists !== true) throw new Error("This pool does not exist on the configured staking contract.");
     const pool = await context.publicClient.readContract({ address: context.address, abi: stakingAbi, functionName: "pool", args: [action.poolId] }) as { opensAt: bigint; finalized: boolean };

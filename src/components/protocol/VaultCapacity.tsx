@@ -1,8 +1,11 @@
 "use client";
 import type {PoolRow} from "@/hooks/useStakingData";
+import {useVaultClock} from "./VaultTiming";
 import {assetCapacity, vaultAvailability} from "@/lib/staking/capacity";
 import {tokenDisplay} from "@/lib/staking/presentation";
 export function VaultCapacity({row}:{row:PoolRow}) {
+ const now=useVaultClock();
+ const scheduled=now!==null&&BigInt(Math.floor(now/1000))<row.pool.opensAt;
  const assets = [{name:"ARVO",used:row.arvoPrincipal,allocated:row.pool.protocolArvoAllocation,cap:row.pool.maxArvoPrincipal,decimals:18,enabled:row.vault.arvoStakeEnabled||row.vault.dualStakeEnabled},{name:"USDC",used:row.usdcPrincipal,allocated:row.pool.protocolUsdcAllocation,cap:row.pool.maxUsdcPrincipal,decimals:6,enabled:row.vault.usdcStakeEnabled||row.vault.dualStakeEnabled}].filter(x => x.enabled);
  const availability = vaultAvailability(row);
  return <div className="mt-5 space-y-3 border-t border-white/10 pt-4">{assets.map(asset => {
@@ -13,5 +16,5 @@ export function VaultCapacity({row}:{row:PoolRow}) {
    {asset.allocated > 0n && <p className="mt-1 text-[11px] text-white/45">{tokenDisplay(asset.used,asset.decimals)} staked · {tokenDisplay(asset.allocated,asset.decimals)} allocated</p>}
    {capacity.remaining !== null && capacity.remaining > 0n && <p className="mt-1 text-[11px] text-white/45">{tokenDisplay(capacity.remaining,asset.decimals)} {asset.name} capacity remaining</p>}
   </div>;
- })}{!availability.available && <p role="status" className="text-[11px] leading-5 text-[#e2a98e]">{availability.reason === "Vault full" ? "Remaining capacity cannot accept another minimum stake. Existing positions continue on their agreed terms." : "No remaining reward allocation is available for another minimum stake. Existing rewards stay reserved."}</p>}</div>;
+ })}{!availability.available && <p role="status" className="text-[11px] leading-5 text-[#e2a98e]">{availability.reason === "Vault full" ? "Remaining capacity cannot accept another minimum stake. Existing positions continue on their agreed terms." : scheduled ? "Reward allocation is pending. Ordinary vaults require funded reserves; acquisition USDC vaults require a future reward limit." : "No remaining reward allocation is available for another minimum stake. Existing positions keep their fixed rewards. Acquisition USDC payment requires pool repayment cash."}</p>}</div>;
 }

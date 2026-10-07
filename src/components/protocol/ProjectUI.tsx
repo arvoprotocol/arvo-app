@@ -12,6 +12,7 @@ import {
 export type ProjectStatus = "upcoming" | "active" | "auction" | "completed";
 
 export type Project = {
+  acquisitionProjectHash?: string;
   presentation?: ProjectPresentation;
   projectOrigin: "arvo" | "team_track_record";
   slug: string;
@@ -85,7 +86,6 @@ export function ProjectCard({project,compact=false}:{project:Project;compact?:bo
  const metrics=projectCardMetrics(project);
  const sold=project.plotsSold??0;
  const progress=project.plots?Math.min(100,Math.round(sold/project.plots*100)):0;
- const historical=project.projectOrigin==="team_track_record";
  return <Link href={`/app/projects/${project.slug}`} className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-black/[.08] bg-white shadow-[0_8px_28px_rgba(7,9,11,.045)] transition duration-300 hover:-translate-y-1 hover:border-[#c9846a]/30 hover:shadow-[0_16px_40px_rgba(7,9,11,.09)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c9846a] motion-reduce:transform-none motion-reduce:transition-none">
   <div className={`relative shrink-0 overflow-hidden ${compact?"h-[190px]":"h-[220px] 2xl:h-[240px]"}`}>
    <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.025] motion-reduce:transform-none"><ProjectVisual project={project}/></div>
@@ -94,7 +94,6 @@ export function ProjectCard({project,compact=false}:{project:Project;compact?:bo
    <div className="absolute inset-x-5 bottom-5" style={{textShadow:"0 1px 3px rgba(0,0,0,.6)"}}><h3 className="mt-1.5 line-clamp-2 text-xl font-semibold leading-tight tracking-[-.025em] text-white">{project.title}</h3><p className="mt-2 flex items-start gap-1.5 text-xs leading-5 text-white/70"><MapPin size={13} className="mt-0.5 shrink-0"/><span className="line-clamp-2">{project.location}</span></p>{project.titleNumber.trim()&&<div className="mt-2.5"><ProjectTitleBadge titleNumber={project.titleNumber} onImage/></div>}</div>
   </div>
   <div className="flex flex-1 flex-col p-5 sm:p-6">
-   <div className="mb-5 rounded-xl border border-[#c9846a]/10 bg-[#fbf6f2] px-4 py-3"><p className="text-[10px] font-semibold uppercase tracking-[.1em] text-[#a9654f]">{historical?"Team track record":"Arvo project"}</p><p className="mt-1.5 text-xs leading-5 text-black/50">{historical?"Completed before Arvo launched. Proceeds did not contribute to the Arvo Treasury.":project.status==="upcoming"?"Opportunity under review; acquisition is not confirmed.":"Follow the project’s operating activity and published updates."}</p></div>
    <div className="grid grid-cols-3 gap-3 border-b border-black/[.07] pb-5">{metrics.map((metric,index)=><CardMetric key={index} {...metric}/>)}</div>
    {presentation.showFinancials&&<div className="grid grid-cols-2 gap-4 py-5"><CardMetric label={project.status==="upcoming"?"Indicative acquisition":"Acquisition"} value={project.acquisitionPrice} financial/><CardMetric label={project.soldValue?(project.trackPlots?"Agreed sale value":"Total sale proceeds"):"Guide value"} value={project.soldValue??project.guideValue} financial/></div>}
    {isPlots&&project.plots>0&&(project.trackPlots||project.status==="auction"||project.status==="completed")&&<div className="mb-5"><div className="mb-2.5 flex items-center justify-between gap-3 text-xs"><span className="text-black/45">Plots sold</span><span className="font-semibold tabular-nums">{sold.toLocaleString("en-GB")} / {project.plots.toLocaleString("en-GB")}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-black/[.06]"><div className="h-full rounded-full bg-[#c9846a]" style={{width:`${progress}%`}}/></div>{project.trackPlots&&<p className="mt-2.5 text-xs text-black/45">{sold.toLocaleString("en-GB")} sold · {(project.plotsCompleted??0).toLocaleString("en-GB")} completed</p>}</div>}
