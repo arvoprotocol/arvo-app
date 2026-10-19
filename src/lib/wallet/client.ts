@@ -63,6 +63,19 @@ export async function initializeWallet(){
  })().catch(()=>{});return initializing;
 }
 export async function connectBrowserWallet(wallet:BrowserWallet,signal?:AbortSignal){const request=wallet.provider.request({method:"eth_requestAccounts"});await (signal?waitForLogin(request,signal):request);if(signal?.aborted)return;await clearLogin();signal?.throwIfAborted();await attach(wallet.provider,wallet.id);if(!snapshot.account)throw new Error("Choose a wallet account.");}
+async function waitForPhoneAccount(p:WalletProvider,signal?:AbortSignal){
+ const version=selection,deadline=Date.now()+15000;
+ while(true){
+  signal?.throwIfAborted();
+  if(provider!==p||selection!==version)throw new Error("Wallet connection changed. Please reconnect.");
+  if(snapshot.account)return;
+  if(Date.now()>=deadline)throw new Error("No wallet account was selected. Please reconnect and approve an account.");
+  await new Promise<void>(resolve=>setTimeout(resolve,250));
+  signal?.throwIfAborted();
+  if(provider!==p||selection!==version)throw new Error("Wallet connection changed. Please reconnect.");
+  await update(p,version);
+ }
+}
 export async function connectPhoneWallet(signal?:AbortSignal){
  const init=phoneProvider();const p=await (signal?waitForLogin(init,signal):init);
  const id=Number(process.env.NEXT_PUBLIC_STAKING_CHAIN_ID),chainId=Number.isSafeInteger(id)&&id>0?id:1;
@@ -72,7 +85,7 @@ export async function connectPhoneWallet(signal?:AbortSignal){
  const chain=await wait(p.request({method:"eth_chainId"}));
  if(Number(chain)!==chainId){await wait(p.request({method:"wallet_switchEthereumChain",params:[{chainId:`0x${chainId.toString(16)}`}]}));const current=await wait(p.request({method:"eth_chainId"}));if(Number(current)!==chainId)throw new Error(`WalletConnect is on chain ${Number(current)}; select chain ${chainId} in MetaMask.`);}
  await wait(clearLogin());signal?.throwIfAborted();await wait(attach(p,"walletconnect"));signal?.throwIfAborted();
- if(!snapshot.account)throw new Error("No wallet account was selected.");
+ await wait(waitForPhoneAccount(p,signal));
 }
 export async function disconnectWallet(){const p=provider;removeProviderListeners();provider=null;selection++;snapshot=empty;remember("disconnected");emit();await clearLogin();if(p?.session){await p.disconnect?.().catch(()=>{});if(p===phone){phone=null;phoneInit=null;}}}
 export function openWalletPicker(){window.dispatchEvent(new Event("arvo-open-wallet-picker"));}
