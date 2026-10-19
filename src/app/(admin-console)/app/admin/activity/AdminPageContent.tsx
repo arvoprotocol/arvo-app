@@ -150,6 +150,8 @@ export default function AdminActivityPage() {
                 "PositionRestaked",
                 "PositionCompounded",
                 "EmergencyExited",
+                "EmergencyUsdcDeferred",
+                "EmergencyUsdcClaimed",
               ]}
             />
 

@@ -1,3 +1,4 @@
+import {StakingInputError} from "./input-error";
 export type PoolType = "standard" | "custom";
 export type StandardKind = "BUILD" | "ADVANCE" | "COMPOUND" | "FOUNDATION";
 export const standardPools = [
@@ -14,11 +15,11 @@ export const productLabels: Record<keyof Products,string> = {arvoArvo:"Deposit A
 export type PreparedPool = {functionName:"createProductPool";args:readonly unknown[];summary:[string,string][]};
 const MAX = (BigInt(1)<<BigInt(256))-BigInt(1);
 export function tokenAmount(raw:string,decimals:number,label:string):bigint {
- const v=raw.trim(); if(!/^\d+(?:\.\d+)?$/.test(v))throw new Error(`${label}: enter a non-negative number without commas.`);
- const [w,f=""]=v.split("."); if(f.length>decimals)throw new Error(`${label}: maximum ${decimals} decimal places.`);
- const n=BigInt(w)*BigInt(10)**BigInt(decimals)+BigInt(f.padEnd(decimals,"0"));if(n>MAX)throw new Error(`${label}: amount is too large.`);return n;
+ const v=raw.trim(); if(!/^\d+(?:\.\d+)?$/.test(v))throw new StakingInputError(`${label}: enter a non-negative number without commas.`);
+ const [w,f=""]=v.split("."); if(f.length>decimals)throw new StakingInputError(`${label}: maximum ${decimals} decimal places.`);
+ const n=BigInt(w)*BigInt(10)**BigInt(decimals)+BigInt(f.padEnd(decimals,"0"));if(n>MAX)throw new StakingInputError(`${label}: amount is too large.`);return n;
 }
-function bps(raw:string,max:number,label:string){const n=tokenAmount(raw,2,label);if(n>BigInt(max*100))throw new Error(`${label}: maximum ${max}%.`);return Number(n);}
+function bps(raw:string,max:number,label:string){const n=tokenAmount(raw,2,label);if(n>BigInt(max*100))throw new StakingInputError(`${label}: maximum ${max}%.`);return Number(n);}
 export function poolDateSeconds(raw: string): number {
  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(raw)) return NaN;
  const date = new Date(`${raw}Z`);
@@ -27,25 +28,25 @@ export function poolDateSeconds(raw: string): number {
 }
 export function preparePool(type:PoolType,kind:StandardKind,v:FormValues,p:Products,now=Date.now()):PreparedPool {
  const opens=poolDateSeconds(v.opens),closes=v.closes?poolDateSeconds(v.closes):0;
- if(!Number.isSafeInteger(opens)||opens<=Math.floor(now/1000))throw new Error("Choose a future opening time, allowing time to fund rewards.");
- if(!Number.isSafeInteger(closes)||closes<0||(closes!==0&&closes<=opens))throw new Error("Closing time must be after opening time or empty.");
- const mask=Object.values(p).reduce((m,x,i)=>m+(x?2**i:0),0);if(!mask)throw new Error("Enable at least one deposit/reward product.");
+ if(!Number.isSafeInteger(opens)||opens<=Math.floor(now/1000))throw new StakingInputError("Choose a future opening time, allowing time to fund rewards.");
+ if(!Number.isSafeInteger(closes)||closes<0||(closes!==0&&closes<=opens))throw new StakingInputError("Closing time must be after opening time or empty.");
+ const mask=Object.values(p).reduce((m,x,i)=>m+(x?2**i:0),0);if(!mask)throw new StakingInputError("Enable at least one deposit/reward product.");
  const preset=standardPools.find(x=>x.kind===kind)!;
  const days=type==="custom"?Number(v.duration):preset.days;
- if(type==="custom"&&(!/^\d+$/.test(v.duration)||!Number.isSafeInteger(days)||days<1||days*86400>4294967295))throw new Error("Duration must be 1–49,710 whole days.");
+ if(type==="custom"&&(!/^\d+$/.test(v.duration)||!Number.isSafeInteger(days)||days<1||days*86400>4294967295))throw new StakingInputError("Duration must be 1–49,710 whole days.");
  const arvoRewardBps=bps(type==="custom"?v.arvoRate:preset.arvo,100,"ARVO cycle reward"),usdcRewardBps=bps(type==="custom"?v.usdcRate:preset.usdc,100,"USDC cycle reward");
  const dualBoostBps=bps(type==="custom"?v.dualBoost:"10",50,"Dual boost"),combinedBoostCapBps=bps(type==="custom"?v.boostCap:"15",50,"Boost cap");
- if(dualBoostBps>combinedBoostCapBps)throw new Error("Combined boost cap must cover the dual boost.");
- if((p.arvoArvo||(p.dualArvo||p.dualMixed))&&arvoRewardBps===0)throw new Error("Enabled ARVO reward products need a positive rate.");
- if((p.arvoUsdc||p.usdcUsdc||(p.dualUsdc||p.dualMixed))&&usdcRewardBps===0)throw new Error("Enabled USDC reward products need a positive rate.");
+ if(dualBoostBps>combinedBoostCapBps)throw new StakingInputError("Combined boost cap must cover the dual boost.");
+ if((p.arvoArvo||(p.dualArvo||p.dualMixed))&&arvoRewardBps===0)throw new StakingInputError("Enabled ARVO reward products need a positive rate.");
+ if((p.arvoUsdc||p.usdcUsdc||(p.dualUsdc||p.dualMixed))&&usdcRewardBps===0)throw new StakingInputError("Enabled USDC reward products need a positive rate.");
  const minArvo=tokenAmount(v.minArvo||"0",18,"Minimum ARVO"),minUsdc=tokenAmount(v.minUsdc,6,"Minimum USDC"),crossMinimum=tokenAmount(v.minArvoUsdc||"0",18,"ARVO minimum for USDC rewards");
- if((p.arvoArvo||p.arvoUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&minArvo===BigInt(0))throw new Error("Minimum ARVO must be positive.");
- if((p.usdcUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&minUsdc===BigInt(0))throw new Error("Minimum USDC must be positive.");
- if(p.arvoUsdc&&(crossMinimum===BigInt(0)||crossMinimum<minArvo))throw new Error("ARVO minimum for USDC rewards must cover the base ARVO minimum.");
+ if((p.arvoArvo||p.arvoUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&minArvo===BigInt(0))throw new StakingInputError("Minimum ARVO must be positive.");
+ if((p.usdcUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&minUsdc===BigInt(0))throw new StakingInputError("Minimum USDC must be positive.");
+ if(p.arvoUsdc&&(crossMinimum===BigInt(0)||crossMinimum<minArvo))throw new StakingInputError("ARVO minimum for USDC rewards must cover the base ARVO minimum.");
  const maxArvo=tokenAmount(v.maxArvo,18,"ARVO capacity"),maxUsdc=tokenAmount(v.maxUsdc,6,"USDC capacity");
- if((p.arvoArvo||p.arvoUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&maxArvo!==BigInt(0)&&(maxArvo<minArvo||(p.arvoUsdc&&maxArvo<crossMinimum)))throw new Error("ARVO capacity must cover each enabled product's minimum or be uncapped.");
- if((p.usdcUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&maxUsdc!==BigInt(0)&&maxUsdc<minUsdc)throw new Error("USDC capacity must cover its minimum or be uncapped.");
- if(p.dualMixed&&(bps(v.mixedShare,100,"ARVO reward share")===0||bps(v.mixedShare,100,"ARVO reward share")===10000))throw new Error("Dual rewards need an ARVO share above 0% and below 100%.");
+ if((p.arvoArvo||p.arvoUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&maxArvo!==BigInt(0)&&(maxArvo<minArvo||(p.arvoUsdc&&maxArvo<crossMinimum)))throw new StakingInputError("ARVO capacity must cover each enabled product's minimum or be uncapped.");
+ if((p.usdcUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&maxUsdc!==BigInt(0)&&maxUsdc<minUsdc)throw new StakingInputError("USDC capacity must cover its minimum or be uncapped.");
+ if(p.dualMixed&&(bps(v.mixedShare,100,"ARVO reward share")===0||bps(v.mixedShare,100,"ARVO reward share")===10000))throw new StakingInputError("Dual rewards need an ARVO share above 0% and below 100%.");
  const config={duration:days*86400,arvoRewardBps,usdcRewardBps,dualBoostBps,combinedBoostCapBps,mixedArvoShareBps:bps(v.mixedShare,100,"ARVO reward share"),minArvo,minUsdc,arvoStakeEnabled:p.arvoArvo||p.arvoUsdc,usdcStakeEnabled:p.usdcUsdc,dualStakeEnabled:(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed),arvoRewardEnabled:p.arvoArvo||(p.dualArvo||p.dualMixed),usdcRewardEnabled:p.arvoUsdc||p.usdcUsdc||(p.dualUsdc||p.dualMixed),mixedRewardEnabled:p.dualMixed};
  return {functionName:"createProductPool",args:[4,config,BigInt(opens),BigInt(closes),maxArvo,maxUsdc,mask,p.arvoUsdc?crossMinimum:BigInt(0)],summary:[
  ["Type",type==="custom"?"Custom":`${preset.name} preset`],["Contract pool type","Custom (fixed terms at creation)"],["Duration",`${days} days`],["ARVO cycle reward",`${arvoRewardBps/100}%`],["USDC cycle reward",`${usdcRewardBps/100}%`],
@@ -62,12 +63,12 @@ export function formatTokenAmount(value: bigint, decimals = 18): string {
 }
 export function launchMinimums(referencePrice: string): { minArvo: string; minArvoUsdc: string } {
  const price = tokenAmount(referencePrice, 18, "Reference ARVO price in USD");
- if (price === BigInt(0)) throw new Error("Reference price must be positive.");
+ if (price === BigInt(0)) throw new StakingInputError("Reference price must be positive.");
  // Round $500 / price upwards to a multiple of 10 whole ARVO.
  // This makes the introductory 10% reward and the next minimum exact whole tokens.
  const tenTokenUnits = (BigInt(500) * BigInt(10) ** BigInt(18) + price * BigInt(10) - BigInt(1)) / (price * BigInt(10));
  const base = tenTokenUnits * BigInt(10) * BigInt(10) ** BigInt(18);
  const cross = base + base / BigInt(10);
- if (cross > MAX) throw new Error("Reference price produces a minimum that is too large.");
+ if (cross > MAX) throw new StakingInputError("Reference price produces a minimum that is too large.");
  return { minArvo: formatTokenAmount(base), minArvoUsdc: formatTokenAmount(cross) };
 }

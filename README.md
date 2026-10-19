@@ -1,5 +1,11 @@
 # ARVO app
 
+Post-audit changes and rollout checks are recorded in
+[AUDIT-REMEDIATION.md](AUDIT-REMEDIATION.md). Configure an independent
+`APP_ACCESS_SESSION_SECRET` before deploying this revision; do not reuse the
+administrator signing key. The stricter script policy also needs real browser
+and wallet smoke checks on the intended deployment.
+
 Next.js website and staking interface with wallet connections, vault publishing,
 project management, portfolios, reward schedules and acquisition-vault controls.
 The staking contracts are maintained separately in `arvoprotocol/arvo-contracts`.

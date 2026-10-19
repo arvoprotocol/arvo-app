@@ -17,7 +17,7 @@ function getPassword() {
 }
 
 function signature(payload:string) {
- const secret=process.env.ADMIN_SESSION_SECRET;
+ const secret=process.env.APP_ACCESS_SESSION_SECRET;
  if(!secret||secret.length<32)throw new Error("App session signing is not configured securely.");
  return crypto.createHmac("sha256",secret).update("arvo-app-access-v2:"+payload).digest("hex");
 }

@@ -1,0 +1,29 @@
+name: App security regression
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      ADMIN_SESSION_SECRET: ci-only-admin-signing-secret-never-for-deployment
+      APP_ACCESS_SESSION_SECRET: ci-only-app-signing-secret-never-for-deployment
+      APP_ACCESS_PASSWORD: ci-only-access-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Configure isolated fixture paths
+        run: |
+          echo "DATABASE_URL=file:$RUNNER_TEMP/arvo-audit-ci.db" >> "$GITHUB_ENV"
+          echo "ARVO_AUDIT_DB=$RUNNER_TEMP/arvo-audit-ci.db" >> "$GITHUB_ENV"
+      - run: npm ci --no-audit --no-fund
+      - run: npx --no-install prisma generate
+      - run: python3 tooling/prepare_audit_database.py --database "$ARVO_AUDIT_DB"
+      - run: node --test tooling/test_*.cjs
+      - run: python3 tooling/test_acquisition_deploy.py
+      - run: node tooling/audit_auth_checks.cjs
+      - run: npm run build
+      - run: npm audit --omit=dev

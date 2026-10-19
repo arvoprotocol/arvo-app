@@ -113,7 +113,6 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         ok: true,
-        existing: true,
       });
     }
 
@@ -151,9 +150,8 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: true,
-        existing: false,
       },
-      { status: 201 }
+      { status: 200 }
     );
   } catch (error) {
     if(error instanceof RequestError)return securityFailure(error);

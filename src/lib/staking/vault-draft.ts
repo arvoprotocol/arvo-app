@@ -1,3 +1,4 @@
+import {StakingInputError} from "./input-error";
 import { initialValues, initialProducts, preparePool, poolDateSeconds, standardPools, productLabels, type FormValues, type Products, type PoolType, type StandardKind } from "./pool-form";
 
 export type DraftInput = { title: string; poolType: PoolType; standardKind: StandardKind; values: FormValues; products: Products; visibility: "hidden" | "openingSoon"; sortOrder: number };
@@ -5,29 +6,29 @@ export type VaultDraft = DraftInput & { id: number; revision: number; updatedAt:
 export type DraftPreview = { sortOrder?: number; id: number; title: string; days: number; arvoRate: string; usdcRate: string; minArvo: string; minArvoUsdc: string; minUsdc: string; products: Products; dualBoost: string; boostCap: string; opensAt: string | null; closesAt: string | null; maxArvo: string; maxUsdc: string; mixedShare?: string; acquisition?: boolean };
 
 export function validateDraft(raw: unknown): DraftInput {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("Invalid draft.");
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new StakingInputError("Invalid draft.");
   const x = raw as Record<string, unknown>;
-  if (typeof x.title !== "string" || !x.title.trim() || x.title.trim().length > 80) throw new Error("Enter a vault name up to 80 characters.");
-  if (x.poolType !== "standard" && x.poolType !== "custom") throw new Error("Choose Standard or Custom.");
-  if (!standardPools.some(p => p.kind === x.standardKind)) throw new Error("Choose a standard vault preset.");
-  if (x.visibility !== "hidden" && x.visibility !== "openingSoon") throw new Error("Choose Hidden or Opening soon.");
-  if (!Number.isInteger(x.sortOrder) || Math.abs(x.sortOrder as number) > 100000) throw new Error("Display order must be a whole number between -100000 and 100000.");
+  if (typeof x.title !== "string" || !x.title.trim() || x.title.trim().length > 80) throw new StakingInputError("Enter a vault name up to 80 characters.");
+  if (x.poolType !== "standard" && x.poolType !== "custom") throw new StakingInputError("Choose Standard or Custom.");
+  if (!standardPools.some(p => p.kind === x.standardKind)) throw new StakingInputError("Choose a standard vault preset.");
+  if (x.visibility !== "hidden" && x.visibility !== "openingSoon") throw new StakingInputError("Choose Hidden or Opening soon.");
+  if (!Number.isInteger(x.sortOrder) || Math.abs(x.sortOrder as number) > 100000) throw new StakingInputError("Display order must be a whole number between -100000 and 100000.");
   const values = {} as FormValues, products = {} as Products;
-  if (!x.values || typeof x.values !== "object" || !x.products || typeof x.products !== "object") throw new Error("Draft terms are missing.");
+  if (!x.values || typeof x.values !== "object" || !x.products || typeof x.products !== "object") throw new StakingInputError("Draft terms are missing.");
   for (const key of Object.keys(initialValues) as (keyof FormValues)[]) {
     const value = (x.values as Record<string, unknown>)[key] ?? (key === "mixedShare" ? "50" : undefined);
-    if (typeof value !== "string" || value.length > 96) throw new Error(`Invalid ${key}.`);
+    if (typeof value !== "string" || value.length > 96) throw new StakingInputError(`Invalid ${key}.`);
     values[key] = value.trim();
   }
   for (const key of Object.keys(initialProducts) as (keyof Products)[]) {
     const value = (x.products as Record<string, unknown>)[key] ?? (key === "dualMixed" ? false : undefined);
-    if (typeof value !== "boolean") throw new Error(`Invalid ${productLabels[key]} selection.`);
+    if (typeof value !== "boolean") throw new StakingInputError(`Invalid ${productLabels[key]} selection.`);
     products[key] = value;
   }
   // Drafts may have no opening date. Economic validation stays shared with on-chain creation.
-  if (values.closes && !values.opens) throw new Error("Set an opening date before a closing date.");
+  if (values.closes && !values.opens) throw new StakingInputError("Set an opening date before a closing date.");
   for (const key of ["opens", "closes"] as const) {
-    if (values[key] && (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(values[key]) || !Number.isFinite(poolDateSeconds(values[key])))) throw new Error("Enter valid opening and closing dates.");
+    if (values[key] && (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(values[key]) || !Number.isFinite(poolDateSeconds(values[key])))) throw new StakingInputError("Enter valid opening and closing dates.");
   }
   preparePool(x.poolType, x.standardKind as StandardKind, { ...values, opens: values.opens || "2099-01-01T00:00", closes: values.closes }, products, 0);
   return { title: x.title.trim(), poolType: x.poolType, standardKind: x.standardKind as StandardKind, values, products, visibility: x.visibility, sortOrder: x.sortOrder as number };
@@ -44,7 +45,7 @@ export function draftPreview(draft: DraftInput & { id: number }): DraftPreview {
 }
 
 export function standardDrafts(values: FormValues = initialValues): (DraftInput & { seedKey: string })[] {
-  if (!values.minArvo || !values.minArvoUsdc) throw new Error("Create standard presets using Create vault draft, then set the approved entry minimums. Existing drafts have been preserved.");
+  if (!values.minArvo || !values.minArvoUsdc) throw new StakingInputError("Create standard presets using Create vault draft, then set the approved entry minimums. Existing drafts have been preserved.");
   return standardPools.map((preset, index) => ({ title: preset.name, poolType: "standard", standardKind: preset.kind,
     values: { ...values }, products: { ...initialProducts, arvoUsdc: true }, visibility: "openingSoon", sortOrder: index,
     seedKey: `standard-${preset.kind.toLowerCase()}` }));

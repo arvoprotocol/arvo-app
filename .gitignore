@@ -31,4 +31,5 @@ next-env.d.ts
 *.orig
 *.rej
 *~
+*.save
 __pycache__/

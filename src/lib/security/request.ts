@@ -13,8 +13,12 @@ export function siteOrigin(){
 export function requireSameOrigin(request:Request){
  let supplied:URL;try{supplied=new URL(request.headers.get("origin")||"");}catch{throw new RequestError("Open this form on the Arvo website.",403);}
  const configured = [siteOrigin(), ...(appSubdomainEnabled() ? [appOrigin()] : [])];
- const targetHost = (request.headers.get("x-forwarded-host") || request.headers.get("host"))?.toLowerCase() || new URL(request.url).host.toLowerCase();
- let allowed=configured.includes(supplied.origin) && supplied.host.toLowerCase() === targetHost;
+ // Browser Origin allowlist is authoritative. Never trust forwarded host headers
+ // inside a security decision; the reverse proxy may use an internal request URL.
+ // Admin mutations are bound to the configured app origin, even when the
+ // marketing origin is also allowed for public forms.
+ const adminPath=new URL(request.url).pathname.startsWith("/api/admin/");
+ let allowed=configured.includes(supplied.origin) && (!adminPath || supplied.origin===appOrigin());
  if(process.env.NODE_ENV!=="production"){
   const target=new URL(request.url);
   if(["localhost","127.0.0.1","[::1]"].includes(target.hostname)&&supplied.origin===target.origin)allowed=true;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import {connection} from "next/server";
 
 const satoshi = localFont({
   src: "../../public/fonts/satoshi/Satoshi-Variable.ttf",
@@ -65,9 +66,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Request-time rendering is required for Next to nonce its hydration scripts.
+  await connection();
   return (
     <html lang="en" className={satoshi.variable}>
       <body>{children}</body>
