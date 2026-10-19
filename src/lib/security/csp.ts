@@ -8,7 +8,7 @@ export function contentSecurityPolicy(nonce: string, development: boolean) {
     "script-src-attr 'none'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
-    "font-src 'self' data:",
+    "font-src 'self' data: https://fonts.reown.com",
     "media-src 'self' https: blob:",
     `connect-src 'self' https: wss:${development ? " ws:" : ""}`,
     "frame-src 'self' https://verify.walletconnect.com https://verify.walletconnect.org https://secure.walletconnect.org https://www.youtube-nocookie.com https://platform.twitter.com https://syndication.twitter.com",

@@ -18,6 +18,7 @@ test('each rendered request receives a fresh enforced script nonce, forwarded to
  assert.match(policy,/frame-src[^;]*https:\/\/www\.youtube-nocookie\.com/);
  assert.match(policy,/frame-src[^;]*https:\/\/platform\.twitter\.com/);
  assert.match(policy,/media-src 'self' https: blob:/);
+ assert.equal(policy.split('; ').find(x=>x.startsWith('font-src ')), "font-src 'self' data: https://fonts.reown.com");
  assert.equal(first.headers.get('x-middleware-request-content-security-policy'),policy);
  assert.notEqual(first.headers.get('x-middleware-request-x-nonce'),'attacker');
  assert.equal(first.headers.get('cache-control'),'private, no-store');
