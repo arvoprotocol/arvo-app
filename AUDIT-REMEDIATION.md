@@ -53,3 +53,18 @@ or add unsafe-inline scripts to hide a failure.
 The local fallback build and HTTP nonce smoke test used available Next 16.3.6
 dependencies with webpack. They do not certify the pinned Turbopack build or
 real mobile wallet compatibility. Re-run those on the deployment host.
+
+## 20 October 2026 — deployment header follow-up
+
+- Removed the marketing vhost's CSP suppression and shortened replacement policy.
+  The upstream per-response nonce CSP now reaches the public marketing host.
+  Two requests verified fresh nonces and matching executable HTML script nonces.
+- Removed the app vhost's duplicate Nginx X-Frame-Options and legacy
+  X-XSS-Protection using an app-specific settings include. Shared settings
+  for other sites remain unchanged.
+- Public checks on both hosts confirmed a complete CSP, one X-Frame-Options:
+  DENY header, no X-XSS-Protection header, and the existing one-year HSTS
+  policy with includeSubDomains.
+- These Nginx changes are deployment configuration outside this repository.
+- Removed src/app/page.tsx.save from Git tracking; retained the local file.
+- Governance handoff remains pending separate on-chain execution and verification.
