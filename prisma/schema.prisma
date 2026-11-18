@@ -303,3 +303,29 @@ model IntelligenceQuestion {
   @@index([projectId, createdAt])
   @@index([createdAt])
 }
+
+// Opt-in maturity reminders (double opt-in). Wallet positions are public
+// onchain; the email is only used for these reminders and can be stopped.
+model ReminderSubscription {
+  id          Int            @id @default(autoincrement())
+  email       String
+  wallet      String
+  confirmedAt DateTime?
+  stoppedAt   DateTime?
+  createdAt   DateTime       @default(now())
+  sent        ReminderSent[]
+
+  @@unique([email, wallet])
+  @@index([wallet])
+}
+
+model ReminderSent {
+  id             Int                  @id @default(autoincrement())
+  subscriptionId Int
+  subscription   ReminderSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  positionId     String
+  kind           String
+  sentAt         DateTime             @default(now())
+
+  @@unique([subscriptionId, positionId, kind])
+}

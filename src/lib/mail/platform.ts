@@ -487,3 +487,21 @@ export async function sendAdminBroadcastEmail({
     } : {}),
   });
 }
+
+
+/** Simple branded notice email (used for maturity reminders). */
+export async function sendNoticeEmail({ to, subject, heading, paragraphs, button, footer }: {
+  to: string; subject: string; heading: string; paragraphs: string[];
+  button?: { label: string; url: string }; footer?: { text: string; linkLabel: string; url: string };
+}) {
+  const transport = getTransport();
+  const body = paragraphs.map(p => `<p style="margin:0 0 16px;font-size:15px;line-height:24px;color:#c9c9cc;">${escapeHtml(p)}</p>`).join("");
+  const html = emailFrame(`
+    <h1 style="margin:0 0 20px;font-size:26px;line-height:32px;color:#ffffff;">${escapeHtml(heading)}</h1>
+    ${body}
+    ${button ? `<p style="margin:24px 0;"><a href="${escapeHtml(button.url)}" style="display:inline-block;background:#f8f2ed;color:#07090b;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:10px;">${escapeHtml(button.label)}</a></p>` : ""}
+    ${footer ? `<p style="margin:32px 0 0;font-size:11px;line-height:18px;color:#66666b;">${escapeHtml(footer.text)} <a href="${escapeHtml(footer.url)}" style="color:#9b9b9f;">${escapeHtml(footer.linkLabel)}</a></p>` : ""}
+  `);
+  const text = [heading, "", ...paragraphs, ...(button ? ["", `${button.label}: ${button.url}`] : []), ...(footer ? ["", `${footer.text} ${footer.linkLabel}: ${footer.url}`] : [])].join("\n");
+  await transport.sendMail({ from: fromAddress(), to, subject, html, text });
+}

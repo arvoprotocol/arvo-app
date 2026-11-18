@@ -7,7 +7,7 @@ const nextConfig:NextConfig={
   const has:[{type:"host";value:string}]=[{type:"host",value:host}];
   return {beforeFiles:[
    {source:"/",destination:"/app",has},
-   {source:"/:section(stake|portfolio|projects|rewards|treasury|community|governance|activity|support|terms|admin|wallet|vault-previews|market-price|community-data|community-posts|intelligence)/:path*",destination:"/app/:section/:path*",has}
+   {source:"/:section(stake|portfolio|projects|rewards|treasury|community|governance|activity|support|terms|admin|wallet|vault-previews|market-price|community-data|community-posts|intelligence|transparency|vault-activity|reminders)/:path*",destination:"/app/:section/:path*",has}
   ],afterFiles:[],fallback:[]};
  },
  async headers(){return [{source:"/:path*",headers:[

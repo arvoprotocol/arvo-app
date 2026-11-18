@@ -13,7 +13,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuditedBySoken } from "@/components/protocol/SokenBadge";
 import { Activity, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Sparkles, Wallet, Users, X } from "lucide-react";
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://arvoprotocol.com").replace(/\/+$/, "");
 
 const nav = [
   { label: "Overview", href: "/app", icon: LayoutDashboard },
@@ -28,6 +27,7 @@ const secondary = [
   { label: "Community", href: "/app/community", icon: Users },
   { label: "Governance", href: "/app/governance", icon: BarChart3 },
   { label: "Activity", href: "/app/activity", icon: Activity },
+  { label: "Transparency", href: "/app/transparency", icon: ShieldCheck },
 ] as const;
 
 export function ProtocolShell({ children }: { children: React.ReactNode }) {
@@ -51,7 +51,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
         <div className="mx-6 my-4 border-t border-white/8" />
         <p className="px-6 pb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/22">Protocol</p>
         <nav className="px-3">{renderNav(secondary)}</nav>
-        <div className="mx-6 mt-5 space-y-3"><AuditedBySoken href={`${SITE}/transparency#security`} compact /><a href={`${SITE}/transparency`} className="block text-xs font-semibold text-white/45 transition hover:text-white">Transparency & contracts ↗</a></div>
+        <div className="mx-6 mt-5"><AuditedBySoken href={appPath("/app/transparency#security")} compact /></div>
         <div className="mt-auto"><ProtocolSidebarFooter/></div>
       </aside>
 
