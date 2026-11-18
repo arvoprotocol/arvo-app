@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { sendEmailBatches } from "@/lib/admin/email-batches";
 import {
   Check,
   Eye,
@@ -60,13 +61,19 @@ function isEmail(value: string) {
 }
 
 export function EmailComposer({
-  partners,
+  partners, initialRecipients = [], initialSubject = INITIAL_SUBJECT,
+  initialBody = INITIAL_BODY, audienceLabel = "selected recipients", onBusyChange,
 }: {
   partners: Partner[];
+  initialRecipients?: Recipient[];
+  initialSubject?: string;
+  initialBody?: string;
+  audienceLabel?: string;
+  onBusyChange?: (busy: boolean) => void;
 }) {
-  const [subject, setSubject] = useState(INITIAL_SUBJECT);
-  const [body, setBody] = useState(INITIAL_BODY);
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
+  const [subject, setSubject] = useState(initialSubject);
+  const [body, setBody] = useState(initialBody);
+  const [recipients, setRecipients] = useState<Recipient[]>(initialRecipients);
   const [manualEmail, setManualEmail] = useState("");
   const [manualName, setManualName] = useState("");
   const [testEmail, setTestEmail] = useState("");
@@ -75,6 +82,13 @@ export function EmailComposer({
   const [sending, setSending] = useState<"test" | "send" | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const sendLock = useRef(false);
+  useEffect(() => {
+    if (!sending) return;
+    function warn(event: BeforeUnloadEvent) { event.preventDefault(); event.returnValue = ""; }
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [sending]);
 
   const previewBody = useMemo(
     () =>
@@ -145,81 +159,60 @@ export function EmailComposer({
   }
 
   async function send(mode: "test" | "send") {
+    if (sendLock.current) return;
     setError("");
     setMessage("");
-
     if (!subject.trim() || !body.trim()) {
-      setError("Add a subject and email content first.");
-      return;
+      setError("Add a subject and email content first."); return;
     }
-
     if (mode === "test" && !isEmail(testEmail.trim())) {
-      setError("Enter a valid test email address.");
-      return;
+      setError("Enter a valid test email address."); return;
     }
-
     if (mode === "send" && !recipients.length) {
-      setError("Add at least one recipient.");
-      return;
+      setError("Add at least one recipient."); return;
     }
-
-    if (
-      mode === "send" &&
-      !window.confirm(
-        `Send this email to ${recipients.length} recipient${
-          recipients.length === 1 ? "" : "s"
-        }?`
-      )
-    ) {
-      return;
-    }
-
+    if (mode === "send" && !window.confirm(
+      `Send this email to ${recipients.length} recipient${recipients.length === 1 ? "" : "s"}?`
+    )) return;
+    const sendSubject = subject.trim(), sendBody = body.trim();
+    const sendRecipients = recipients.map(recipient => ({ ...recipient }));
+    sendLock.current = true;
     setSending(mode);
-
+    onBusyChange?.(true);
     try {
-      const response = await fetch("/api/admin/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          mode,
-          subject,
-          body,
-          recipients,
-          testEmail: testEmail.trim(),
-          testName: testName.trim(),
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || "Unable to send the email."
-        );
+      if (mode === "send") {
+        const result = await sendEmailBatches({
+          subject: sendSubject, body: sendBody, recipients: sendRecipients,
+          onConfirmed: setRecipients,
+          onProgress: progress => setMessage(progress.waiting
+            ? `Sent ${progress.sent} of ${progress.total}. Waiting for the email sending limit to reset. Keep this tab open.`
+            : `Sent ${progress.sent} of ${progress.total}. Keep this tab open until finished.`),
+        });
+        setRecipients(result.remaining);
+        setMessage(result.sent ? `The mail server accepted email for ${result.sent} recipient${result.sent === 1 ? "" : "s"}.` : "");
+        if (result.error) setError(result.error + (result.uncertain.length
+          ? ` Delivery unconfirmed for: ${result.uncertain.map(r => r.email).join(", ")}. These addresses have been removed from the next send to prevent accidental duplicates.` : ""));
+        if (!result.error) setMessage(`The mail server accepted email for all ${result.sent} recipients. See Email history for the send record.`);
+      } else {
+        const response = await fetch("/api/admin/emails", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode, subject: sendSubject, body: sendBody, testEmail: testEmail.trim(), testName: testName.trim() }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok || result.failed?.length) throw new Error(result.error || "Unable to send the test email.");
+        setMessage(`Test email sent to ${testEmail.trim()}.`);
       }
-
-      setMessage(
-        mode === "test"
-          ? `Test email sent to ${testEmail.trim()}.`
-          : `Email sent successfully to ${result.sent} recipient${
-              result.sent === 1 ? "" : "s"
-            }.`
-      );
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to send the email."
-      );
+      setError(err instanceof Error ? err.message : "Unable to send the email. Check Email history before retrying.");
     } finally {
+      sendLock.current = false;
       setSending(null);
+      onBusyChange?.(false);
     }
   }
 
   return (
-    <div className="space-y-6">
+    <fieldset disabled={sending !== null} className="min-w-0 space-y-6">
       <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
         <div className="rounded-2xl border border-black/[0.08] bg-white p-5 shadow-sm md:p-6">
           <div className="flex items-center gap-3">
@@ -230,7 +223,7 @@ export function EmailComposer({
             <div>
               <h2 className="text-lg font-semibold">Compose email</h2>
               <p className="mt-0.5 text-xs text-black/40">
-                Create a branded Arvo email and send it to selected recipients.
+                Create a branded Arvo email for {audienceLabel}. Keep this tab open while sending. Each recipient receives a separate email.
               </p>
             </div>
           </div>
@@ -285,14 +278,14 @@ export function EmailComposer({
               <h2 className="font-semibold">Recipients</h2>
             </div>
 
-            <button
+            {partners.length > 0 && <button
               type="button"
               onClick={addAllPartners}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#07090b] px-4 py-3 text-sm font-semibold text-white"
             >
               <Users size={15} />
               Add all Strategic Partners
-            </button>
+            </button>}
 
             <div className="my-5 border-t border-black/[0.07]" />
 
@@ -452,7 +445,7 @@ export function EmailComposer({
             </div>
 
             <div className="mt-5 space-y-4 text-[14px] leading-7 text-white/60">
-              {previewBody.split(/\\n{2,}/).map((block, index) => {
+              {previewBody.split(/\n{2,}/).map((block, index) => {
                 const trimmed = block.trim();
 
                 if (trimmed.startsWith("## ")) {
@@ -486,6 +479,6 @@ export function EmailComposer({
           </div>
         </div>
       )}
-    </div>
+    </fieldset>
   );
 }

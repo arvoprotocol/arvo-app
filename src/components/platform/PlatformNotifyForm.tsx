@@ -267,7 +267,7 @@ export function PlatformNotifyForm() {
       <p className="mx-auto mt-5 max-w-2xl text-center text-xs leading-5 text-white/35">
         {mode === "invitation"
           ? "Your contact details will be linked to your invitation."
-          : "Joining the waitlist does not guarantee early access."}{" "}
+          : "Early-access invitations will be sent before public release. Vault eligibility, capacity and terms apply."}{" "}
         By submitting your details, you agree to our{" "}
         <Link
           href="/privacy-policy"

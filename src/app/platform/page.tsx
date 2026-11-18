@@ -136,9 +136,47 @@ export default function PlatformPage() {
               </h2>
 
               <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/45 md:text-lg md:leading-8">
-                Join the waitlist for Arvo app updates as access begins to
-                open. Invitation holders will receive early access ahead of the
-                wider release.
+                Access the Arvo app 48 hours before public release, with first
+                access to the introductory staking vault. Your priority access
+                continues beyond launch.
+              </p>
+
+
+              <div className="mx-auto mt-10 grid max-w-3xl gap-x-10 gap-y-7 text-left sm:grid-cols-2">
+                {[
+                  {
+                    title: "Arvo Intelligence",
+                    copy: "Early access as new intelligence tools become available.",
+                  },
+                  {
+                    title: "New vaults and projects",
+                    copy: "Advance notice of vault openings and previews of upcoming projects.",
+                  },
+                  {
+                    title: "Competitions and campaigns",
+                    copy: "Priority access to selected competitions and community campaigns.",
+                  },
+                  {
+                    title: "New app features",
+                    copy: "Opportunities to test features before public release.",
+                  },
+                ].map((benefit) => (
+                  <div
+                    key={benefit.title}
+                    className="border-t border-[#c9846a]/20 pt-5"
+                  >
+                    <h3 className="text-lg font-semibold tracking-[-0.025em] text-[#e2a98e]">
+                      {benefit.title}
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-white/50">
+                      {benefit.copy}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <p className="mt-9 text-sm text-white/50">
+                The app release date will be announced shortly.
               </p>
 
               <PlatformNotifyForm />
@@ -215,50 +253,61 @@ export default function PlatformPage() {
               </p>
 
               <h2 className="mx-auto mt-6 text-balance text-5xl font-semibold leading-[0.95] tracking-[-0.04em] md:whitespace-nowrap md:text-6xl lg:text-7xl">
-                Preparing the Arvo vaults.
+                Preparing for early access.
               </h2>
 
               <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-white/50 md:text-xl">
-                The Arvo app is being prepared for launch, bringing vaults, portfolio management, rewards, Treasury reporting and operating projects into one place, with everything accessible through a single interface.
+                Testnet testing is complete. Next comes early access for waitlist members and the introductory staking vault, followed by the public app release.
               </p>
 
-              <div className="mx-auto mt-12 max-w-xl">
-                <div className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-3 md:gap-5">
-                  <div className="flex flex-col items-center gap-2.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#e2a98e] shadow-[0_0_16px_rgba(226,169,142,.45)]" />
-                    <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/60">
-                      Vaults
-                    </span>
-                  </div>
-
-                  <div className="relative mb-[25px] h-px overflow-hidden bg-white/10">
-                    <div className="platform-progress-line absolute inset-y-0 left-0 w-1/2 bg-[linear-gradient(90deg,transparent,#e2a98e,transparent)]" />
-                  </div>
-
-                  <div className="flex flex-col items-center gap-2.5">
-                    <span className="relative flex h-2.5 w-2.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e2a98e] opacity-30" />
-                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#e2a98e] shadow-[0_0_18px_rgba(226,169,142,.5)]" />
-                    </span>
-                    <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#e2a98e]">
+              <div className="mx-auto mt-12 max-w-2xl">
+                <ol
+                  aria-label="App release progress"
+                  className="grid grid-cols-[1fr_.6fr_1fr_.6fr_1fr] items-start gap-2 md:gap-4"
+                >
+                  <li className="flex flex-col items-center text-center">
+                    <span className="h-3 w-3 rounded-full bg-[#e2a98e] shadow-[0_0_18px_rgba(226,169,142,.5)]" />
+                    <span className="mt-4 text-sm font-semibold text-[#e2a98e] md:text-base">
                       Testnet
                     </span>
-                  </div>
-
-                  <div className="relative mb-[25px] h-px overflow-hidden bg-white/10">
-                    <div className="platform-progress-line platform-progress-line-delay absolute inset-y-0 left-0 w-1/2 bg-[linear-gradient(90deg,transparent,#e2a98e,transparent)]" />
-                  </div>
-
-                  <div className="flex flex-col items-center gap-2.5">
-                    <span className="h-2.5 w-2.5 rounded-full border border-white/20 bg-white/[0.04]" />
-                    <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/30">
-                      Live
+                    <span className="mt-2 text-xs text-white/50 md:text-sm">
+                      Complete
                     </span>
-                  </div>
-                </div>
+                  </li>
 
-                <p className="mt-5 text-center text-xs text-white/35">
-                  Preparing for testnet deployment
+                  <li aria-hidden="true" className="relative mt-[5px] h-px overflow-hidden bg-[#e2a98e]/20">
+                    <span className="platform-progress-line absolute inset-y-0 left-0 w-1/2 bg-[linear-gradient(90deg,transparent,#e2a98e,transparent)]" />
+                  </li>
+
+                  <li aria-current="step" className="flex flex-col items-center text-center">
+                    <span className="relative flex h-3 w-3">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e2a98e] opacity-30 motion-reduce:animate-none" />
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-[#e2a98e] shadow-[0_0_20px_rgba(226,169,142,.6)]" />
+                    </span>
+                    <span className="mt-4 text-sm font-semibold text-[#e2a98e] md:text-base">
+                      Early access
+                    </span>
+                    <span className="mt-2 text-xs text-white/50 md:text-sm">
+                      Preparing
+                    </span>
+                  </li>
+
+                  <li aria-hidden="true" className="relative mt-[5px] h-px overflow-hidden bg-white/10">
+                    <span className="platform-progress-line platform-progress-line-delay absolute inset-y-0 left-0 w-1/2 bg-[linear-gradient(90deg,transparent,#e2a98e,transparent)]" />
+                  </li>
+
+                  <li className="flex flex-col items-center text-center">
+                    <span className="h-3 w-3 rounded-full border border-white/25 bg-white/[0.04]" />
+                    <span className="mt-4 text-sm font-semibold text-white/50 md:text-base">
+                      Public release
+                    </span>
+                    <span className="mt-2 text-xs text-white/40 md:text-sm">
+                      Upcoming
+                    </span>
+                  </li>
+                </ol>
+                <p className="mt-7 text-sm leading-6 text-white/50">
+                  Waitlist members receive app access 48 hours before public release.
                 </p>
               </div>
 

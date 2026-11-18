@@ -40,6 +40,7 @@ const nav: readonly AdminNavItem[] = [
   { label: "Overview", href: "/app/admin", icon: LayoutDashboard },
   { label: "Projects", href: "/app/admin/projects", icon: FolderKanban },
   { label: "Invitations", href: "/app/admin/invitations", icon: KeyRound },
+  { label: "Waitlist", href: "/app/admin/waitlist", icon: Users },
   { label: "Partners", href: "/app/admin/partners", icon: Users },
   { label: "Support", href: "/app/admin/support", icon: Mail },
   { label: "Emails", href: "/app/admin/emails", icon: Mail },
@@ -99,7 +100,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[#f8f2ed] text-[#07090b]">
       <div className="noise" /><WalletPicker/>
 
-      <aside className="fixed inset-y-0 left-0 z-50 hidden w-[264px] border-r border-white/10 bg-[#07090b] text-white lg:flex lg:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-50 hidden w-[264px] overflow-y-auto border-r border-white/10 bg-[#07090b] text-white lg:flex lg:flex-col">
         <div className="px-6 pb-5 pt-7">
           <Link href="https://arvoprotocol.com/" className="inline-flex">
             <Image
