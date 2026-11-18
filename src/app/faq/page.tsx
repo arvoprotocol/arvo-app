@@ -142,7 +142,7 @@ const faqSections = [
       },
       {
         "question": "Where can I read the staking security audit?",
-        "answer": "The staking contract review can be accessed through Soken's public audit index at soken.dev/audits.html. Read the report for its scope, reviewed contract version, findings and recorded statuses. An audit is a review of a particular codebase and does not eliminate all technical or operational risk."
+        "answer": "The staking contract review can be accessed through Soken's public audit index at soken.dev/audits.html. Read the report for its scope, reviewed contract version, findings and recorded statuses. An audit is a review of a particular codebase and does not eliminate all technical or operational risk. The First Edition shared bonus is paid by a separate bonus contract that is not covered by the Soken audit; it was independently tested with automated security analysis and AI review, and it cannot access staking principal."
       },
       {
         "question": "How will Arvo report progress?",

@@ -62,7 +62,7 @@ function isEmail(value: string) {
 
 export function EmailComposer({
   partners, initialRecipients = [], initialSubject = INITIAL_SUBJECT,
-  initialBody = INITIAL_BODY, audienceLabel = "selected recipients", onBusyChange,
+  initialBody = INITIAL_BODY, audienceLabel = "selected recipients", onBusyChange, audience,
 }: {
   partners: Partner[];
   initialRecipients?: Recipient[];
@@ -70,6 +70,8 @@ export function EmailComposer({
   initialBody?: string;
   audienceLabel?: string;
   onBusyChange?: (busy: boolean) => void;
+  /** "waitlist" adds unsubscribe links and skips unsubscribed contacts. */
+  audience?: "waitlist";
 }) {
   const [subject, setSubject] = useState(initialSubject);
   const [body, setBody] = useState(initialBody);
@@ -182,7 +184,7 @@ export function EmailComposer({
     try {
       if (mode === "send") {
         const result = await sendEmailBatches({
-          subject: sendSubject, body: sendBody, recipients: sendRecipients,
+          subject: sendSubject, body: sendBody, recipients: sendRecipients, audience,
           onConfirmed: setRecipients,
           onProgress: progress => setMessage(progress.waiting
             ? `Sent ${progress.sent} of ${progress.total}. Waiting for the email sending limit to reset. Keep this tab open.`
@@ -196,7 +198,7 @@ export function EmailComposer({
       } else {
         const response = await fetch("/api/admin/emails", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mode, subject: sendSubject, body: sendBody, testEmail: testEmail.trim(), testName: testName.trim() }),
+          body: JSON.stringify({ mode, subject: sendSubject, body: sendBody, testEmail: testEmail.trim(), testName: testName.trim(), audience }),
         });
         const result = await response.json();
         if (!response.ok || !result.ok || result.failed?.length) throw new Error(result.error || "Unable to send the test email.");

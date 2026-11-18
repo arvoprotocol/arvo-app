@@ -36,7 +36,7 @@ export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, 
         <h3 className={`mt-5 font-semibold tracking-tight ${compact ? "text-2xl" : "text-3xl"}`}>{row.title}</h3><p className="mt-2 text-sm text-white/50">{row.days}-day lock from your deposit</p>
         <div className="mt-5 space-y-3">{(Object.keys(productLabels) as (keyof Products)[]).filter(key => row.products[key]).map(key => <div key={key}>
           <p className="text-xs leading-5 text-white/60">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={Number(row.arvoRate)} usdcRate={Number(row.usdcRate)} share={Number(row.mixedShare??"50")} days={row.days} dark/>:<><AnnualReward percent={Number(key === "arvoArvo" || key === "dualArvo" ? row.arvoRate : row.usdcRate)} days={row.days} dark prominent/>
-          <p className="mt-3 text-sm font-semibold text-white/80">{key === "arvoArvo" || key === "dualArvo" ? row.arvoRate : row.usdcRate}% <span className="font-normal text-white/50">cycle reward · {row.days} days{key.startsWith("dual") ? " · before uplift" : ""}</span></p></>}
+          {key.startsWith("dual") && <p className="mt-3 text-xs text-white/50">Before dual uplift</p>}</>}
         </div>)}</div>
         <VaultTiming opensAt={row.opensAt} closesAt={row.closesAt} preview dark compact />
         {!compact && <div className="mt-5 space-y-2 border-t border-white/10 pt-4 text-xs leading-5 text-white/55">

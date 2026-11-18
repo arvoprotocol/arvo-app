@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/admin/session";
 import { sendAdminBroadcastEmail } from "@/lib/mail/platform";
+import { unsubscribeUrls } from "@/lib/mail/unsubscribe";
 
 export const runtime = "nodejs";
 
@@ -61,6 +62,10 @@ export async function POST(request: Request) {
       typeof payload.body === "string" ? payload.body.trim() : "";
 
     const mode = payload.mode === "test" ? "test" : "send";
+    // Waitlist (marketing) mail carries unsubscribe links and skips anyone who
+    // has unsubscribed. Partner/transactional mail is unchanged.
+    const waitlist = payload.audience === "waitlist";
+    let skipped = 0;
 
     if(subject.length>200||/[\r\n]/.test(subject)||body.length>20000)return NextResponse.json({error:"Email subject or content is too long or invalid."},{status:400});
     if (!subject) {
@@ -103,6 +108,17 @@ export async function POST(request: Request) {
       ];
     } else {
       recipients = normaliseRecipients(payload.recipients);
+      if (waitlist && recipients.length) {
+        const blocked = await prisma.platformSignup.findMany({
+          where: { type: "email", normalized: { in: recipients.map(r => r.email) }, unsubscribedAt: { not: null } },
+          select: { normalized: true },
+        });
+        const skip = new Set(blocked.map(row => row.normalized));
+        const before = recipients.length;
+        recipients = recipients.filter(r => !skip.has(r.email));
+        skipped = before - recipients.length;
+        if (!recipients.length) return NextResponse.json({ ok: true, sent: 0, skipped, mode });
+      }
 
       if (!recipients.length) {
         return NextResponse.json(
@@ -121,6 +137,7 @@ export async function POST(request: Request) {
           recipient,
           subject,
           body,
+          unsubscribe: waitlist ? unsubscribeUrls(recipient.email) : undefined,
         });
       } catch (error) {
         console.error(
@@ -155,6 +172,7 @@ export async function POST(request: Request) {
               ? `Sent to ${successful.length} recipient(s), but ${failures.length} failed.`
               : "The email could not be sent.",
           sent: successful.length,
+          skipped,
           failed: failures,
         },
         { status: successful.length > 0 ? 207 : 500 }
@@ -164,6 +182,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       sent: successful.length,
+      skipped,
       mode,
     });
   } catch (error) {

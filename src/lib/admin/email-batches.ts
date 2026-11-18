@@ -7,6 +7,8 @@ type Options = {
   onProgress?: (progress: Progress) => void;
   onConfirmed?: (remaining: BroadcastRecipient[]) => void;
   request?: typeof fetch;
+  /** 'waitlist' adds unsubscribe links and skips unsubscribed contacts server-side. */
+  audience?: 'waitlist';
   wait?: (milliseconds: number) => Promise<void>;
 };
 export type BroadcastResult = {
@@ -38,7 +40,7 @@ export async function sendEmailBatches(options: Options): Promise<BroadcastResul
         response = await request('/api/admin/emails', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: 'send', subject: options.subject, body: options.body, recipients: batch }),
+          body: JSON.stringify({ mode: 'send', subject: options.subject, body: options.body, recipients: batch, audience: options.audience }),
         });
       } catch {
         return { sent, remaining: remaining.slice(batch.length), uncertain: batch,
@@ -62,16 +64,17 @@ export async function sendEmailBatches(options: Options): Promise<BroadcastResul
     }
     const failed = Array.isArray(result.failed) && result.failed.every(value => typeof value === 'string')
       ? new Set((result.failed as string[]).map(email => email.toLowerCase())) : null;
-    const fullSuccess = response.status === 200 && result.ok === true && result.sent === batch.length;
+    const skipped = typeof result.skipped === 'number' && Number.isSafeInteger(result.skipped) && result.skipped >= 0 ? result.skipped : 0;
+    const fullSuccess = response.status === 200 && result.ok === true && result.sent === batch.length - skipped;
     const knownFailure = failed !== null && [...failed].every(email => batch.some(r => r.email === email))
-      && failed.size > 0 && result.sent === batch.length - failed.size
+      && failed.size > 0 && result.sent === batch.length - failed.size - skipped
       && (response.status === 207 || response.status === 500);
     if (!fullSuccess && !knownFailure) {
       return { sent, remaining: remaining.slice(batch.length), uncertain: batch,
         error: 'The server did not confirm a complete result for this batch. Check Recent emails before retrying these addresses.' };
     }
     const failedRecipients = knownFailure ? batch.filter(recipient => failed!.has(recipient.email)) : [];
-    sent += batch.length - failedRecipients.length;
+    sent += batch.length - failedRecipients.length - skipped;
     remaining = [...failedRecipients, ...remaining.slice(batch.length)];
     options.onConfirmed?.(remaining);
     options.onProgress?.({ sent, total });

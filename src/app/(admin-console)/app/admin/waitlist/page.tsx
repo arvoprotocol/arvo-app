@@ -10,11 +10,12 @@ export default async function AdminWaitlistPage() {
   if (!await getAdminSession()) return null;
   const signups = await prisma.platformSignup.findMany({
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-    select: { id: true, type: true, contact: true, source: true, createdAt: true, notifiedAt: true },
+    select: { id: true, type: true, contact: true, source: true, createdAt: true, notifiedAt: true, unsubscribedAt: true },
   });
   return <WaitlistManager signups={signups.map(signup => ({
     ...signup,
     createdAt: signup.createdAt.toISOString(),
     notifiedAt: signup.notifiedAt?.toISOString() ?? null,
+    unsubscribedAt: signup.unsubscribedAt?.toISOString() ?? null,
   }))} />;
 }

@@ -376,7 +376,7 @@ export type AdminBroadcastRecipient = {
   name?: string | null;
 };
 
-function broadcastBodyHtml(body: string, recipientName?: string | null) {
+function broadcastBodyHtml(body: string, recipientName?: string | null, unsubscribeUrl?: string) {
   const firstName = recipientName?.trim().split(/\s+/)[0] || "";
 
   const personalised = body.replace(
@@ -436,11 +436,19 @@ function broadcastBodyHtml(body: string, recipientName?: string | null) {
     <div>
       ${content}
     </div>
+    ${unsubscribeUrl ? `
+    <p style="margin:32px 0 0;font-size:11px;line-height:18px;color:#66666b;">
+      You are receiving this because you joined the Arvo waitlist.
+      <a href="${escapeHtml(unsubscribeUrl)}" style="color:#9b9b9f;text-decoration:underline;">Unsubscribe</a>
+    </p>` : ""}
   `);
 }
 
-function broadcastPlainText(body: string, recipientName?: string | null) {
+function broadcastPlainText(body: string, recipientName?: string | null, unsubscribeUrl?: string) {
   const firstName = recipientName?.trim().split(/\s+/)[0] || "";
+  const footer = unsubscribeUrl
+    ? `\n\n--\nYou are receiving this because you joined the Arvo waitlist.\nUnsubscribe: ${unsubscribeUrl}`
+    : "";
 
   return body
     .replace(/\[First name\]/gi, firstName)
@@ -448,17 +456,20 @@ function broadcastPlainText(body: string, recipientName?: string | null) {
     .replace(
       /\[Visit Arvo\]/g,
       "Visit Arvo: https://arvoprotocol.com"
-    );
+    ) + footer;
 }
 
 export async function sendAdminBroadcastEmail({
   recipient,
   subject,
   body,
+  unsubscribe,
 }: {
   recipient: AdminBroadcastRecipient;
   subject: string;
   body: string;
+  /** Waitlist mail: page link for the footer and RFC 8058 one-click URL. */
+  unsubscribe?: { page: string; oneClick: string };
 }) {
   const transport = getTransport();
 
@@ -466,7 +477,13 @@ export async function sendAdminBroadcastEmail({
     from: fromAddress(),
     to: recipient.email,
     subject,
-    html: broadcastBodyHtml(body, recipient.name),
-    text: broadcastPlainText(body, recipient.name),
+    html: broadcastBodyHtml(body, recipient.name, unsubscribe?.page),
+    text: broadcastPlainText(body, recipient.name, unsubscribe?.page),
+    ...(unsubscribe ? {
+      headers: {
+        "List-Unsubscribe": `<${unsubscribe.oneClick}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
+    } : {}),
   });
 }

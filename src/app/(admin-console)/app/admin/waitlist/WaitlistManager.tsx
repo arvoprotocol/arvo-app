@@ -7,12 +7,12 @@ import { PageTitle, StatCard } from '@/components/protocol/ProtocolUI';
 import { appPath } from '@/lib/protocol/app-url';
 import { EmailComposer } from '../emails/EmailComposer';
 
-type Signup = { id: number; type: string; contact: string; source: string; createdAt: string; notifiedAt: string | null };
+type Signup = { id: number; type: string; contact: string; source: string; createdAt: string; notifiedAt: string | null; unsubscribedAt: string | null };
 type Recipient = { email: string; name: string };
 const PAGE_SIZE = 25;
 const button = 'inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold transition hover:border-black/25 disabled:cursor-not-allowed disabled:opacity-40';
 function emailSignup(signup: Signup) {
-  return signup.type === 'email' && signup.contact.length <= 254 && /^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(signup.contact.trim());
+  return signup.type === 'email' && !signup.unsubscribedAt && signup.contact.length <= 254 && /^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(signup.contact.trim());
 }
 function recipientsFor(signups: Signup[]): Recipient[] {
   return [...new Set(signups.filter(emailSignup).map(s => s.contact.trim().toLowerCase()))].map(email => ({ email, name: '' }));
@@ -75,17 +75,17 @@ export function WaitlistManager({ signups }: { signups: Signup[] }) {
         <button type="button" className={button} disabled={busy || !selectedRows.length} onClick={() => compose(recipientsFor(selectedRows))}>Email selected ({selectedRows.length})</button>
         {!!selected.size && <button type="button" onClick={() => setSelected(new Set())} className="text-xs font-semibold text-black/50">Clear selection</button>}
       </div>
-      <p className="mt-3 text-xs leading-5 text-black/45">Selection covers matching email records across all pages. Telegram-only signups have no email address. Times shown are UK time.</p>
+      <p className="mt-3 text-xs leading-5 text-black/45">Selection covers matching email records across all pages. Telegram-only signups have no email address. Unsubscribed contacts are excluded from all sends, and every waitlist email includes an unsubscribe link. Times shown are UK time.</p>
       <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead><tr className="border-b border-black/10 text-xs text-black/45"><th className="w-10 py-3 pr-3"><span className="sr-only">Select</span></th><th className="px-3 py-3 font-semibold">Contact</th><th className="px-3 py-3 font-semibold">Type</th><th className="px-3 py-3 font-semibold">Signed up</th><th className="px-3 py-3 font-semibold">Source</th><th className="py-3 pl-3 font-semibold">Action</th></tr></thead>
           <tbody>{visible.length ? visible.map(s => <tr key={s.id} className="border-b border-black/[0.06] last:border-0">
             <td className="py-4 pr-3">{emailSignup(s) && <input type="checkbox" checked={selected.has(s.id)} aria-label={`Select ${s.contact}`} onChange={() => toggle(s.id)} className="accent-[#07090b]" />}</td>
             <td className="max-w-[300px] break-words px-3 py-4 font-medium">{s.contact}</td>
-            <td className="px-3 py-4"><span className="rounded-full bg-[#f8f2ed] px-2.5 py-1 text-xs font-semibold">{s.type === 'email' ? 'Email' : s.type === 'telegram' ? 'Telegram' : s.type}</span></td>
+            <td className="px-3 py-4"><span className="rounded-full bg-[#f8f2ed] px-2.5 py-1 text-xs font-semibold">{s.type === 'email' ? 'Email' : s.type === 'telegram' ? 'Telegram' : s.type}</span>{s.unsubscribedAt && <span className="ml-2 rounded-full bg-black/5 px-2.5 py-1 text-xs font-semibold text-black/55">Unsubscribed</span>}</td>
             <td className="whitespace-nowrap px-3 py-4 text-xs text-black/55">{date(s.createdAt)}</td>
             <td className="px-3 py-4 text-xs text-black/55">{s.source || '—'}</td>
-            <td className="py-4 pl-3">{emailSignup(s) ? <button type="button" disabled={busy} className="inline-flex items-center gap-1.5 text-xs font-semibold disabled:opacity-40" onClick={() => compose(recipientsFor([s]))}><Mail size={14} />Email</button> : s.type === 'telegram' && /^@?[a-zA-Z0-9_]{5,32}$/.test(s.contact) ? <a href={`https://t.me/${s.contact.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold">Open Telegram</a> : <span className="text-xs text-black/35">No email</span>}</td>
+            <td className="py-4 pl-3">{emailSignup(s) ? <button type="button" disabled={busy} className="inline-flex items-center gap-1.5 text-xs font-semibold disabled:opacity-40" onClick={() => compose(recipientsFor([s]))}><Mail size={14} />Email</button> : s.type === 'telegram' && /^@?[a-zA-Z0-9_]{5,32}$/.test(s.contact) ? <a href={`https://t.me/${s.contact.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold">Open Telegram</a> : <span className="text-xs text-black/35">{s.unsubscribedAt ? 'Unsubscribed' : 'No email'}</span>}</td>
           </tr>) : <tr><td colSpan={6} className="py-12 text-center text-sm text-black/45">{signups.length ? 'No signups match this search.' : 'No waitlist signups yet.'}</td></tr>}</tbody>
         </table>
       </div>
@@ -93,7 +93,7 @@ export function WaitlistManager({ signups }: { signups: Signup[] }) {
     </div>
     {draft && <div ref={composer} className="mt-7 scroll-mt-24">
       <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-lg font-semibold">Email waitlist subscribers</h2><button type="button" disabled={busy} onClick={() => { if (window.confirm('Close this email draft?')) setDraft(null); }} className={button}><X size={15} />Close</button></div>
-      <EmailComposer key={draft.key} partners={[]} initialRecipients={draft.recipients} initialSubject="An update from Arvo" initialBody={'Hi,\n\n\n\nThe Arvo Team'} audienceLabel="waitlist subscribers" onBusyChange={setBusy} />
+      <EmailComposer key={draft.key} partners={[]} initialRecipients={draft.recipients} initialSubject="An update from Arvo" initialBody={'Hi,\n\n\n\nThe Arvo Team'} audienceLabel="waitlist subscribers" audience="waitlist" onBusyChange={setBusy} />
     </div>}
   </div>;
 }

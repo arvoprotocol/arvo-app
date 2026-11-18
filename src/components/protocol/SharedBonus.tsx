@@ -1,0 +1,100 @@
+"use client";
+import { useEffect, useState } from "react";
+import { formatUnits, type Address, type Hash } from "viem";
+import { bonusAbi, bonusBps, bpsLabel, readBonus, type BonusState } from "@/lib/staking/bonus";
+import { transact } from "@/lib/staking/user-transactions";
+
+function arvo(value: bigint) {
+  return Number(formatUnits(value, 18)).toLocaleString("en-GB", { maximumFractionDigits: 2 });
+}
+function date(seconds: bigint) {
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(new Date(Number(seconds) * 1000)) + " UTC";
+}
+
+/** Loads the shared bonus for a pool; null while loading or when none applies. */
+export function useSharedBonus(poolId: number | null, refreshKey = 0) {
+  const [state, setState] = useState<BonusState | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    if (poolId === null) return;
+    readBonus(poolId).then(s => { if (!cancelled) setState(s); }).catch(() => { if (!cancelled) setState(null); });
+    return () => { cancelled = true; };
+  }, [poolId, refreshKey]);
+  return poolId === null ? null : state;
+}
+
+/** Vault-card panel: fixed pot, current estimate and full-capacity rate. */
+export function SharedBonus({ poolId, refreshKey = 0, dark = false }: { poolId: number; refreshKey?: number; dark?: boolean }) {
+  const bonus = useSharedBonus(poolId, refreshKey);
+  if (!bonus) return null;
+  const funded = bonus.balance >= bonus.pot || bonus.snapshotTaken;
+  const current = bonusBps(bonus, bonus.eligible);
+  const full = bonus.maxPrincipal > 0n ? bonusBps(bonus, bonus.maxPrincipal) : null;
+  const muted = dark ? "text-white/50" : "text-black/50";
+  return <div className={`mt-4 rounded-2xl border p-4 ${dark ? "border-[#c9846a]/25 bg-[#c9846a]/10" : "border-[#c9846a]/30 bg-[#f8f2ed]"}`}>
+    <p className={`text-[10px] font-bold uppercase tracking-[0.15em] ${dark ? "text-[#e2a98e]" : "text-[#ad7058]"}`}>+ Shared bonus</p>
+    <p className="mt-2 text-sm font-semibold">{arvo(bonus.pot)} ARVO pot shared by stake size</p>
+    <dl className={`mt-3 grid grid-cols-2 gap-3 text-xs ${muted}`}>
+      <div><dt>{bonus.snapshotTaken ? "Final bonus" : "Estimated bonus now"}</dt><dd className={`mt-1 text-base font-semibold ${dark ? "text-white" : "text-[#07090b]"}`}>{bonus.eligible === 0n ? "Whole pot" : bpsLabel(current)}</dd></div>
+      {full && <div><dt>At full capacity</dt><dd className={`mt-1 text-base font-semibold ${dark ? "text-white" : "text-[#07090b]"}`}>{bpsLabel(full)}</dd></div>}
+    </dl>
+    <p className={`mt-3 text-[11px] leading-5 ${muted}`}>
+      {bonus.snapshotTaken
+        ? `Bonus shares were fixed when entries closed on ${date(bonus.closesAt)}.`
+        : `An estimate until entries close on ${date(bonus.closesAt)}. It falls as more ARVO enters and is fixed at close.`}
+      {" "}Claim it from your position’s maturity. Emergency exits forfeit the bonus. It is paid by a separate bonus contract, not the audited staking contract.
+      {!funded && " Bonus pot funding pending."}
+    </p>
+  </div>;
+}
+
+/** Portfolio action: claim a matured position's bonus (paid to the owner). */
+export function ClaimBonus({ poolId, positionId, matured, emergencyExit, account, onDone }: { poolId: number; positionId: bigint; matured: boolean; emergencyExit: boolean; account?: Address; onDone?: () => void }) {
+  const bonus = useSharedBonus(poolId);
+  const [owed, setOwed] = useState<bigint | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [hash, setHash] = useState<Hash | null>(null);
+  const [error, setError] = useState("");
+  const [revision, setRevision] = useState(0);
+  useEffect(() => {
+    if (!bonus) return;
+    let cancelled = false;
+    import("@/lib/staking/pool-transactions").then(({ stakingConnection }) => {
+      const c = stakingConnection();
+      if (!c) return;
+      return c.publicClient.readContract({ address: bonus.address, abi: bonusAbi, functionName: "bonusFor", args: [positionId] });
+    }).then(v => { if (!cancelled && typeof v === "bigint") setOwed(v); }).catch(() => { if (!cancelled) setOwed(null); });
+    return () => { cancelled = true; };
+  }, [bonus, positionId, revision]);
+  if (!bonus || emergencyExit) return emergencyExit && bonus ? <p className="mt-2 text-xs text-black/50">Shared bonus forfeited by emergency exit.</p> : null;
+  if (owed === null) return null;
+  if (owed === 0n) return <p className="mt-2 text-xs text-black/50">Shared bonus: claimed.</p>;
+  const ready = matured && bonus.snapshotTaken;
+  async function claim() {
+    if (busy || hash || !bonus) return;
+    setBusy(true); setError("");
+    try {
+      await transact("claim", [positionId], setHash, undefined, undefined, account, { address: bonus.address, abi: bonusAbi });
+      setHash(null); setRevision(x => x + 1); onDone?.();
+    } catch (e) { setError(e instanceof Error ? e.message : "Bonus claim failed."); }
+    finally { setBusy(false); }
+  }
+  return <div className="mt-3">
+    <p className="text-sm">Shared bonus {bonus.snapshotTaken ? "" : "(estimate)"}: {arvo(owed)} ARVO</p>
+    {ready ? <button disabled={busy || Boolean(hash)} onClick={claim} className="mt-2 rounded-lg border border-black/15 px-4 py-2 text-xs font-semibold disabled:opacity-40">{busy ? "Confirm in wallet…" : "Claim shared bonus"}</button>
+      : <p className="mt-1 text-xs text-black/50">{bonus.snapshotTaken ? "Claimable from maturity." : "Fixed when entries close; claimable from maturity."}</p>}
+    {hash && <p className="mt-1 break-all text-xs">Submitted: {hash}</p>}
+    {error && <p role="alert" className="mt-1 text-xs text-red-700">{error}</p>}
+  </div>;
+}
+
+/** Stake review line: estimated bonus for the amount being entered. */
+export function BonusEstimate({ poolId, amount, refreshKey = 0 }: { poolId: number; amount: bigint; refreshKey?: number }) {
+  const bonus = useSharedBonus(poolId, refreshKey);
+  if (!bonus || bonus.snapshotTaken || amount <= 0n) return null;
+  const total = bonus.eligible + amount;
+  const estimate = (bonus.pot * amount) / total;
+  return <p className="mt-2 text-xs text-black/60">
+    + estimated shared bonus <span className="font-semibold text-[#07090b]">{arvo(estimate)} ARVO</span> ({bpsLabel(bonusBps(bonus, total))}) if no more ARVO enters. Falls as more ARVO enters; fixed when entries close.
+  </p>;
+}
