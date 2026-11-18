@@ -21,7 +21,11 @@ function signature(payload:string) {
  if(!secret||secret.length<32)throw new Error("App session signing is not configured securely.");
  return crypto.createHmac("sha256",secret).update("arvo-app-access-v2:"+payload).digest("hex");
 }
+// Public release switch: set APP_PUBLIC_ACCESS=1 (server-side, exact value)
+// to open the app without the early-access password. Unset to re-enable the gate.
+export function appIsPublic() { return process.env.APP_PUBLIC_ACCESS === "1"; }
 export async function hasAppAccess() {
+ if(appIsPublic())return true;
  const value=(await cookies()).get(COOKIE_NAME)?.value;
  if(!value||value.length>1024)return false;
  const [payload,supplied,...extra]=value.split(".");if(extra.length||!supplied||!/^[a-f0-9]{64}$/.test(supplied))return false;
