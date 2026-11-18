@@ -6,7 +6,7 @@ export type ProjectPresentation = {
  gallery:string[];
  videoUrl:string;
  metrics:{label:string;value:string}[];
- milestones:{label:string;status:"planned"|"in_progress"|"completed"}[];
+ milestones:{label:string;status:"planned"|"in_progress"|"completed";date?:string;note?:string}[];
 };
 export const defaultPresentation:ProjectPresentation={kind:"plots",showFinancials:true,showMilestones:false,gallery:[],videoUrl:"",metrics:[],milestones:[]};
 export function presentationInput(value:unknown):ProjectPresentation {
@@ -27,7 +27,9 @@ export function presentationInput(value:unknown):ProjectPresentation {
  const milestones=v.milestones.map((row:unknown)=>{
   if(!row||typeof row!=="object")throw new Error("Invalid milestone.");const r=row as Record<string,unknown>;
   if(typeof r.label!=="string"||!r.label.trim()||r.label.length>120||!["planned","in_progress","completed"].includes(String(r.status)))throw new Error("Each milestone needs a name and valid status.");
-  return {label:r.label.trim(),status:r.status as ProjectPresentation["milestones"][number]["status"]};
+  if(r.date!==undefined&&r.date!==""&&(typeof r.date!=="string"||!/^\d{4}-\d{2}(-\d{2})?$/.test(r.date)))throw new Error("Milestone dates must be YYYY-MM or YYYY-MM-DD.");
+  if(r.note!==undefined&&(typeof r.note!=="string"||r.note.length>280))throw new Error("Milestone updates must be 280 characters or fewer.");
+  return {label:r.label.trim(),status:r.status as ProjectPresentation["milestones"][number]["status"],...(typeof r.date==="string"&&r.date?{date:r.date}:{}),...(typeof r.note==="string"&&r.note.trim()?{note:r.note.trim()}:{})};
  });
  return {kind:v.kind as ProjectPresentation["kind"],showFinancials:v.showFinancials,showMilestones:v.showMilestones===undefined?milestones.length>0:v.showMilestones,gallery,videoUrl,metrics,milestones};
 }

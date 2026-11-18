@@ -48,6 +48,7 @@ export default function AdminBonusPage() {
 
   return <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
     <PageTitle eyebrow="Rewards" title="Shared bonus." copy="Fixed ARVO bonus pots shared by stake size, one bonus contract per vault. These actions are open to any wallet; no special role is needed." />
+    <p className="mt-4 text-xs"><a href="/api/admin/founding-stakers" className="font-semibold underline">Download founding stakers (CSV)</a> <span className="text-black/45">· First Edition depositors from onchain events, excluding emergency exits.</span></p>
     {error && <p role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
     {hash && <p className="mt-4 break-all text-xs">Submitted: {hash}</p>}
     {configured === 0 && <p className="mt-8 rounded-2xl border border-dashed border-black/15 p-6 text-sm text-black/55">No bonus contracts configured. Deploy one with <code>script/DeployFirstEditionBonus.s.sol</code> before the vault opens, fund it from the Treasury Safe, then add its address to <code>NEXT_PUBLIC_BONUS_ADDRESSES</code> and rebuild.</p>}
