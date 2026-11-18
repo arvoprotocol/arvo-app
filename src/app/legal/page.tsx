@@ -1,3 +1,4 @@
+import { restrictedJurisdictionList } from "@/lib/legal/jurisdictions";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/navigation/Header";
@@ -107,14 +108,7 @@ const sections = [
         <p>The current Restricted Jurisdictions are:</p>
 
         <p>
-          <strong>
-            North Korea, Iran, Myanmar, Angola, Bolivia, Bosnia and Herzegovina,
-            Bulgaria, Cameroon, Côte d’Ivoire, Democratic Republic of the
-            Congo, Haiti, Iraq, Kenya, Kuwait, Laos, Lebanon, Monaco, Nepal,
-            Papua New Guinea, South Sudan, Syria, Venezuela, Vietnam, British
-            Virgin Islands, Yemen, United States of America, Canada, United
-            Kingdom, Australia, China and Russia.
-          </strong>
+          <strong>{restrictedJurisdictionList()}.</strong>
         </p>
 
         <p>

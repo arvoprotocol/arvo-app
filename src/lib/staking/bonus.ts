@@ -1,22 +1,11 @@
-import { isAddress, zeroAddress, type Abi, type Address } from "viem";
+import { type Abi, type Address } from "viem";
+import { bonusAddresses } from "./bonus-config";
 import bonusArtifact from "./ArvoFirstEditionBonus.abi.json";
 import { stakingAbi, stakingConnection } from "./pool-transactions";
 
-export const bonusAbi = bonusArtifact as Abi;
+export { bonusAddresses };
 
-/**
- * Deployed bonus contracts (one per vault), comma-separated in
- * NEXT_PUBLIC_BONUS_ADDRESSES. NEXT_PUBLIC_FIRST_EDITION_BONUS_ADDRESS is also read.
- */
-export function bonusAddresses(): Address[] {
-  const raw = [process.env.NEXT_PUBLIC_BONUS_ADDRESSES, process.env.NEXT_PUBLIC_FIRST_EDITION_BONUS_ADDRESS].filter(Boolean).join(",");
-  const out = new Set<string>();
-  for (const part of raw.split(",")) {
-    const value = part.trim();
-    if (value && isAddress(value) && value.toLowerCase() !== zeroAddress) out.add(value.toLowerCase());
-  }
-  return [...out] as Address[];
-}
+export const bonusAbi = bonusArtifact as Abi;
 
 const poolCache = new Map<string, Promise<number | null>>();
 /** Bonus contract bound to `poolId` and to the configured staking proxy, if any. */
