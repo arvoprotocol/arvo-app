@@ -1,10 +1,12 @@
-// STAGING / DEMO ONLY. Adds clearly-labelled, fictional sample documents to one project so
-// Arvo Intelligence can be tried before real legal packs are uploaded.
+// STAGING / DEMO ONLY. Creates a separate sample project ("Sample site · demo data") with clearly-labelled,
+// fictional documents so Arvo Intelligence can be tried before real legal packs are uploaded.
+// Real projects are never changed unless you pass --slug on purpose.
 //
-//   DATABASE_URL=file:/path/to/db node scripts/seed-intelligence-demo.mjs [--slug project-slug]
+//   DATABASE_URL=file:/path/to/db node scripts/seed-intelligence-demo.mjs
 //   DATABASE_URL=file:/path/to/db node scripts/seed-intelligence-demo.mjs --remove
 //
-// Every demo document is titled "Demo · …", has source "demo-seed" and can be removed with --remove.
+// --remove deletes the sample project and every demo document, and switches Intelligence off for any
+// project left with no documents (undoing an earlier run on a real project).
 // Refuses to run when NODE_ENV=production unless --allow-production is passed.
 import Database from "better-sqlite3";
 import { createHash } from "node:crypto";
@@ -24,19 +26,39 @@ for (const t of ["Project", "IntelligenceProject", "IntelligenceDocument", "Inte
   if (!db.prepare("select name from sqlite_master where type='table' and name=?").get(t)) throw new Error(`Table ${t} is missing. Run prisma db push first.`);
 }
 
+const DEMO_SLUG = "intelligence-sample-site";
 if (flag("--remove")) {
-  const docs = db.prepare("select id from IntelligenceDocument where source='demo-seed'").all();
-  const tx = db.transaction(() => { for (const d of docs) { db.prepare("delete from IntelligenceChunk where documentId=?").run(d.id); db.prepare("delete from IntelligenceDocument where id=?").run(d.id); } });
+  const docs = db.prepare("select id, projectId from IntelligenceDocument where source='demo-seed'").all();
+  const touched = new Set(docs.map(d => d.projectId));
+  const demo = db.prepare("select id from Project where slug=?").get(DEMO_SLUG);
+  const tx = db.transaction(() => {
+    for (const d of docs) { db.prepare("delete from IntelligenceChunk where documentId=?").run(d.id); db.prepare("delete from IntelligenceDocument where id=?").run(d.id); }
+    for (const projectId of touched) {
+      const left = db.prepare("select count(*) n from IntelligenceDocument where projectId=?").get(projectId).n;
+      if (left === 0) db.prepare("update IntelligenceProject set enabled=0, updatedAt=? where projectId=?").run(new Date().toISOString(), projectId);
+    }
+    if (demo) { db.prepare("delete from IntelligenceProject where projectId=?").run(demo.id); db.prepare("delete from Project where id=?").run(demo.id); }
+  });
   tx();
-  console.log(`Removed ${docs.length} demo documents. The project's Intelligence switch was left as it is; turn it off in Admin → Intelligence if needed.`);
+  console.log(`Removed ${docs.length} demo documents${demo ? " and the sample project" : ""}. Intelligence was switched off for any project left without documents.`);
   process.exit(0);
 }
 
 const slug = value("--slug");
-const project = slug
-  ? db.prepare("select id, slug, title, location from Project where slug=?").get(slug)
-  : db.prepare("select id, slug, title, location from Project where publishStatus='published' order by sortOrder asc, createdAt desc limit 1").get();
-if (!project) throw new Error(slug ? `No project with slug "${slug}".` : "No published project found.");
+let project;
+if (slug) {
+  project = db.prepare("select id, slug, title, location from Project where slug=?").get(slug);
+  if (!project) throw new Error(`No project with slug "${slug}".`);
+} else {
+  project = db.prepare("select id, slug, title, location from Project where slug=?").get(DEMO_SLUG);
+  if (!project) {
+    const now = new Date().toISOString();
+    db.prepare(`insert into Project (slug, title, location, titleNumber, status, statusLabel, stage, acres, plots, plotsSold, currency, description, publishStatus, sortOrder, publishedAt, createdAt, updatedAt)
+      values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(DEMO_SLUG, "Sample site · demo data", "Ashworth, Somerset", "", "active", "Demo", "Sample data", "4.2", 8, 0, "GBP",
+      "A fictional sample project used to try Arvo Intelligence on staging. None of its documents or figures are real.", "published", 9999, now, now, now);
+    project = db.prepare("select id, slug, title, location from Project where slug=?").get(DEMO_SLUG);
+  }
+}
 const place = (project.location || "the site").split(",")[0].trim();
 
 // Fictional content. Names below are invented and exist to show that Intelligence will not repeat them.
