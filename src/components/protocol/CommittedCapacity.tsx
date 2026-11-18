@@ -35,6 +35,5 @@ export function CommittedCapacity({ asset, cap, committed, deposited, decimals, 
       <div><dt className="flex items-center gap-1.5 text-white/45"><span className="h-2 w-2 rounded-sm bg-[#d8977c]" />In the app</dt><dd className="mt-1 font-semibold tabular-nums text-white/85">{amount(deposited)}</dd></div>
       <div><dt className="flex items-center gap-1.5 text-white/45"><span className="h-2 w-2 rounded-sm bg-white/15" />Still open</dt><dd className="mt-1 font-semibold tabular-nums text-[#edb9a2]">{amount(available)}</dd></div>
     </dl>
-    <p className="mt-3 text-[11px] leading-5 text-white/45">{amount(committed)} {asset} {committedLabel}. {preview ? `${amount(available)} ${asset} will be open` : `${amount(available)} ${asset} still open`} to deposits in the app.</p>
   </div>;
 }

@@ -7,7 +7,7 @@ import {assetCapacity,productAvailability,vaultAvailability,vaultName} from "@/l
 import {VaultShare} from "@/components/protocol/VaultShare";
 import {SharedBonus,BonusEstimate,cachedBonus,preloadBonuses} from "@/components/protocol/SharedBonus";
 import {bonusBps,bpsLabel} from "@/lib/staking/bonus";
-import {BonusRibbon,StakingIn,VaultCardShell,cardOrder} from "@/components/protocol/VaultCardShell";
+import {BonusRibbon,CardSection,CardStatus,CardTitle,StakingIn,VaultCardShell,cardOrder,useRowEndOrder} from "@/components/protocol/VaultCardShell";
 import {AuditedBySoken} from "@/components/protocol/SokenBadge";
 import {VaultCalculator,VaultMomentum} from "@/components/protocol/VaultExtras";
 import {appPath} from "@/lib/protocol/app-url";
@@ -38,6 +38,7 @@ export default function StakePage(){
  const [calculator,setCalculator]=useState<PoolRow|null>(null);
  const state=useStakingData(),[pools,setPools]=useState<PoolRow[]>([]),[poolError,setPoolError]=useState(""),[loading,setLoading]=useState(true),[selected,setSelected]=useState<PoolRow|null>(null),[product,setProduct]=useState(0),[arvoAmount,setArvoAmount]=useState("100000"),[usdcAmount,setUsdcAmount]=useState("1000"),[quote,setQuote]=useState<bigint|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[pending,setPending]=useState<Hash|null>(null),[revision,setRevision]=useState(0);const sending=useRef(false),quoteVersion=useRef(0);
  const {titles,orders,extras,ready:metadataReady}=usePoolMetadata(revision);
+ const reviewOrder=useRowEndOrder(selected?`vault-pool-${selected.id}`:null);
  const [bonusReady,setBonusReady]=useState(false);useEffect(()=>{let cancelled=false;preloadBonuses().finally(()=>{if(!cancelled)setBonusReady(true);});return()=>{cancelled=true;};},[revision]);
  useEffect(()=>{let cancelled=false;setPoolError("");const c=stakingConnection();if(!c)return;setLoading(true);async function load(){if(await c!.publicClient.getChainId()!==c!.chain.id)throw new Error("Configured RPC chain mismatch.");const next=Number(await c!.publicClient.readContract({address:c!.address,abi:stakingAbi,functionName:"nextVaultId",blockTag:"latest"}));if(!Number.isSafeInteger(next)||next>1000)throw new Error("Pool listing requires pagination before more than 1,000 pools can be shown.");const rows:PoolRow[]=[];for(let i=0;i<next;i+=20){const batch=await Promise.all(Array.from({length:Math.min(20,next-i)},(_,j)=>readPool(i+j)));rows.push(...batch.filter(x=>x.visibility!==0));}if(!cancelled)setPools(rows.reverse());}load().catch(e=>{if(!cancelled)setPoolError(e.message);}).finally(()=>{if(!cancelled)setLoading(false);});return()=>{cancelled=true;};},[revision]);
  useEffect(()=>{quoteVersion.current++;setQuote(null);setError("");},[selected,product,arvoAmount,usdcAmount,state.account]);
@@ -73,32 +74,36 @@ export default function StakePage(){
  const liveBonus=cachedBonus(row.id),fullBps=liveBonus&&liveBonus.maxPrincipal>0n?bonusBps(liveBonus,liveBonus.maxPrincipal):null,plannedBonus=Number(extras[row.id]?.bonusPct||0);
  const bonusLabel=liveBonus?(fullBps!==null?`+${bpsLabel(fullBps)} bonus pot`:"Bonus pot"):plannedBonus>0?`+${plannedBonus}% bonus pot`:null;
  const usdgOnly=products.length>0&&products.every(k=>k==="usdcUsdc");
+ const minRow=products.map(key=>{const i=keys.indexOf(key);return {key,i,value:i===2?`${tokenDisplay(row.vault.minUsdc,6)} USDG`:i>=3?`${tokenDisplay(row.vault.minArvo,18)} ARVO + ${tokenDisplay(row.vault.minUsdc,6)} USDG`:`${tokenDisplay(i===1?row.crossMinimum:row.vault.minArvo,18)} ARVO`,usd:i===0||i===1?Number(formatUnits(i===1?row.crossMinimum:row.vault.minArvo,18)):undefined};})[0];
+ const size=usdgOnly?(row.pool.maxUsdcPrincipal>0n?`${tokenDisplay(row.pool.maxUsdcPrincipal,6)} USDG`:"No limit"):(row.pool.maxArvoPrincipal>0n?`${tokenDisplay(row.pool.maxArvoPrincipal,18)} ARVO`:"No limit");
+ const paidIn=[...new Set(products.map(k=>{const i=keys.indexOf(k);return i===5?"ARVO + USDG":i===0||i===3?"ARVO":"USDG";}))].join(" or ");
+ const bonusNow=liveBonus&&!liveBonus.snapshotTaken?(liveBonus.eligible===0n?"Whole pot":`+${bpsLabel(bonusBps(liveBonus,liveBonus.eligible))}`):liveBonus?.snapshotTaken?"Fixed":null;
  return <VaultCardShell key={row.id} id={`vault-pool-${row.id}`} order={cardOrder(orders[row.id]??0,row.id,false)} highlighted={selected?.id===row.id}
-  ribbon={bonusLabel?<BonusRibbon label={bonusLabel} tip={<>On top of the fixed reward, a bonus pot is shared between everyone in this vault by how much they stake. {fullBps!==null||plannedBonus>0?<>If the vault fills up it works out at about {fullBps!==null?bpsLabel(fullBps):`${plannedBonus}%`} extra; </>:null}if it is less full, each share is bigger. Shares are fixed when deposits close.</>}/>:undefined}
-  terms={<>
-   <div className={`flex items-center justify-between gap-3 ${bonusLabel?"max-lg:pr-44":""}`}><p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#e2a98e]"><span className={`h-1.5 w-1.5 rounded-full ${tone} ${open?"animate-pulse":""}`}/>{status}</p><VaultShare title={title} days={days} anchor={`vault-pool-${row.id}`} dark/></div>
-   <h2 className="mt-5 text-3xl font-semibold tracking-tight">{title}</h2><LockLine days={days}/>
-   <div className="mt-5 space-y-4">{products.map(key=>{const i=keys.indexOf(key),rate=(i===0||i===3?row.vault.arvoRewardBps:row.vault.usdcRewardBps)/100;const pays=i===0||i===3?"ARVO":"USDG";
-   return <div key={key}><p className="text-xs leading-5 text-white/60">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={row.vault.arvoRewardBps/100} usdcRate={row.vault.usdcRewardBps/100} share={row.vault.mixedArvoShareBps/100} days={days} dark/>:<><AnnualReward percent={rate} days={days} dark prominent/><RewardLine percent={rate} days={days} asset={pays} note={i>=3?"before dual uplift":undefined}/></>}</div>;})}</div>
-  </>}
-  details={<>
-   <dl className="space-y-2.5 text-xs leading-5">{products.map(key=>{const i=keys.indexOf(key);const minimum=i===2?`${tokenDisplay(row.vault.minUsdc,6)} USDG`:i>=3?`${tokenDisplay(row.vault.minArvo,18)} ARVO + ${tokenDisplay(row.vault.minUsdc,6)} USDG`:`${tokenDisplay(i===1?row.crossMinimum:row.vault.minArvo,18)} ARVO`;return <TermRow key={key} usdArvo={i===0||i===1?Number(formatUnits(i===1?row.crossMinimum:row.vault.minArvo,18)):undefined} label={products.length>1?`Minimum · ${productLabels[key].split(" · ")[0].replace("Deposit ","")}`:"Minimum deposit"} value={minimum} tip={i===1?"Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit.":undefined}/>;})}</dl>
-   <AcquisitionFunding state={row.acquisition} dark/><VaultCapacity row={row}/><VaultMomentum poolId={row.id}/>
-   <SharedBonus poolId={row.id} refreshKey={revision} dark/>
-   <StakingIn asset={usdgOnly?"USDG":"ARVO"} project={extras[row.id]?.project} acquisition={Boolean(row.acquisition)}/>
-  </>}
-  action={<>
-   <div className="-mt-5"><VaultTiming opensAt={dateFor(row.pool.opensAt)} closesAt={dateFor(row.pool.closesAt)} dark compact/></div>
-   <div className="mt-auto space-y-3 pt-6"><VaultCalculator row={row}/>{!(products.length===1&&products[0]==="arvoArvo")&&<button type="button" onClick={()=>setCalculator(row)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-white hover:border-[#c9846a]/50 hover:bg-white/[0.04]">Estimate my reward</button>}
+  ribbon={bonusLabel?<BonusRibbon label={bonusLabel.replace(" bonus pot"," bonus")} tip={<>On top of the fixed reward, a bonus pot{liveBonus?` of ${tokenDisplay(liveBonus.pot,18)} ARVO`:""} is shared between everyone in this vault by how much they stake. {fullBps!==null||plannedBonus>0?<>If the vault fills up it works out at about {fullBps!==null?bpsLabel(fullBps):`${plannedBonus}%`} extra; </>:null}if it is less full, each share is bigger.{bonusNow&&bonusNow!=="Fixed"?` If you joined now: ${bonusNow}.`:""} Shares are fixed when deposits close; claim the bonus when your stake unlocks. Paid by a separate bonus contract, independently tested with automated security analysis and AI review (not part of the Soken audit).</>}/>:undefined}>
+  <CardStatus dot={`${tone} ${open?"animate-pulse":""}`} label={status} hasRibbon={Boolean(bonusLabel)}/>
+  <CardTitle title={title} share={<VaultShare title={title} days={days} anchor={`vault-pool-${row.id}`} dark/>}/>
+  <LockLine days={days} className="mt-1"/>
+  <CardSection min="min-h-[7.25rem]">{products.map(key=>{const i=keys.indexOf(key),rate=(i===0||i===3?row.vault.arvoRewardBps:row.vault.usdcRewardBps)/100;const pays=i===0||i===3?"ARVO":"USDG";
+   return <div key={key}><p className="text-xs leading-5 text-white/60">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={row.vault.arvoRewardBps/100} usdcRate={row.vault.usdcRewardBps/100} share={row.vault.mixedArvoShareBps/100} days={days} dark/>:<><AnnualReward percent={rate} days={days} dark prominent/><RewardLine percent={rate} days={days} asset={pays} note={i>=3?"before dual uplift":undefined}/></>}</div>;})}</CardSection>
+  <CardSection min="min-h-[5.5rem]" divider><dl className="space-y-2 text-xs leading-5">
+   <TermRow label="Minimum deposit" value={minRow?.value??"—"} usdArvo={minRow?.usd} tip={minRow?.i===1?"Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit.":undefined}/>
+   <TermRow label="Vault size" value={size} usdArvo={!usdgOnly&&row.pool.maxArvoPrincipal>0n?Number(formatUnits(row.pool.maxArvoPrincipal,18)):undefined} tip="The most this vault can hold. Once it is full, it stops taking new deposits."/>
+   {bonusNow?<TermRow label="Bonus if you join now" value={bonusNow==="Fixed"?"Shares fixed":bonusNow} tip="Your share of the bonus pot at today's vault size. It gets smaller as more ARVO joins and is fixed when deposits close."/>:<TermRow label="Reward paid in" value={paidIn}/>}
+  </dl></CardSection>
+  <AcquisitionFunding state={row.acquisition} dark/>
+  <CardSection min="min-h-[4.5rem]"><VaultCapacity row={row} bare/></CardSection>
+  <CardSection min=""><VaultMomentum poolId={row.id} flush/></CardSection>
+  <CardSection min=""><StakingIn asset={usdgOnly?"USDG":"ARVO"} project={extras[row.id]?.project} acquisition={Boolean(row.acquisition)}/></CardSection>
+  <VaultTiming opensAt={dateFor(row.pool.opensAt)} closesAt={dateFor(row.pool.closesAt)} dark compact/>
+  <div className="mt-auto space-y-3 pt-5"><VaultCalculator row={row}/>{!(products.length===1&&products[0]==="arvoArvo")&&<button type="button" onClick={()=>setCalculator(row)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-white hover:border-[#c9846a]/50 hover:bg-white/[0.04]">Estimate my reward</button>}
    <button data-sound="confirm" disabled={busy||Boolean(pending)||!availability.available} onClick={()=>selected?.id===row.id?setSelected(null):choose(row)} aria-expanded={selected?.id===row.id} className="w-full rounded-xl bg-[#f8f2ed] px-4 py-3.5 text-sm font-semibold text-[#07090b] transition hover:bg-white disabled:opacity-40">{selected?.id===row.id?"Hide stake details":availability.available ? open ? "Stake in this vault" : "View terms" : availabilityLabel(availability.reason,beforeOpen)}</button></div>
-  </>}
- />;
+ </VaultCardShell>;
  })}
  {selected&&(()=>{const options=keys.map((key,i)=>({key,i})).filter(({i})=>selected.products?(selected.products&2**i)!==0:i===0&&selected.vault.arvoStakeEnabled&&selected.vault.arvoRewardEnabled||i===2&&selected.vault.usdcStakeEnabled&&selected.vault.usdcRewardEnabled||i>=3&&selected.vault.dualStakeEnabled&&(i===3?selected.vault.arvoRewardEnabled:selected.vault.usdcRewardEnabled));
  const days=selected.vault.duration/86400,open=accepting(selected);
  const startMs=Math.max(now??0,Number(selected.pool.opensAt)*1000),unlock=new Date(startMs+selected.vault.duration*1000).toISOString();
  const back=product===0&&estimate!==null?`${tokenDisplay(a+estimate,18)} ARVO`:product===2&&estimate!==null?`${tokenDisplay(u+estimate,6)} USDG`:null;
- return <section id="stake-review" style={{order:cardOrder(orders[selected.id]??0,selected.id,false)+1}} className="arvo-fade scroll-mt-28 -mt-2"><Panel><PanelHeader eyebrow={titles[selected.id]??`Vault ${selected.id}`} title="Review your stake"/><div className="space-y-5 p-6"><AcquisitionFunding state={selected.acquisition}/>
+ return <section id="stake-review" style={{order:reviewOrder??cardOrder(orders[selected.id]??0,selected.id,false)+1}} className="arvo-fade col-span-full scroll-mt-28"><Panel><PanelHeader eyebrow={titles[selected.id]??`Vault ${selected.id}`} title="Review your stake"/><div className="space-y-5 p-6"><AcquisitionFunding state={selected.acquisition}/>
  {options.length>1?<label className="block text-sm font-semibold">What you deposit and earn<select disabled={busy||Boolean(pending)} value={product} onChange={e=>setProduct(Number(e.target.value))} className="mt-2 w-full rounded-xl border border-black/10 bg-white p-3 font-normal">{options.map(({key,i})=><option value={i} key={key}>{productLabels[key]}</option>)}</select></label>:<p className="text-sm text-black/60">{productLabels[options[0]?.key??"arvoArvo"]} · {lockLabel(days).toLowerCase()}</p>}
  {stakeMode!==1&&<label className="block text-sm font-semibold">How much ARVO?<TokenAmountInput label="ARVO stake amount" disabled={busy||Boolean(pending)} value={arvoAmount} onChange={setArvoAmount} /><span className="mt-1.5 flex flex-wrap justify-between gap-2 text-xs font-normal text-black/50"><span>Minimum {tokenDisplay(minimum,18)} ARVO</span><span><UsdHint dark={false} prefix="Worth " suffix=" · " arvo={Number(arvoAmount.replace(/,/g,""))}/>In your wallet: {state.data?`${tokenDisplay(available,18)} ARVO`:"connect to see"}</span></span></label>}
  {stakeMode!==0&&<label className="block text-sm font-semibold">How much USDG?<TokenAmountInput label="USDG stake amount" disabled={busy||Boolean(pending)} value={usdcAmount} onChange={setUsdcAmount} /><span className="mt-1.5 flex flex-wrap justify-between gap-2 text-xs font-normal text-black/50"><span>Minimum {tokenDisplay(selected.vault.minUsdc,6)} USDG</span>{state.data&&<span>In your wallet: {tokenDisplay(state.data.usdcBalance,6)} USDG</span>}</span></label>}

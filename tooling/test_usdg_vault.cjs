@@ -44,7 +44,7 @@ test('capacity bar shows committed, onchain and available amounts that add up to
  const {CommittedCapacity}=require('../src/components/protocol/CommittedCapacity.tsx');
  const html=renderToStaticMarkup(React.createElement(CommittedCapacity,{asset:'USDG',cap:250000n*10n**6n,committed:200000n*10n**6n,deposited:12500n*10n**6n,decimals:6,committedLabel:'committed outside the app'}));
  assert.match(html,/212,500 \/ 250,000 USDG/);
- assert.match(html,/200,000 USDG committed outside the app\. 37,500 USDG still open to deposits in the app\./);
+ assert.match(html,/200,000 USDG of this vault has already been committed|aria-valuetext="200,000 USDG committed outside the app, 12,500 deposited onchain, 37,500 available"/);
  assert.match(html,/width:80%/);assert.match(html,/width:5%/);
 });
 
@@ -85,7 +85,7 @@ test('arranging launch vaults orders them, renames the USDG vault and keeps ever
  const Database=require('better-sqlite3'),os=require('node:os'),{execFileSync}=require('node:child_process');
  const file=path.join(fs.mkdtempSync(path.join(os.tmpdir(),'arvo-arrange-')),'t.db');const db=new Database(file);
  db.exec('CREATE TABLE "StakingVaultDraft" (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, poolType TEXT, standardKind TEXT, valuesJson TEXT, productsJson TEXT, visibility TEXT, sortOrder INTEGER, seedKey TEXT UNIQUE, revision INTEGER, linkedChainId INTEGER, linkedProxy TEXT, linkedPoolId INTEGER, createdAt DATETIME, updatedAt DATETIME); CREATE TABLE "Project" (id INTEGER PRIMARY KEY, slug TEXT, title TEXT, publishStatus TEXT, sortOrder INTEGER, createdAt DATETIME);');
- db.prepare("insert into Project (slug,title,publishStatus,sortOrder,createdAt) values ('real-site','Real site','published',0,'2026-01-01')").run();
+ db.prepare("insert into Project (slug,title,publishStatus,sortOrder,createdAt) values ('real-site','Real site','published',0,'2026-01-01')").run();db.prepare("insert into Project (slug,title,publishStatus,sortOrder,createdAt) values ('ripe-farm','Ripe','published',5,'2026-01-01')").run();
  const env={...process.env,DATABASE_URL:`file:${file}`};
  execFileSync(process.execPath,[path.join(__dirname,'../scripts/seed-launch-vaults.mjs')],{env});
  const old={...F.initialValues,minArvo:'500000',minArvoUsdc:'550000',opens:'2026-10-01T12:00',closes:'2026-10-05T12:00'};delete old.bonusPct;delete old.projectSlug;delete old.committedUsdc;
@@ -99,7 +99,7 @@ test('arranging launch vaults orders them, renames the USDG vault and keeps ever
  for(const r of rows){V.validateDraft({title:r.title,poolType:r.poolType,standardKind:r.standardKind,values:JSON.parse(r.valuesJson),products:JSON.parse(r.productsJson),visibility:r.visibility,sortOrder:r.sortOrder});}
  const v=t=>JSON.parse(rows.find(r=>r.title===t).valuesJson);
  assert.equal(v('Whole Site Finance').usdcRate,'14');assert.equal(v('Whole Site Finance').minUsdc,'10000');
- assert.equal(v('First Edition').bonusPct,'5');assert.equal(v('Genesis Pilot').bonusPct,'5');assert.equal(v('Genesis Pilot').projectSlug,'real-site');
+ assert.equal(v('First Edition').bonusPct,'5');assert.equal(v('Genesis Pilot').bonusPct,'5');assert.equal(v('Genesis Pilot').projectSlug,'ripe-farm');
  assert.equal(v('Build').minArvo,'1500000');assert.equal(v('Build').opens,'');assert.equal(v('Foundation').maxArvo,'100000000');
  assert.equal(v('Community Welcome').minArvo,'850000'); // live vault terms untouched
 });

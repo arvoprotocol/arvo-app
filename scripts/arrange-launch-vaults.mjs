@@ -30,7 +30,13 @@ const plan = [
 ];
 
 const rows = db.prepare("select id, title, valuesJson, sortOrder, linkedPoolId, revision from StakingVaultDraft").all();
-const firstProject = db.prepare("select slug, title from Project where publishStatus='published' and slug <> 'intelligence-sample-site' order by sortOrder asc, createdAt desc limit 1").get();
+// Genesis is backed by a plot sale from the Ripe project. Override with --genesis-project <slug>.
+const argIndex = process.argv.indexOf("--genesis-project");
+const genesisSlug = argIndex >= 0 ? process.argv[argIndex + 1] : undefined;
+const genesisProject = genesisSlug
+  ? db.prepare("select slug, title from Project where slug=?").get(genesisSlug)
+  : db.prepare("select slug, title from Project where lower(title) like '%ripe%' or lower(slug) like '%ripe%' order by (publishStatus='published') desc, sortOrder asc limit 1").get();
+if (!genesisProject) console.log(`! No ${genesisSlug ? `project "${genesisSlug}"` : "Ripe project"} found: Genesis Pilot keeps its current project link.`);
 const now = new Date().toISOString();
 let changes = 0;
 const tx = db.transaction(() => {
@@ -43,11 +49,11 @@ const tx = db.transaction(() => {
       const live = row.linkedPoolId !== null;
       if (step.values && !live) Object.assign(values, step.values);
       if (step.values?.bonusPct && live) values.bonusPct = step.values.bonusPct; // display-only, safe on live vaults
-      if (step.linkProject && !values.projectSlug && firstProject) values.projectSlug = firstProject.slug;
+      if (step.linkProject && genesisProject) values.projectSlug = genesisProject.slug;
       const title = step.title ?? row.title;
       const changed = JSON.stringify(values) !== before || title !== row.title || row.sortOrder !== step.order;
       if (!changed) { console.log(`· ${row.title}: already arranged`); continue; }
-      console.log(`${apply ? "✓" : "→"} ${row.title}${title !== row.title ? ` → "${title}"` : ""}: position ${step.order}${live ? " (live vault: order, name and bonus strip only)" : ""}${step.linkProject && values.projectSlug ? `, project ${values.projectSlug}` : ""}`);
+      console.log(`${apply ? "✓" : "→"} ${row.title}${title !== row.title ? ` → "${title}"` : ""}: position ${step.order}${live ? " (live vault: order, name and bonus strip only)" : ""}${step.linkProject && values.projectSlug ? `, project ${values.projectSlug}${genesisProject ? ` (${genesisProject.title})` : ""}` : ""}`);
       if (apply) db.prepare("update StakingVaultDraft set title=?, valuesJson=?, sortOrder=?, revision=revision+1, updatedAt=? where id=?").run(title, JSON.stringify(values), step.order, now, row.id);
       changes++;
     }
