@@ -31,7 +31,7 @@ export async function intelligenceProjects(): Promise<(IntelligenceProjectSummar
     const count = (types: DocType[]) => docs.filter(x => x.projectId === p.id && types.includes(x.docType as DocType)).reduce((n, x) => n + x._count._all, 0);
     return {
       id: p.id, slug: d.slug, title: d.title, location: d.location, titleNumber: d.titleNumber, image: d.image,
-      status: d.status, statusLabel: d.statusLabel, stage: d.stage, acres: d.acres, plots: d.plots, plotsSold: d.plotsSold,
+      status: d.status, statusLabel: d.statusLabel, stage: d.stage, acres: d.acres, plots: d.plots, plotsSold: d.plotsSold ?? 0,
       topics: { title: count(TOPIC_TYPES.title), access: count(TOPIC_TYPES.access), comparables: count(TOPIC_TYPES.comparables), location: count(TOPIC_TYPES.location) },
     };
   });
@@ -41,7 +41,7 @@ export async function intelligenceProjects(): Promise<(IntelligenceProjectSummar
 export function projectRecordText(d: Project) {
   const lines = [
     `Project: ${d.title}`, `Location: ${d.location}`, d.titleNumber.trim() ? `HM Land Registry title number: ${d.titleNumber}` : "",
-    `Status: ${d.statusLabel || d.status}`, `Stage: ${d.stage}`, `Site area: ${d.acres} acres`, `Plots: ${d.plots} (sold: ${d.plotsSold})`,
+    `Status: ${d.statusLabel || d.status}`, `Stage: ${d.stage}`, `Site area: ${d.acres} acres`, `Plots: ${d.plots} (sold: ${d.plotsSold ?? 0})`,
     d.acquisitionDate ? `Acquisition date: ${d.acquisitionDate}` : "",
     d.presentation?.showFinancials ? `Acquisition price: ${d.acquisitionPrice}; guide value: ${d.guideValue}${d.soldValue ? `; sale value: ${d.soldValue}` : ""}` : "",
     d.plotDetails.length ? `Plot schedule: ${d.plotDetails.map(p => `${p.label} ${p.status}${d.presentation?.showFinancials && p.salePrice ? ` ${p.salePrice}` : ""}`).join("; ")}` : "",
