@@ -249,3 +249,57 @@ model WalletSession {
   expiresAt DateTime
   @@index([expiresAt])
 }
+
+// Arvo Intelligence beta. Only extracted text is stored; original documents
+// are not kept or shown. projectId refers to Project.id (no relation, so the
+// audited Project model is unchanged).
+model IntelligenceProject {
+  id        Int      @id @default(autoincrement())
+  projectId Int      @unique
+  enabled   Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
+
+model IntelligenceDocument {
+  id           Int                 @id @default(autoincrement())
+  projectId    Int
+  title        String
+  docType      String
+  documentDate DateTime?
+  source       String?
+  pages        Int                 @default(0)
+  status       String
+  sha256       String
+  createdAt    DateTime            @default(now())
+  chunks       IntelligenceChunk[]
+
+  @@unique([projectId, sha256])
+  @@index([projectId])
+}
+
+model IntelligenceChunk {
+  id         Int                  @id @default(autoincrement())
+  documentId Int
+  document   IntelligenceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  page       Int
+  text       String
+
+  @@index([documentId])
+}
+
+model IntelligenceQuestion {
+  id           Int      @id @default(autoincrement())
+  projectId    Int
+  actorHash    String
+  question     String
+  answerJson   String
+  model        String
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+  rating       Int?
+  feedback     String?
+  createdAt    DateTime @default(now())
+
+  @@index([projectId, createdAt])
+  @@index([createdAt])
+}

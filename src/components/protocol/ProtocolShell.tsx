@@ -11,13 +11,14 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Wallet, Users, X } from "lucide-react";
+import { Activity, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Sparkles, Wallet, Users, X } from "lucide-react";
 
 const nav = [
   { label: "Overview", href: "/app", icon: LayoutDashboard },
   { label: "Stake", href: "/app/stake", icon: Coins, featured: true },
   { label: "Portfolio", href: "/app/portfolio", icon: PieChart },
   { label: "Projects", href: "/app/projects", icon: FolderKanban },
+  { label: "Intelligence", href: "/app/intelligence", icon: Sparkles },
   { label: "Rewards", href: "/app/rewards", icon: Gift },
   { label: "Treasury", href: "/app/treasury", icon: Landmark },
 ] as const;

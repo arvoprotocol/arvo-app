@@ -1,5 +1,5 @@
 export type HostRoute = { action: "next" | "rewrite" | "redirect" | "reject"; path?: string; targetOrigin?: string };
-const pages = new Set(["stake", "portfolio", "projects", "rewards", "treasury", "community", "governance", "activity", "support", "terms", "admin", "wallet", "vault-previews", "market-price", "community-data", "community-posts"]);
+const pages = new Set(["stake", "portfolio", "projects", "rewards", "treasury", "community", "governance", "activity", "support", "terms", "admin", "wallet", "vault-previews", "market-price", "community-data", "community-posts", "intelligence"]);
 export function routeAppHost(host: string, path: string, method: string, configuredApp: string, marketing: string): HostRoute {
  if (!configuredApp) return { action: "next" };
  const app = new URL(configuredApp), site = new URL(marketing);
