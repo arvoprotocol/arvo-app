@@ -1,5 +1,6 @@
 "use client";
 import { tokenDisplay } from "@/lib/staking/presentation";
+import { InfoTip } from "./InfoTip";
 
 /**
  * Capacity bar with two filled segments:
@@ -20,7 +21,7 @@ export function CommittedCapacity({ asset, cap, committed, deposited, decimals, 
   const amount = (n: bigint) => tokenDisplay(n, decimals);
   return <div className={bare ? "" : "mt-5 border-t border-white/10 pt-4"}>
     <div className="flex items-baseline justify-between gap-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">{preview ? "Planned capacity" : `${asset} capacity`}</p>
+      <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">{preview ? "Vault size" : "Vault filled"}<InfoTip dark label="About committed capital">{amount(committed)} {asset} of this vault has already been committed by investors outside the app, so it counts towards the vault size. The rest is open to deposits here. Only deposits made in the app earn the reward shown on this card.</InfoTip></p>
       <p className="text-[11px] tabular-nums text-white/60">{amount(filled)} / {amount(cap)} {asset}</p>
     </div>
     <div role="progressbar" aria-label={`${asset} vault capacity`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(committedPct + depositedPct)}
@@ -31,9 +32,9 @@ export function CommittedCapacity({ asset, cap, committed, deposited, decimals, 
     </div>
     <dl className="mt-3 grid grid-cols-3 gap-2 text-[11px] leading-4">
       <div><dt className="flex items-center gap-1.5 text-white/45"><span className="h-2 w-2 rounded-sm bg-[#9a624d]" />Committed</dt><dd className="mt-1 font-semibold tabular-nums text-white/85">{amount(committed)}</dd></div>
-      <div><dt className="flex items-center gap-1.5 text-white/45"><span className="h-2 w-2 rounded-sm bg-[#d8977c]" />Onchain</dt><dd className="mt-1 font-semibold tabular-nums text-white/85">{amount(deposited)}</dd></div>
-      <div><dt className="flex items-center gap-1.5 text-white/45"><span className="h-2 w-2 rounded-sm bg-white/15" />Available</dt><dd className="mt-1 font-semibold tabular-nums text-[#edb9a2]">{amount(available)}</dd></div>
+      <div><dt className="flex items-center gap-1.5 text-white/45"><span className="h-2 w-2 rounded-sm bg-[#d8977c]" />In the app</dt><dd className="mt-1 font-semibold tabular-nums text-white/85">{amount(deposited)}</dd></div>
+      <div><dt className="flex items-center gap-1.5 text-white/45"><span className="h-2 w-2 rounded-sm bg-white/15" />Still open</dt><dd className="mt-1 font-semibold tabular-nums text-[#edb9a2]">{amount(available)}</dd></div>
     </dl>
-    <p className="mt-3 text-[11px] leading-5 text-white/45">{amount(committed)} {asset} {committedLabel}. {preview ? `${amount(available)} ${asset} planned` : `${amount(available)} ${asset} remains`} for onchain deposits.</p>
+    <p className="mt-3 text-[11px] leading-5 text-white/45">{amount(committed)} {asset} {committedLabel}. {preview ? `${amount(available)} ${asset} will be open` : `${amount(available)} ${asset} still open`} to deposits in the app.</p>
   </div>;
 }

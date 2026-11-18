@@ -5,6 +5,7 @@ import type { PoolRow } from "@/hooks/useStakingData";
 import { annualRates } from "@/components/protocol/AnnualReward";
 import { useSharedBonus } from "@/components/protocol/SharedBonus";
 import { appPath } from "@/lib/protocol/app-url";
+import { Calculator, ChevronDown } from "lucide-react";
 
 const fmt = (v: bigint, d = 18, max = 2) => Number(formatUnits(v, d)).toLocaleString("en-GB", { maximumFractionDigits: max });
 const date = (s: number) => new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(new Date(s * 1000)) + " UTC";
@@ -27,20 +28,20 @@ export function VaultCalculator({ row }: { row: PoolRow }) {
   const rates = annualRates(row.vault.arvoRewardBps / 100, days);
   const start = Math.max(now, Number(row.pool.opensAt));
   const belowMin = amount > 0n && amount < row.vault.minArvo;
-  return <details className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-    <summary className="cursor-pointer list-none text-xs font-semibold text-[#e2a98e] [&::-webkit-details-marker]:hidden">Calculate your rewards ↓</summary>
-    <label className="mt-3 block text-[11px] text-white/50">ARVO to stake
+  return <details className="group rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 open:pb-4">
+    <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-xs font-semibold text-[#e2a98e] [&::-webkit-details-marker]:hidden"><span className="inline-flex items-center gap-2"><Calculator size={14} />Estimate my reward</span><ChevronDown size={14} className="transition-transform duration-200 group-open:rotate-180" /></summary>
+    <label className="mt-3 block text-[11px] text-white/50">How much ARVO would you stake?
       <input value={input} onChange={e => setInput(e.target.value)} inputMode="decimal" placeholder={fmt(row.vault.minArvo, 18, 0)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c9846a]/60" />
     </label>
     {belowMin && <p className="mt-2 text-[11px] text-amber-300">Minimum stake is {fmt(row.vault.minArvo, 18, 0)} ARVO.</p>}
     {amount > 0n && !belowMin && <dl className="mt-3 space-y-1.5 text-xs">
-      <div className="flex justify-between gap-3"><dt className="text-white/50">Base reward ({row.vault.arvoRewardBps / 100}%)</dt><dd className="font-semibold tabular-nums">{fmt(base)} ARVO</dd></div>
-      {bonus && !bonus.snapshotTaken && <div className="flex justify-between gap-3"><dt className="text-white/50">Est. shared bonus*</dt><dd className="font-semibold tabular-nums">{fmt(est)} ARVO</dd></div>}
-      <div className="flex justify-between gap-3 border-t border-white/10 pt-1.5"><dt className="text-white/50">Back at maturity</dt><dd className="font-semibold tabular-nums text-[#e2a98e]">{fmt(amount + base + est)} ARVO</dd></div>
-      <div className="flex justify-between gap-3"><dt className="text-white/50">Matures</dt><dd className="font-semibold">{date(start + row.vault.duration)}</dd></div>
-      {rates && <div className="flex justify-between gap-3"><dt className="text-white/50">Illustrative APY</dt><dd className="font-semibold tabular-nums">{rates.apy.toFixed(2)}%</dd></div>}
+      <div className="flex justify-between gap-3"><dt className="text-white/50">Fixed reward ({row.vault.arvoRewardBps / 100}%)</dt><dd className="font-semibold tabular-nums">{fmt(base)} ARVO</dd></div>
+      {bonus && !bonus.snapshotTaken && <div className="flex justify-between gap-3"><dt className="text-white/50">Estimated bonus*</dt><dd className="font-semibold tabular-nums">{fmt(est)} ARVO</dd></div>}
+      <div className="flex justify-between gap-3 border-t border-white/10 pt-1.5"><dt className="text-white/50">You get back</dt><dd className="font-semibold tabular-nums text-[#e2a98e]">{fmt(amount + base + est)} ARVO</dd></div>
+      <div className="flex justify-between gap-3"><dt className="text-white/50">Unlocks</dt><dd className="font-semibold">{date(start + row.vault.duration)}</dd></div>
+      {rates && <div className="flex justify-between gap-3"><dt className="text-white/50">APY (for comparison)</dt><dd className="font-semibold tabular-nums">{rates.apy.toFixed(2)}%</dd></div>}
     </dl>}
-    <p className="mt-3 text-[10px] leading-4 text-white/40">Estimate only. The base reward is fixed by the contract when you stake. {bonus ? "*The bonus estimate assumes no more ARVO enters and is fixed when entries close. " : ""}Maturity assumes you stake now. APY assumes reinvestment at identical terms and is not guaranteed.</p>
+    <p className="mt-3 text-[10px] leading-4 text-white/40">The fixed reward is set by the contract when you stake. {bonus ? "*The bonus is shared between everyone in the vault, so it gets smaller as more ARVO joins; it is finalised when deposits close. " : ""}Unlock date assumes you stake today.</p>
   </details>;
 }
 
@@ -62,11 +63,15 @@ export function VaultMomentum({ poolId }: { poolId: number }) {
     return () => { cancelled = true; clearInterval(timer); };
   }, [poolId]);
   const amount = (r: Momentum["recent"][number]) => BigInt(r.usdc ?? "0") > 0n && BigInt(r.arvo) === 0n ? `${fmt(BigInt(r.usdc!), 6, 0)} USDG` : `${fmt(BigInt(r.arvo), 18, 0)} ARVO`;
-  return <div className="mt-4 h-[118px] overflow-hidden rounded-2xl border border-white/10 p-4 text-xs">
-    {!data && failed ? <div className="arvo-fade flex h-full flex-col justify-center"><p className="font-semibold text-white/70">Live activity</p><p className="mt-1 text-white/45">Temporarily unavailable. Deposits are unaffected.</p></div>
-    : !data ? <div aria-hidden><div className="arvo-skeleton-dark h-3.5 w-40" /><div className="arvo-skeleton-dark mt-3 h-3 w-full" /><div className="arvo-skeleton-dark mt-2 h-3 w-5/6" /><div className="arvo-skeleton-dark mt-2 h-3 w-4/6" /></div>
-    : data.deposits === 0 ? <div className="arvo-fade flex h-full flex-col justify-center"><p className="font-semibold text-white/80">No deposits yet</p><p className="mt-1 text-white/45">Be among the first to stake in this vault.</p></div>
-    : <div className="arvo-fade"><p className="flex items-center gap-2 font-semibold"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />{data.stakers.toLocaleString("en-GB")} staker{data.stakers === 1 ? "" : "s"} · {data.deposits.toLocaleString("en-GB")} deposit{data.deposits === 1 ? "" : "s"}</p>
-      <ul className="mt-2.5 space-y-1 text-white/55">{data.recent.slice(0, 3).map((r, i) => <li key={i} className="flex justify-between gap-3"><span className="font-mono">{r.user}</span><span className="tabular-nums">{amount(r)}{r.at ? ` · ${ago(r.at)}` : ""}</span></li>)}</ul></div>}
-  </div>;
+  // One fixed-height row (no jump while loading); the list opens only when someone asks for it.
+  const row = "flex h-11 items-center justify-between gap-3 px-4 text-xs";
+  if (!data) return <div className="mt-4 rounded-2xl border border-white/10"><div className={row}>{failed ? <span className="text-white/45">Recent activity is unavailable right now</span> : <span aria-hidden className="arvo-skeleton-dark h-3 w-36" />}</div></div>;
+  if (data.deposits === 0) return <div className="arvo-fade mt-4 rounded-2xl border border-white/10"><div className={row}><span className="text-white/60">No deposits yet · be one of the first</span></div></div>;
+  return <details className="arvo-fade group mt-4 rounded-2xl border border-white/10">
+    <summary className={`${row} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
+      <span className="flex items-center gap-2 font-semibold text-white/85"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />{data.stakers.toLocaleString("en-GB")} staker{data.stakers === 1 ? "" : "s"} · {data.deposits.toLocaleString("en-GB")} deposit{data.deposits === 1 ? "" : "s"}</span>
+      <span className="inline-flex items-center gap-1 text-white/45 group-open:text-white/70"><span className="group-open:hidden">Recent</span><span className="hidden group-open:inline">Hide</span><ChevronDown size={14} className="transition-transform duration-200 group-open:rotate-180" /></span>
+    </summary>
+    <ul className="space-y-1.5 border-t border-white/10 px-4 py-3 text-xs text-white/55">{data.recent.slice(0, 5).map((r, i) => <li key={i} className="flex justify-between gap-3"><span className="font-mono">{r.user}</span><span className="tabular-nums">{amount(r)}{r.at ? ` · ${ago(r.at)}` : ""}</span></li>)}</ul>
+  </details>;
 }

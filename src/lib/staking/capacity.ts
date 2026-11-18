@@ -36,5 +36,5 @@ export function vaultName(row: PoolRow): string {
  // Standard admin templates are custom on-chain to support adjustable minima.
  const days = [60,90,180,365], arvo = [300,400,1000,2200], usdc = [200,300,650,1400];
  const preset = days.findIndex((d,i) => row.vault.duration === d*86400 && row.vault.arvoRewardBps === arvo[i] && row.vault.usdcRewardBps === usdc[i]);
- return preset >= 0 ? names[preset] : "Custom";
+ return preset >= 0 ? names[preset] : "Vault";
 }

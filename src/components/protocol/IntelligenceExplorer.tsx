@@ -25,8 +25,8 @@ function Citation({ s }: { s: SourceRef }) {
   </span>;
 }
 
-export function IntelligenceExplorer({ projects }: { projects: IntelligenceProjectSummary[] }) {
-  const [slug, setSlug] = useState(projects[0]?.slug ?? "");
+export function IntelligenceExplorer({ projects, initialSlug }: { projects: IntelligenceProjectSummary[]; initialSlug?: string }) {
+  const [slug, setSlug] = useState(projects.find(p => p.slug === initialSlug)?.slug ?? projects[0]?.slug ?? "");
   const [question, setQuestion] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");

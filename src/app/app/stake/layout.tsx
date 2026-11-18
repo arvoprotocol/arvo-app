@@ -4,12 +4,12 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Arvo Vaults",
-  description: "Explore Arvo vaults, fixed cycle rewards and staking terms.",
+  description: "Explore Arvo vaults, fixed rewards and staking terms.",
   openGraph: {
     type: "website",
     siteName: "Arvo",
     title: "Arvo Vaults",
-    description: "Explore Arvo vaults, fixed cycle rewards and staking terms.",
+    description: "Explore Arvo vaults, fixed rewards and staking terms.",
     url: appUrl("/app/stake"),
     images: [{
       url: "https://arvoprotocol.com/platform-og.jpg",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Arvo Vaults",
-    description: "Explore Arvo vaults, fixed cycle rewards and staking terms.",
+    description: "Explore Arvo vaults, fixed rewards and staking terms.",
     images: ["https://arvoprotocol.com/platform-og.jpg"],
   },
 };

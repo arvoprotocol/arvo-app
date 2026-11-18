@@ -7,9 +7,10 @@ export const dynamic = "force-dynamic";
 
 // Access is enforced by the /app layout (invite code during early access,
 // everyone after APP_PUBLIC_ACCESS). Only admin-enabled, published projects show.
-export default async function IntelligencePage() {
+export default async function IntelligencePage({ searchParams }: { searchParams: Promise<{ project?: string | string[] }> }) {
+  const wanted = (await searchParams).project;
   const projects = (await intelligenceProjects()).map(p => ({ slug: p.slug, title: p.title, location: p.location, titleNumber: p.titleNumber, image: p.image, status: p.status, statusLabel: p.statusLabel, stage: p.stage, acres: p.acres, plots: p.plots, plotsSold: p.plotsSold, topics: p.topics }));
   return <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
-    <IntelligenceExplorer projects={projects} />
+    <IntelligenceExplorer projects={projects} initialSlug={typeof wanted === "string" ? wanted : undefined} />
   </div>;
 }

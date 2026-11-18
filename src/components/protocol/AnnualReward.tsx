@@ -1,2 +1,17 @@
+import { InfoTip } from "./InfoTip";
+import { termLabel } from "@/lib/staking/presentation";
 export function annualRates(percent:number,days:number){if(!Number.isFinite(percent)||!Number.isFinite(days)||percent<0||days<=0)return null;return {apr:percent*365/days,apy:(Math.pow(1+percent/100,365/days)-1)*100};}
-export function AnnualReward({percent,days,dark=false,prominent=false}:{percent:number;days:number;dark?:boolean;prominent?:boolean}){const rates=annualRates(percent,days);if(!rates||!Number.isFinite(rates.apy))return null;return <details className={`mt-2 text-[11px] ${dark?"text-white/60":"text-black/50"}`}><summary className={`cursor-pointer list-none inline-flex flex-wrap items-baseline gap-x-2 ${dark?"text-[#e2a98e]":"text-[#ad7058]"}`}><span className={prominent?"text-4xl font-semibold tracking-tight tabular-nums text-white":""}>{rates.apy.toFixed(2)}%</span> <span className={prominent?"text-2xl font-semibold text-[#e2a98e]":""}>APY</span> <span aria-hidden="true">ⓘ</span><span className="sr-only"> — explain annual comparison</span></summary><p className="mt-2 leading-5">Illustrative APY assumes immediate reinvestment at identical terms, with no gaps, for a year. Future vault availability and rates are not guaranteed. Your actual cycle reward remains {percent}% over {days} days.</p></details>;}
+/** Headline APY with a plain explanation of what it does and doesn't mean. */
+export function AnnualReward({percent,days,dark=false,prominent=false}:{percent:number;days:number;dark?:boolean;prominent?:boolean}){
+ const rates=annualRates(percent,days);if(!rates||!Number.isFinite(rates.apy))return null;
+ const oneYear=days>=360&&days<=366;
+ return <div className={`mt-2 flex items-baseline gap-2 ${dark?"text-white":"text-[#07090b]"}`}>
+  <span className={prominent?"text-4xl font-semibold tracking-tight tabular-nums":"text-lg font-semibold tabular-nums"}>{rates.apy.toFixed(2)}%</span>
+  <span className={`${prominent?"text-2xl":"text-sm"} font-semibold ${dark?"text-[#e2a98e]":"text-[#ad7058]"}`}>APY</span>
+  <InfoTip dark={dark} label="What APY means here">
+   {oneYear
+    ? <>You earn {percent}% over 12 months, so the yearly figure is the same as the reward you receive.</>
+    : <>You earn {percent}% over {termLabel(days)}. APY shows what that would add up to over a year if you staked again at the end of every term on the same terms. It is for comparison only: what you actually receive is the {percent}% fixed when you deposit.</>}
+  </InfoTip>
+ </div>;
+}

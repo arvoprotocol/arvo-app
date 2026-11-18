@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuditedBySoken } from "@/components/protocol/SokenBadge";
 import { SoundToggle, UiClickSounds } from "@/components/protocol/UiFeedback";
+import { IntelligenceWidget } from "@/components/protocol/IntelligenceWidget";
 import { Activity, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Sparkles, Wallet, Users, X } from "lucide-react";
 
 const nav = [
@@ -45,7 +46,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="arvo-app min-h-screen bg-[#f8f2ed] text-[#07090b]">
-      <div className="noise" /><WalletPicker/><UiClickSounds/>
+      <div className="noise" /><WalletPicker/><UiClickSounds/><IntelligenceWidget hidden={pathname === "/app/intelligence" || pathname.startsWith("/app/intelligence/")}/>
       <aside className="fixed inset-y-0 left-0 z-50 hidden w-[252px] border-r border-white/10 bg-[#07090b] text-white overflow-y-auto lg:flex lg:flex-col">
         <div className="px-6 pb-5 pt-7"><Link href="https://arvoprotocol.com/" className="inline-flex"><Image src="/arvo_logo.svg" alt="Arvo Protocol" width={160} height={34} className="h-8 w-auto" priority /></Link><div className="mt-3 flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/><p className="text-[9px] font-bold uppercase tracking-[0.22em] text-white/32">Protocol app</p></div></div>
         <nav className="px-3 pt-3">{renderNav(nav)}</nav>
@@ -82,7 +83,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
           <div className="border-t border-black/[0.04] px-4 py-2 lg:hidden"><ProtocolHeaderInfo/></div>
         </header>
         {walletError && <p role="alert" className="px-5 py-3 text-xs text-red-800">{walletError}</p>}
-        <main>{children}</main>
+        <main className="pb-24">{children}</main>
       </div>
 
       {mobileOpen && <div className="fixed inset-0 z-[80] lg:hidden">

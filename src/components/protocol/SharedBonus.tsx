@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { formatUnits, type Address, type Hash } from "viem";
 import { bonusAbi, bonusAddresses, bonusBps, bpsLabel, listBonuses, readBonus, type BonusState } from "@/lib/staking/bonus";
 import { transact } from "@/lib/staking/user-transactions";
+import { InfoTip } from "./InfoTip";
 
 function arvo(value: bigint) {
   return Number(formatUnits(value, 18)).toLocaleString("en-GB", { maximumFractionDigits: 2 });
@@ -39,18 +40,17 @@ export function SharedBonus({ poolId, refreshKey = 0, dark = false }: { poolId: 
   const full = bonus.maxPrincipal > 0n ? bonusBps(bonus, bonus.maxPrincipal) : null;
   const muted = dark ? "text-white/50" : "text-black/50";
   return <div className={`mt-4 rounded-2xl border p-4 ${dark ? "border-[#c9846a]/25 bg-[#c9846a]/10" : "border-[#c9846a]/30 bg-[#f8f2ed]"}`}>
-    <p className={`text-[10px] font-bold uppercase tracking-[0.15em] ${dark ? "text-[#e2a98e]" : "text-[#ad7058]"}`}>+ Shared bonus</p>
-    <p className="mt-2 text-sm font-semibold">{arvo(bonus.pot)} ARVO pot shared by stake size</p>
+    <p className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.15em] ${dark ? "text-[#e2a98e]" : "text-[#ad7058]"}`}>+ Bonus pot<InfoTip dark={dark} label="How the bonus works">
+      A fixed pot of {arvo(bonus.pot)} ARVO is shared between everyone in this vault, in proportion to how much each person stakes. The more ARVO joins, the smaller each share, so your estimate moves until deposits close on {date(bonus.closesAt)}; then it is fixed. You claim it when your stake unlocks. If you withdraw early in an emergency, the bonus is given up. The bonus is paid by a separate contract, independently tested with automated security analysis and AI review; it is not part of the Soken audit.
+    </InfoTip></p>
+    <p className="mt-2 text-sm font-semibold">{arvo(bonus.pot)} ARVO shared between stakers</p>
     <dl className={`mt-3 grid grid-cols-2 gap-3 text-xs ${muted}`}>
-      <div><dt>{bonus.snapshotTaken ? "Final bonus" : "Estimated bonus now"}</dt><dd className={`mt-1 text-base font-semibold ${dark ? "text-white" : "text-[#07090b]"}`}>{bonus.eligible === 0n ? "Whole pot" : bpsLabel(current)}</dd></div>
-      {full && <div><dt>At full capacity</dt><dd className={`mt-1 text-base font-semibold ${dark ? "text-white" : "text-[#07090b]"}`}>{bpsLabel(full)}</dd></div>}
+      <div><dt>{bonus.snapshotTaken ? "Final bonus" : "Bonus if you join now"}</dt><dd className={`mt-1 text-base font-semibold ${dark ? "text-white" : "text-[#07090b]"}`}>{bonus.eligible === 0n ? "Whole pot" : `+${bpsLabel(current)}`}</dd></div>
+      {full && <div><dt>If the vault fills up</dt><dd className={`mt-1 text-base font-semibold ${dark ? "text-white" : "text-[#07090b]"}`}>+{bpsLabel(full)}</dd></div>}
     </dl>
     <p className={`mt-3 text-[11px] leading-5 ${muted}`}>
-      {bonus.snapshotTaken
-        ? `Bonus shares were fixed when entries closed on ${date(bonus.closesAt)}.`
-        : `An estimate until entries close on ${date(bonus.closesAt)}. It falls as more ARVO enters and is fixed at close.`}
-      {" "}Claim it from your position’s maturity. Emergency exits forfeit the bonus. It is paid by a separate bonus contract, not the audited staking contract.
-      {!funded && " Bonus pot funding pending."}
+      {bonus.snapshotTaken ? `Shares were fixed when deposits closed on ${date(bonus.closesAt)}.` : `On top of the fixed reward. Final shares are set when deposits close.`}
+      {!funded && " The bonus pot is still being funded."}
     </p>
   </div>;
 }

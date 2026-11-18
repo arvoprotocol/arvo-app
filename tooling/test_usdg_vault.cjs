@@ -27,9 +27,9 @@ test('drafts saved before this change still load, with nothing committed',()=>{
  assert.equal(V.draftPreview({...d,id:1}).committedUsdc,'0');
 });
 
-test('lock wording reads as 12 months for a 365-day vault and states no early withdrawal',()=>{
- assert.equal(P.lockLabel(365),'12-month lock from your deposit · no early withdrawal');
- assert.equal(P.lockLabel(60),'60-day lock from your deposit · no early withdrawal');
+test('lock wording reads as 12 months for a 365-day vault',()=>{
+ assert.equal(P.lockLabel(365),'Locked for 12 months from your deposit');
+ assert.equal(P.lockLabel(60),'Locked for 60 days from your deposit');
 });
 
 test('no user-facing text says USDC: the app pays and accepts USDG',()=>{
@@ -44,6 +44,28 @@ test('capacity bar shows committed, onchain and available amounts that add up to
  const {CommittedCapacity}=require('../src/components/protocol/CommittedCapacity.tsx');
  const html=renderToStaticMarkup(React.createElement(CommittedCapacity,{asset:'USDG',cap:250000n*10n**6n,committed:200000n*10n**6n,deposited:12500n*10n**6n,decimals:6,committedLabel:'committed outside the app'}));
  assert.match(html,/212,500 \/ 250,000 USDG/);
- assert.match(html,/200,000 USDG committed outside the app\. 37,500 USDG remains for onchain deposits\./);
+ assert.match(html,/200,000 USDG committed outside the app\. 37,500 USDG still open to deposits in the app\./);
  assert.match(html,/width:80%/);assert.match(html,/width:5%/);
+});
+
+test('ARVO price: prefers the published pair, else the most liquid Robinhood pair, never another chain or token',()=>{
+ const {parseMarketPrice}=require('../src/lib/protocol/price.ts'),{ARVO_TOKEN,ARVO_PAIR}=require('../src/lib/protocol/links.ts');
+ const pair=(o)=>({chainId:'robinhood',pairAddress:'0x'+'1'.repeat(40),baseToken:{address:ARVO_TOKEN},priceUsd:'0.0003',liquidity:{usd:1000},priceChange:{h24:2.5},...o});
+ assert.equal(parseMarketPrice({pairs:[pair({priceUsd:'0.0002'}),pair({pairAddress:ARVO_PAIR,priceUsd:'0.000298',liquidity:{usd:10}})]}).priceUsd,'0.000298');
+ assert.equal(parseMarketPrice({pairs:[pair({priceUsd:'0.0002',liquidity:{usd:50}}),pair({priceUsd:'0.00031',liquidity:{usd:9000}})]}).priceUsd,'0.00031');
+ assert.throws(()=>parseMarketPrice({pairs:[pair({chainId:'ethereum'}),pair({baseToken:{address:'0x'+'2'.repeat(40)}})]}),/unavailable/);
+ assert.throws(()=>parseMarketPrice({pairs:null}),/unavailable/);
+ assert.equal(parseMarketPrice({pairs:[pair({})]}).change24h,2.5);
+});
+
+test('seeded launch drafts pass the same validation as the admin vault editor',()=>{
+ const Database=require('better-sqlite3'),os=require('node:os'),{execFileSync}=require('node:child_process');
+ const file=path.join(fs.mkdtempSync(path.join(os.tmpdir(),'arvo-seed-')),'t.db');const db=new Database(file);
+ db.exec('CREATE TABLE "StakingVaultDraft" (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, poolType TEXT, standardKind TEXT, valuesJson TEXT, productsJson TEXT, visibility TEXT, sortOrder INTEGER, seedKey TEXT UNIQUE, revision INTEGER, linkedChainId INTEGER, linkedProxy TEXT, linkedPoolId INTEGER, createdAt DATETIME, updatedAt DATETIME)');
+ execFileSync(process.execPath,[path.join(__dirname,'../scripts/seed-launch-vaults.mjs')],{env:{...process.env,DATABASE_URL:`file:${file}`}});
+ const rows=db.prepare('select * from StakingVaultDraft order by sortOrder').all();
+ assert.deepEqual(rows.map(r=>r.title),['First Edition','USDG 12-Month Vault','Genesis Pilot']);
+ for(const r of rows){const d=V.validateDraft({title:r.title,poolType:r.poolType,standardKind:r.standardKind,values:JSON.parse(r.valuesJson),products:JSON.parse(r.productsJson),visibility:r.visibility,sortOrder:r.sortOrder});assert.equal(d.title,r.title);}
+ const fe=JSON.parse(rows[0].valuesJson);assert.equal(fe.minArvo,'1500000');assert.equal(fe.maxArvo,'100000000');assert.equal(fe.opens,'2026-11-24T12:00');assert.equal(fe.closes,'2026-11-29T12:00');
+ const usdg=JSON.parse(rows[1].valuesJson);assert.equal(usdg.duration,'365');assert.equal(usdg.maxUsdc,'250000');assert.equal(usdg.committedUsdc,'200000');
 });

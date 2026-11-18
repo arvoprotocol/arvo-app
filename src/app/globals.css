@@ -334,3 +334,16 @@ html { scrollbar-gutter: stable; }
   .arvo-bar { transition: none; }
   .arvo-app :is(button, [role="button"], summary, a[href]):active { transform: none; }
 }
+
+/* Info popovers */
+@keyframes arvo-tip-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+.arvo-tip { animation: arvo-tip-in 140ms ease-out both; }
+.arvo-tip.left-1\/2 { animation: none; }
+@media (prefers-reduced-motion: reduce) { .arvo-tip { animation: none; } }
+
+/* Floating Intelligence assistant */
+@keyframes arvo-widget-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+.arvo-widget { animation: arvo-widget-in 220ms cubic-bezier(.2,.8,.2,1) both; transform-origin: bottom right; }
+@keyframes arvo-dot { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+.arvo-dot { display: inline-block; width: 6px; height: 6px; border-radius: 9999px; background: #e2a98e; animation: arvo-dot 1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .arvo-widget, .arvo-dot { animation: none; } }

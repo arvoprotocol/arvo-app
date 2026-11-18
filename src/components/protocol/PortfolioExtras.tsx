@@ -50,7 +50,7 @@ export function MaturityReminders({ positions, account }: { positions: Pos[]; ac
   return <section className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
     <div className="rounded-[24px] border border-black/[0.08] bg-white p-5 md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#ad7058]">Coming up</p><h2 className="mt-1 text-xl font-semibold">Maturity dates</h2></div>
+        <div><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#ad7058]">Coming up</p><h2 className="mt-1 text-xl font-semibold">Unlock dates</h2></div>
         {upcoming.length > 1 && <button type="button" onClick={() => download(upcoming, "arvo-maturities.ics")} className="inline-flex items-center gap-2 rounded-xl border border-black/10 px-3 py-2 text-xs font-semibold"><CalendarPlus size={14} />Add all to calendar</button>}
       </div>
       <ul className="mt-4 divide-y divide-black/[0.06]">{upcoming.slice(0, 6).map(p => <li key={p.id.toString()} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
@@ -60,7 +60,7 @@ export function MaturityReminders({ positions, account }: { positions: Pos[]; ac
     </div>
     <form onSubmit={subscribe} className="rounded-[24px] bg-[#07090b] p-5 text-white md:p-6">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#e2a98e]">Never miss a claim</p>
-      <h2 className="mt-1 text-xl font-semibold">Email me before maturity</h2>
+      <h2 className="mt-1 text-xl font-semibold">Email me before it unlocks</h2>
       <p className="mt-2 text-xs leading-5 text-white/55">One email 3 days before each position matures and one when it’s ready to claim. Confirm by email; stop any time.</p>
       {state === "sent" ? <p className="mt-4 rounded-xl bg-white/10 p-3 text-sm">Check your inbox to confirm.</p>
         : state === "active" ? <p className="mt-4 rounded-xl bg-white/10 p-3 text-sm">Reminders are already on for this wallet.</p>

@@ -18,7 +18,7 @@ const TOPIC_TYPES: Record<keyof IntelligenceProjectSummary["topics"], DocType[]>
 };
 
 /** Published projects that admin has enabled for Intelligence. */
-export async function intelligenceProjects(): Promise<(IntelligenceProjectSummary & { id: number })[]> {
+export async function intelligenceProjects(): Promise<(IntelligenceProjectSummary & { id: number; documentCount: number })[]> {
   const enabled = await prisma.intelligenceProject.findMany({ where: { enabled: true }, select: { projectId: true } });
   if (!enabled.length) return [];
   const ids = enabled.map(e => e.projectId);
@@ -30,7 +30,7 @@ export async function intelligenceProjects(): Promise<(IntelligenceProjectSummar
     const d = displayProject(p);
     const count = (types: DocType[]) => docs.filter(x => x.projectId === p.id && types.includes(x.docType as DocType)).reduce((n, x) => n + x._count._all, 0);
     return {
-      id: p.id, slug: d.slug, title: d.title, location: d.location, titleNumber: d.titleNumber, image: d.image,
+      id: p.id, documentCount: docs.filter(x => x.projectId === p.id).reduce((n, x) => n + x._count._all, 0), slug: d.slug, title: d.title, location: d.location, titleNumber: d.titleNumber, image: d.image,
       status: d.status, statusLabel: d.statusLabel, stage: d.stage, acres: d.acres, plots: d.plots, plotsSold: d.plotsSold ?? 0,
       topics: { title: count(TOPIC_TYPES.title), access: count(TOPIC_TYPES.access), comparables: count(TOPIC_TYPES.comparables), location: count(TOPIC_TYPES.location) },
     };

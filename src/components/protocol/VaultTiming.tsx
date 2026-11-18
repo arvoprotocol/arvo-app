@@ -1,23 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
-import { countdown, dateDisplay, windowPhase } from "@/lib/staking/presentation";
+import { countdown, dateDisplay, shortDate, windowPhase } from "@/lib/staking/presentation";
+import { InfoTip } from "./InfoTip";
 export function useVaultClock() {
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => { setNow(Date.now()); const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
   return now;
 }
 export function VaultTiming({ opensAt, closesAt, preview = false, dark = false, compact = false }: { opensAt: string | null; closesAt: string | null; preview?: boolean; dark?: boolean; compact?: boolean }) {
-  const now = useVaultClock(), phase = now === null ? "upcoming" : windowPhase(opensAt, closesAt, now);
+  const now = useVaultClock(), phase = now === null ? (opensAt ? "upcoming" : "unscheduled") : windowPhase(opensAt, closesAt, now);
   const target = phase === "upcoming" ? opensAt : phase === "window" ? closesAt : null;
-  const label = !opensAt ? "Opening date to be announced" : phase === "closed" ? preview ? "Planned entry window ended" : "Entry window closed" : phase === "window" ? closesAt ? preview ? "Planned closing in" : "Closes in" : preview ? "Planned entry window" : "Entry window" : preview ? "Planned opening in" : "Opens in";
-  return <div className={`mt-5 rounded-2xl border p-4 ${compact && dark ? "border-[#c9846a]/30 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] text-[#07090b]" : dark ? "border-white/10 bg-white/[0.04]" : "border-black/10 bg-[#f8f4ef]"}`}>
-    <p className={`text-[10px] font-semibold uppercase tracking-widest ${compact && dark ? "text-[#07090b]/65" : dark ? "text-[#e2a98e]" : "text-[#ad7058]"}`}>{label}</p>
-    {target && <p className="mt-2 font-mono text-base font-semibold tabular-nums" role="timer" aria-label={phase === "upcoming" ? "Time until opening" : "Time until closing"}>{now === null ? "Calculating…" : countdown(target, now)}</p>}
-    {phase === "window" && !closesAt && <p className="mt-1 text-xs">{closesAt ? "Until the deposit window closes" : "No scheduled closing date"}</p>}
-    {!compact && <div className={`mt-3 space-y-1 text-[11px] leading-5 ${dark ? "text-white/55" : "text-black/55"}`}>
-      {opensAt && <p>Opens <time dateTime={opensAt}>{dateDisplay(opensAt)}</time></p>}
-      {opensAt && <p>Closes {closesAt ? <time dateTime={closesAt}>{dateDisplay(closesAt)}</time> : "No scheduled close"}</p>}
-      {preview && !compact && <p>Planned schedule · deposits remain unavailable in this preview.</p>}
+  const label = phase === "unscheduled" ? "Opening date" : phase === "closed" ? "Deposits closed" : phase === "window" ? closesAt ? "Deposits close in" : "Open for deposits" : "Opens in";
+  const line = phase === "unscheduled" ? "To be announced" : phase === "closed" ? (preview ? "This vault is no longer taking deposits" : "Existing stakes continue until they mature") : phase === "window" ? closesAt ? `Last day to join: ${shortDate(closesAt)}` : "No closing date · open until the vault is full" : opensAt ? shortDate(opensAt) : "";
+  const tip = phase === "window" && closesAt ? "You can deposit any time before this. Each deposit is locked for the full term from the moment you make it, so later deposits mature later."
+    : phase === "upcoming" ? `Deposits open at this time.${closesAt ? ` They close ${shortDate(closesAt)}.` : ""} Your term starts when you deposit, not when the vault opens.`
+    : phase === "window" ? "This vault has no closing date. It stops taking deposits when it is full or its rewards are fully allocated." : null;
+  const hero = compact && dark;
+  return <div className={`mt-5 rounded-2xl border p-4 ${hero ? "border-[#c9846a]/30 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] text-[#07090b]" : dark ? "border-white/10 bg-white/[0.04]" : "border-black/10 bg-[#f8f4ef]"}`}>
+    <p className={`flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest ${hero ? "text-[#07090b]/65" : dark ? "text-[#e2a98e]" : "text-[#ad7058]"}`}>{label}{tip && <InfoTip label="About the deposit window" dark={dark && !hero}>{tip}</InfoTip>}</p>
+    {target ? <p className="mt-1.5 font-mono text-base font-semibold tabular-nums" role="timer" aria-label={phase === "upcoming" ? "Time until deposits open" : "Time until deposits close"}>{now === null ? "\u00a0" : countdown(target, now)}</p>
+      : <p className="mt-1.5 text-base font-semibold">{phase === "window" ? "Open now" : phase === "closed" ? "Closed" : "Coming soon"}</p>}
+    <p className={`mt-1 text-xs ${hero ? "text-[#07090b]/70" : dark ? "text-white/55" : "text-black/55"}`}>{line}</p>
+    {!compact && opensAt && <div className={`mt-3 space-y-1 border-t pt-3 text-[11px] leading-5 ${dark ? "border-white/10 text-white/55" : "border-black/10 text-black/55"}`}>
+      <p>Opens <time dateTime={opensAt}>{dateDisplay(opensAt)}</time></p>
+      <p>Closes {closesAt ? <time dateTime={closesAt}>{dateDisplay(closesAt)}</time> : "when full (no closing date)"}</p>
     </div>}
+    {preview && !compact && <p className={`mt-2 text-[11px] ${dark ? "text-white/45" : "text-black/45"}`}>Preview only: deposits are not open yet and terms may still change.</p>}
   </div>;
 }

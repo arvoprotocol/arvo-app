@@ -28,5 +28,16 @@ export function countdown(target: string, now: number) {
 }
 export function dateDisplay(raw: string) { return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", dateStyle: "medium", timeStyle: "short" }).format(new Date(raw)) + " UTC"; }
 
-/** Lock wording shared by vault cards. 365 days reads as 12 months. */
-export function lockLabel(days: number): string { return `${days === 365 ? "12-month" : `${days}-day`} lock from your deposit · no early withdrawal`; }
+/** "12 months" for 365 days, otherwise "60 days". */
+export function termLabel(days: number): string { return days === 365 ? "12 months" : days === 730 ? "24 months" : `${days} days`; }
+/** Lock wording shared by vault cards. */
+export function lockLabel(days: number): string { return `Locked for ${termLabel(days)} from your deposit`; }
+/** "Tue 24 Nov, 12:00 UTC" */
+export function shortDate(raw: string) { return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(raw)).replace(/,? (\d{2}:\d{2})$/, ", $1") + " UTC"; }
+/** Plain-English vault status for people, from the internal availability reason. */
+export function availabilityLabel(reason: string, beforeOpening: boolean): string {
+  if (reason === "Vault full") return "Vault full";
+  if (reason === "Reward allocation unavailable") return beforeOpening ? "Rewards being funded" : "Rewards fully allocated";
+  if (reason === "Product unavailable") return "Not available";
+  return reason;
+}
