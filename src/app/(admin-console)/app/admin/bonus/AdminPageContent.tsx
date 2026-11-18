@@ -51,7 +51,7 @@ export default function AdminBonusPage() {
     <p className="mt-4 text-xs"><a href="/api/admin/founding-stakers" className="font-semibold underline">Download founding stakers (CSV)</a> <span className="text-black/45">· First Edition depositors from onchain events, excluding emergency exits.</span></p>
     {error && <p role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
     {hash && <p className="mt-4 break-all text-xs">Submitted: {hash}</p>}
-    {configured === 0 && <p className="mt-8 rounded-2xl border border-dashed border-black/15 p-6 text-sm text-black/55">No bonus contracts configured. Deploy one with <code>script/DeployFirstEditionBonus.s.sol</code> before the vault opens, fund it from the Treasury Safe, then add its address to <code>NEXT_PUBLIC_BONUS_ADDRESSES</code> and rebuild.</p>}
+    {configured === 0 && <p className="mt-8 rounded-2xl border border-dashed border-black/15 p-6 text-sm text-black/55">No bonus contracts configured. Deploy one with <code>script/DeploySharedBonus.s.sol</code> before the vault opens, fund it from the Treasury Safe, then add its address to <code>NEXT_PUBLIC_BONUS_ADDRESSES</code> and rebuild.</p>}
     {configured > 0 && bonuses === null && !error && <p role="status" className="mt-8 text-sm">Reading bonus contracts…</p>}
     {bonuses?.length === 0 && configured > 0 && <p className="mt-8 text-sm text-amber-800">Configured bonus addresses were found, but none is bound to this staking proxy and chain.</p>}
 

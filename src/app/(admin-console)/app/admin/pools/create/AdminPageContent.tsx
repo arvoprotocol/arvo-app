@@ -79,7 +79,7 @@ function usePoolForm() {
 const fieldKeys: Record<string, keyof FormValues> = {
   "Duration": "duration", "ARVO cycle reward": "arvoRate", "USDG cycle reward": "usdcRate",
   "Dual stake boost": "dualBoost", "Combined boost cap": "boostCap", "Minimum ARVO": "minArvo",
-  "Minimum USDG": "minUsdc", "ARVO minimum for USDG rewards": "minArvoUsdc", "Maximum ARVO principal": "maxArvo", "Maximum USDG principal": "maxUsdc", "USDG committed outside the app": "committedUsdc",
+  "Minimum USDG": "minUsdc", "ARVO minimum for USDG rewards": "minArvoUsdc", "Maximum ARVO principal": "maxArvo", "Maximum USDG principal": "maxUsdc", "USDG committed outside the app": "committedUsdc", "Bonus at full capacity": "bonusPct",
 };
 const productKeys = Object.fromEntries(Object.entries(productLabels).map(([key,label]) => [label,key])) as Record<string,keyof Products>;
 
@@ -273,6 +273,7 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
           <Capacity />
 
           <ProductControls />
+          <CardDetailsControls />
 
           <div className="rounded-2xl border border-amber-500/20 bg-amber-50/70 p-5">
             <div className="flex gap-3">
@@ -703,3 +704,21 @@ function SummaryRow({
 }
 
 function MixedShareField(){const {values,products,changeValue}=usePoolForm();return products.dualMixed?<label className="block text-xs">ARVO share of dual rewards (%)<input value={values.mixedShare} onChange={e=>changeValue("mixedShare",e.target.value)} inputMode="decimal" className="mt-2 w-full rounded-xl border border-black/10 p-3"/><span className="mt-2 block text-black/50">USDG uses the remaining share. Must be above 0% and below 100%.</span></label>:null;}
+
+/** Display-only details for the vault card: bonus strip and the linked project. Not sent to the chain. */
+function CardDetailsControls() {
+  const { values, changeValue } = usePoolForm();
+  return (
+    <Panel>
+      <PanelHeader eyebrow="Step 06" title="Shown on the vault card" />
+      <div className="grid gap-5 p-5 md:grid-cols-2 md:p-6">
+        <Field label="Bonus at full capacity" suffix="%" placeholder="0" help="Shown as a bonus strip on the card, e.g. 5 for a pot worth 5% when the vault is full. Live vaults show the figure from their bonus contract instead. 0 hides the strip." />
+        <label className="block">
+          <span className="text-xs font-semibold text-black/65">Project this vault supports</span>
+          <input value={values.projectSlug} onChange={e => changeValue("projectSlug", e.target.value.trim().toLowerCase())} placeholder="project-slug" className="mt-2 w-full rounded-xl border border-black/[0.09] bg-white px-4 py-3 text-sm outline-none placeholder:text-black/20 focus:border-[#c9846a]/50" />
+          <span className="mt-2 block text-[11px] leading-5 text-black/45">The slug from Admin → Projects (the end of the project’s link). Shows a thumbnail in “What am I staking in?”. Leave empty for a general explanation only.</span>
+        </label>
+      </div>
+    </Panel>
+  );
+}

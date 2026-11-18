@@ -3,7 +3,7 @@
 export const GITHUB = {
   contracts: "https://github.com/arvoprotocol/arvo-contracts",
   app: "https://github.com/arvoprotocol/arvo-app",
-  bonusReview: "https://github.com/arvoprotocol/arvo-contracts/blob/feature/first-edition-bonus/docs/security/bonus/SECURITY-REVIEW.md",
+  bonusReview: "https://github.com/arvoprotocol/arvo-contracts/blob/feature/shared-bonus/docs/security/bonus/SECURITY-REVIEW.md",
 };
 
 export const AUDITS = [
@@ -30,7 +30,7 @@ export const AUDITS = [
 export const ADDITIONAL_REVIEWS = [
   {
     title: "Shared bonus contract — independently tested",
-    body: "The First Edition shared bonus is paid by a separate, non-upgradeable contract that can only read the staking contract and cannot access principal or base rewards. It is not covered by the Soken audit. It was tested with 37 dedicated unit, fuzz and invariant tests (308 in the full suite), Slither and Semgrep static analysis, and an independent AI security review; all findings were fixed.",
+    body: "Shared bonuses are paid by a separate, non-upgradeable contract that can only read the staking contract and cannot access principal or base rewards. It is not covered by the Soken audit. It was tested with 37 dedicated unit, fuzz and invariant tests (308 in the full suite), Slither and Semgrep static analysis, and an independent AI security review; all findings were fixed.",
     href: GITHUB.bonusReview,
     link: "Read the review record",
   },

@@ -2,7 +2,7 @@ import {StakingInputError} from "./input-error";
 import "server-only";
 import type { StakingVaultDraft } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { validateDraft, draftPreview, type VaultDraft, type DraftInput } from "./vault-draft";
+import { validateDraft, draftPreview, type VaultDraft, type DraftInput, type VaultProject } from "./vault-draft";
 import { stakingConnection, stakingAbi } from "./pool-transactions";
 import { preparePool } from "./pool-form";
 
@@ -18,7 +18,16 @@ export function draftRecord(draft: DraftInput) {
 }
 export async function publicDraftPreviews() {
   const rows = await prisma.stakingVaultDraft.findMany({ where: { visibility: "openingSoon", linkedPoolId: null }, orderBy: [{ sortOrder: "asc" }, { id: "asc" }], take: 200 });
-  return rows.map(row => draftPreview(serializeDraft(row)));
+  const previews = rows.map(row => draftPreview(serializeDraft(row)));
+  const projects = await vaultProjects(previews.map(p => p.projectSlug));
+  return previews.map(p => ({ ...p, project: p.projectSlug ? projects.get(p.projectSlug) ?? null : null }));
+}
+/** Published projects linked to vaults, for the "What am I staking in?" panel. Unpublished slugs are ignored. */
+export async function vaultProjects(slugs: (string | undefined)[]): Promise<Map<string, VaultProject>> {
+  const wanted = [...new Set(slugs.filter((s): s is string => Boolean(s)))];
+  if (!wanted.length) return new Map();
+  const rows = await prisma.project.findMany({ where: { slug: { in: wanted }, publishStatus: "published" }, select: { slug: true, title: true, location: true, image: true, stage: true } });
+  return new Map(rows.map(r => [r.slug, { slug: r.slug, title: r.title, location: r.location, image: r.image ?? null, stage: r.stage }]));
 }
 export async function verifyDraftPool(draft: VaultDraft, poolId: number) {
   const c = stakingConnection();
@@ -43,6 +52,8 @@ export async function verifyDraftPool(draft: VaultDraft, poolId: number) {
 
 export async function publicPoolTitles(){
  const c=stakingConnection();if(!c)return [];
- const rows=await prisma.stakingVaultDraft.findMany({where:{linkedChainId:c.chain.id,linkedProxy:c.address.toLowerCase(),linkedPoolId:{not:null}},orderBy:[{sortOrder:"asc"},{id:"asc"}],take:200,select:{linkedPoolId:true,title:true,sortOrder:true}});
- const seen=new Set<number>();return rows.flatMap(row=>{if(row.linkedPoolId===null||seen.has(row.linkedPoolId))return [];seen.add(row.linkedPoolId);return [{poolId:row.linkedPoolId,title:row.title,sortOrder:row.sortOrder}];});
+ const rows=await prisma.stakingVaultDraft.findMany({where:{linkedChainId:c.chain.id,linkedProxy:c.address.toLowerCase(),linkedPoolId:{not:null}},orderBy:[{sortOrder:"asc"},{id:"asc"}],take:200,select:{linkedPoolId:true,title:true,sortOrder:true,valuesJson:true}});
+ const extras=rows.map(row=>{try{const v=JSON.parse(row.valuesJson) as Record<string,unknown>;return {bonusPct:typeof v.bonusPct==="string"?v.bonusPct:"0",projectSlug:typeof v.projectSlug==="string"&&/^[a-z0-9-]{1,120}$/.test(v.projectSlug)?v.projectSlug:""};}catch{return {bonusPct:"0",projectSlug:""};}});
+ const projects=await vaultProjects(extras.map(e=>e.projectSlug));
+ const seen=new Set<number>();return rows.flatMap((row,i)=>{if(row.linkedPoolId===null||seen.has(row.linkedPoolId))return [];seen.add(row.linkedPoolId);return [{poolId:row.linkedPoolId,title:row.title,sortOrder:row.sortOrder,bonusPct:extras[i].bonusPct,project:extras[i].projectSlug?projects.get(extras[i].projectSlug)??null:null}];});
 }

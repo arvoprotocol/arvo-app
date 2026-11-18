@@ -1,6 +1,6 @@
 import { type Abi, type Address } from "viem";
 import { bonusAddresses } from "./bonus-config";
-import bonusArtifact from "./ArvoFirstEditionBonus.abi.json";
+import bonusArtifact from "./ArvoSharedBonus.abi.json";
 import { stakingAbi, stakingConnection } from "./pool-transactions";
 
 export { bonusAddresses };

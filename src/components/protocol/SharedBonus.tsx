@@ -20,6 +20,8 @@ export async function preloadBonuses(): Promise<void> {
   if (bonusAddresses().length === 0) return;
   try { for (const s of await listBonuses()) bonusCache.set(s.poolId, s); } catch { /* cards fall back to loading individually */ }
 }
+/** The bonus for a pool if it has already been loaded (the stake page preloads them). */
+export function cachedBonus(poolId: number): BonusState | null { return bonusCache.get(poolId) ?? null; }
 export function useSharedBonus(poolId: number | null, refreshKey = 0) {
   const [state, setState] = useState<BonusState | null>(() => poolId === null ? null : bonusCache.get(poolId) ?? null);
   useEffect(() => {
