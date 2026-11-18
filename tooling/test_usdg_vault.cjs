@@ -69,3 +69,14 @@ test('seeded launch drafts pass the same validation as the admin vault editor',(
  const fe=JSON.parse(rows[0].valuesJson);assert.equal(fe.minArvo,'1500000');assert.equal(fe.maxArvo,'100000000');assert.equal(fe.opens,'2026-11-24T12:00');assert.equal(fe.closes,'2026-11-29T12:00');
  const usdg=JSON.parse(rows[1].valuesJson);assert.equal(usdg.duration,'365');assert.equal(usdg.maxUsdc,'250000');assert.equal(usdg.committedUsdc,'200000');
 });
+
+test('GeckoTerminal pool price is used only when the pool base token is ARVO on Robinhood Chain',()=>{
+ const {parseGeckoPool}=require('../src/lib/protocol/price.ts'),{ARVO_TOKEN}=require('../src/lib/protocol/links.ts');
+ const pool=(base,price='0.000300599688476645',h24='-2.31')=>({data:{id:'robinhood_0xb9b1139c812f4c9d0f3ec1dd502560777118e0e0',attributes:{address:'0xb9b1139c812f4c9d0f3ec1dd502560777118e0e0',name:'ARVO / VIRTUAL',base_token_price_usd:price,reserve_in_usd:'41234.5',price_change_percentage:{h24}},relationships:{base_token:{data:{id:base}}}}});
+ const ok=parseGeckoPool(pool(`robinhood_${ARVO_TOKEN.toLowerCase()}`));
+ assert.equal(ok.priceUsd,'0.000300599688476645');assert.equal(ok.change24h,-2.31);assert.equal(ok.source,'GeckoTerminal');assert.equal(ok.liquidityUsd,41234.5);
+ assert.throws(()=>parseGeckoPool(pool('robinhood_0x0000000000000000000000000000000000000001')),/unavailable/);
+ assert.throws(()=>parseGeckoPool(pool(`bsc_${ARVO_TOKEN.toLowerCase()}`)),/unavailable/);
+ assert.throws(()=>parseGeckoPool(pool(`robinhood_${ARVO_TOKEN.toLowerCase()}`,'0')),/unavailable/);
+ assert.throws(()=>parseGeckoPool({errors:[{status:'404'}]}),/unavailable/);
+});
