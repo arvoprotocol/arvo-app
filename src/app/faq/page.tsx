@@ -66,7 +66,7 @@ const faqSections = [
     "items": [
       {
         "question": "What is the ARVO token used for?",
-        "answer": "Holding ARVO unlocks access to ARVO staking rewards and eligibility for USDC reward vaults, subject to each vault’s requirements. The utility roadmap also includes Arvo Intelligence, holder features built around verified project data, priority holder campaigns and future governance participation. Availability and eligibility are published as each feature launches."
+        "answer": "Holding ARVO unlocks access to ARVO staking rewards and eligibility for USDG reward vaults, subject to each vault’s requirements. The utility roadmap also includes Arvo Intelligence, holder features built around verified project data, priority holder campaigns and future governance participation. Availability and eligibility are published as each feature launches."
       },
       {
         "question": "What is the total ARVO supply?",
@@ -78,11 +78,11 @@ const faqSections = [
       },
       {
         "question": "How do business profits support Arvo?",
-        "answer": "Under the land operating model, approximately 50% of distributable operating profit is allocated to the Treasury. Distributable profit is calculated after relevant costs and obligations, rather than from gross sale proceeds. Treasury capital supports further acquisitions, protocol development and eligible USDC rewards. Business performance does not guarantee rewards or an increase in the token price."
+        "answer": "Under the land operating model, approximately 50% of distributable operating profit is allocated to the Treasury. Distributable profit is calculated after relevant costs and obligations, rather than from gross sale proceeds. Treasury capital supports further acquisitions, protocol development and eligible USDG rewards. Business performance does not guarantee rewards or an increase in the token price."
       },
       {
-        "question": "Where do ARVO and USDC rewards come from?",
-        "answer": "ARVO rewards are funded through the designated Staking Rewards allocation. USDC rewards are funded through the Treasury, supported by available capital and operating contributions. They are separate funding sources, and each vault's availability depends on its funding and published terms."
+        "question": "Where do ARVO and USDG rewards come from?",
+        "answer": "ARVO rewards are funded through the designated Staking Rewards allocation. USDG rewards are funded through the Treasury, supported by available capital and operating contributions. They are separate funding sources, and each vault's availability depends on its funding and published terms."
       },
       {
         "question": "What is the ACF and how is capital released?",
@@ -99,12 +99,12 @@ const faqSections = [
         "answer": "Vaults allow participants to commit the specified token for a defined term under published conditions. Before staking, check the deposit token, reward token, term, minimum entry, capacity and withdrawal rules. The platform shows which vaults are available or upcoming."
       },
       {
-        "question": "What is the difference between ARVO-to-ARVO and ARVO-to-USDC vaults?",
-        "answer": "An ARVO-to-ARVO vault accepts ARVO and pays rewards in ARVO. An ARVO-to-USDC vault accepts ARVO and pays rewards in USDC. Their eligibility requirements, reward calculations and available capacity can differ, so review the individual vault before participating."
+        "question": "What is the difference between ARVO-to-ARVO and ARVO-to-USDG vaults?",
+        "answer": "An ARVO-to-ARVO vault accepts ARVO and pays rewards in ARVO. An ARVO-to-USDG vault accepts ARVO and pays rewards in USDG. Their eligibility requirements, reward calculations and available capacity can differ, so review the individual vault before participating."
       },
       {
-        "question": "How do I qualify for an ARVO-to-USDC vault?",
-        "answer": "ARVO-to-USDC vaults have an ARVO eligibility threshold. The platform displays the amount required and whether your connected wallet meets the applicable conditions. Completing an introductory vault does not automatically guarantee a place in a later vault."
+        "question": "How do I qualify for an ARVO-to-USDG vault?",
+        "answer": "ARVO-to-USDG vaults have an ARVO eligibility threshold. The platform displays the amount required and whether your connected wallet meets the applicable conditions. Completing an introductory vault does not automatically guarantee a place in a later vault."
       },
       {
         "question": "Is there a minimum stake?",
@@ -115,8 +115,8 @@ const faqSections = [
         "answer": "Where a vault states a reward over a specified term, that percentage applies to that term. For example, a 10% ARVO reward over 60 days means 10 additional ARVO for every 100 ARVO staked for the full term, subject to the vault's terms. Any annualised equivalent is a comparison figure, not a promise that the same vault can be repeated throughout the year."
       },
       {
-        "question": "Does a price change affect my USDC reward after I stake?",
-        "answer": "For ARVO-to-USDC vaults using the fixed-at-entry model, the ARVO price is captured when the stake opens and used to calculate the USDC reward. Later ARVO price changes do not recalculate that reward. The market value of your ARVO principal can still rise or fall."
+        "question": "Does a price change affect my USDG reward after I stake?",
+        "answer": "For ARVO-to-USDG vaults using the fixed-at-entry model, the ARVO price is captured when the stake opens and used to calculate the USDG reward. Later ARVO price changes do not recalculate that reward. The market value of your ARVO principal can still rise or fall."
       },
       {
         "question": "Can I withdraw before the end of the term?",

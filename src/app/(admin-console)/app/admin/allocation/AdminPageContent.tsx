@@ -32,7 +32,7 @@ export default function AdminAllocationPage() {
         />
 
         <StatCard
-          label="USDC allocated"
+          label="USDG allocated"
           value="—"
           detail="Across all pools"
           icon={<Landmark size={16} />}
@@ -63,9 +63,15 @@ export default function AdminAllocationPage() {
 
           <div className="p-5 md:p-6">
             <p className="max-w-2xl text-sm leading-6 text-black/45">
-              Select a pool and assign unused ARVO or USDC capacity to the
+              Select a pool and assign unused ARVO or USDG capacity to the
               protocol. Allocation is additive and cannot be reduced through
               the staking contract.
+            </p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-black/45">
+              For a USDG vault, the USDG allocation is shown publicly as
+              &ldquo;committed outside the app&rdquo;. Record only real, signed
+              commitments. It fills capacity but earns no onchain reward, so
+              any return on it is paid outside the contract.
             </p>
 
             <div className="mt-6 space-y-5">
@@ -82,15 +88,15 @@ export default function AdminAllocationPage() {
                 />
 
                 <Field
-                  label="USDC allocation"
+                  label="USDG allocation"
                   placeholder="0"
-                  suffix="USDC"
+                  suffix="USDG"
                 />
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <PoolMetric label="ARVO capacity remaining" value="—" />
-                <PoolMetric label="USDC capacity remaining" value="—" />
+                <PoolMetric label="USDG capacity remaining" value="—" />
               </div>
 
               <button
@@ -123,9 +129,9 @@ export default function AdminAllocationPage() {
               <SummaryRow label="ARVO maximum" value="—" />
               <SummaryRow label="ARVO user principal" value="—" />
               <SummaryRow label="ARVO protocol allocation" value="—" />
-              <SummaryRow label="USDC maximum" value="—" />
-              <SummaryRow label="USDC user principal" value="—" />
-              <SummaryRow label="USDC protocol allocation" value="—" />
+              <SummaryRow label="USDG maximum" value="—" />
+              <SummaryRow label="USDG user principal" value="—" />
+              <SummaryRow label="USDG protocol allocation" value="—" />
             </div>
           </Panel>
 

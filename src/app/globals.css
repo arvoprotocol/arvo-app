@@ -294,3 +294,43 @@ body {
     animation: none;
   }
 }
+
+/* ── Arvo app: smooth, stable interaction layer ───────────────────────── */
+/* Reserve the scrollbar so pages never shift sideways when content grows. */
+html { scrollbar-gutter: stable; }
+.arvo-app { -webkit-tap-highlight-color: transparent; font-variant-numeric: tabular-nums; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+
+/* Tactile press: every enabled control dips slightly, then springs back. */
+@layer base { /* in the base layer so a component's own Tailwind transition still wins */
+  .arvo-app :is(button, a[href], summary, [role="button"]) { transition-property: color, background-color, border-color, box-shadow, opacity, transform, translate; transition-duration: 180ms; transition-timing-function: cubic-bezier(.2,.8,.2,1); }
+}
+.arvo-app :is(button, [role="button"], summary):not(:disabled):active,
+.arvo-app a[href].rounded-xl:active { transform: scale(.975); transition-duration: 70ms; }
+
+/* Page content eases in on navigation; the shell and sidebar stay put. */
+@keyframes arvo-page-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.arvo-page { animation: arvo-page-in 260ms cubic-bezier(.2,.8,.2,1) both; }
+
+/* Content that arrives after loading fades in instead of snapping. */
+@keyframes arvo-fade { from { opacity: 0; } to { opacity: 1; } }
+.arvo-fade { animation: arvo-fade 220ms ease-out both; }
+
+/* Placeholders hold the exact space of what they replace. */
+@keyframes arvo-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.arvo-skeleton { border-radius: 10px; background: linear-gradient(90deg, rgba(7,9,11,.05) 25%, rgba(7,9,11,.09) 37%, rgba(7,9,11,.05) 63%) 0 0 / 400% 100%; animation: arvo-shimmer 1.4s ease-in-out infinite; }
+.arvo-skeleton-dark { border-radius: 10px; background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.10) 37%, rgba(255,255,255,.05) 63%) 0 0 / 400% 100%; animation: arvo-shimmer 1.4s ease-in-out infinite; }
+
+/* Capacity and progress bars glide to new values. */
+.arvo-bar { transition: width 700ms cubic-bezier(.2,.8,.2,1); }
+
+/* Native dialogs fade and lift rather than pop. */
+.arvo-app dialog[open] { animation: arvo-page-in 200ms cubic-bezier(.2,.8,.2,1) both; }
+.arvo-app dialog::backdrop { animation: arvo-fade 200ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .arvo-page, .arvo-fade, .arvo-app dialog[open], .arvo-app dialog::backdrop { animation: none; }
+  .arvo-skeleton, .arvo-skeleton-dark { animation: none; }
+  .arvo-bar { transition: none; }
+  .arvo-app :is(button, [role="button"], summary, a[href]):active { transform: none; }
+}

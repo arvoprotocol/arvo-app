@@ -45,18 +45,28 @@ export function VaultCalculator({ row }: { row: PoolRow }) {
 }
 
 /** Live social proof for a vault: stakers, deposits and recent activity. */
+type Momentum = { stakers: number; deposits: number; recent: { user: string; arvo: string; usdc?: string; at: number | null }[] };
+const momentumCache = new Map<number, Momentum>();
+/** Live activity in a fixed-height slot: skeleton → data (or an empty state) without moving the card. */
 export function VaultMomentum({ poolId }: { poolId: number }) {
-  const [data, setData] = useState<{ stakers: number; deposits: number; recent: { user: string; arvo: string; at: number | null }[] } | null>(null);
+  const [data, setData] = useState<Momentum | null>(() => momentumCache.get(poolId) ?? null);
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     let cancelled = false;
-    const load = () => fetch(appPath(`/app/vault-activity?pool=${poolId}`)).then(r => r.ok ? r.json() : null).then(d => { if (!cancelled && d && typeof d.stakers === "number") setData(d); }).catch(() => undefined);
+    const load = () => fetch(appPath(`/app/vault-activity?pool=${poolId}`)).then(r => r.ok ? r.json() : null).then(d => {
+      if (cancelled) return;
+      if (d && typeof d.stakers === "number") { momentumCache.set(poolId, d); setData(d); } else setFailed(true);
+    }).catch(() => { if (!cancelled) setFailed(true); });
     load();
     const timer = setInterval(load, 30_000);
     return () => { cancelled = true; clearInterval(timer); };
   }, [poolId]);
-  if (!data || data.deposits === 0) return null;
-  return <div className="mt-4 rounded-2xl border border-white/10 p-4 text-xs">
-    <p className="flex items-center gap-2 font-semibold"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />{data.stakers.toLocaleString("en-GB")} staker{data.stakers === 1 ? "" : "s"} · {data.deposits.toLocaleString("en-GB")} deposit{data.deposits === 1 ? "" : "s"}</p>
-    {data.recent.length > 0 && <ul className="mt-2.5 space-y-1 text-white/55">{data.recent.slice(0, 3).map((r, i) => <li key={i} className="flex justify-between gap-3"><span className="font-mono">{r.user}</span><span className="tabular-nums">{fmt(BigInt(r.arvo), 18, 0)} ARVO{r.at ? ` · ${ago(r.at)}` : ""}</span></li>)}</ul>}
+  const amount = (r: Momentum["recent"][number]) => BigInt(r.usdc ?? "0") > 0n && BigInt(r.arvo) === 0n ? `${fmt(BigInt(r.usdc!), 6, 0)} USDG` : `${fmt(BigInt(r.arvo), 18, 0)} ARVO`;
+  return <div className="mt-4 h-[118px] overflow-hidden rounded-2xl border border-white/10 p-4 text-xs">
+    {!data && failed ? <div className="arvo-fade flex h-full flex-col justify-center"><p className="font-semibold text-white/70">Live activity</p><p className="mt-1 text-white/45">Temporarily unavailable. Deposits are unaffected.</p></div>
+    : !data ? <div aria-hidden><div className="arvo-skeleton-dark h-3.5 w-40" /><div className="arvo-skeleton-dark mt-3 h-3 w-full" /><div className="arvo-skeleton-dark mt-2 h-3 w-5/6" /><div className="arvo-skeleton-dark mt-2 h-3 w-4/6" /></div>
+    : data.deposits === 0 ? <div className="arvo-fade flex h-full flex-col justify-center"><p className="font-semibold text-white/80">No deposits yet</p><p className="mt-1 text-white/45">Be among the first to stake in this vault.</p></div>
+    : <div className="arvo-fade"><p className="flex items-center gap-2 font-semibold"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />{data.stakers.toLocaleString("en-GB")} staker{data.stakers === 1 ? "" : "s"} · {data.deposits.toLocaleString("en-GB")} deposit{data.deposits === 1 ? "" : "s"}</p>
+      <ul className="mt-2.5 space-y-1 text-white/55">{data.recent.slice(0, 3).map((r, i) => <li key={i} className="flex justify-between gap-3"><span className="font-mono">{r.user}</span><span className="tabular-nums">{amount(r)}{r.at ? ` · ${ago(r.at)}` : ""}</span></li>)}</ul></div>}
   </div>;
 }

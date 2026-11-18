@@ -77,9 +77,9 @@ function usePoolForm() {
   return form;
 }
 const fieldKeys: Record<string, keyof FormValues> = {
-  "Duration": "duration", "ARVO cycle reward": "arvoRate", "USDC cycle reward": "usdcRate",
+  "Duration": "duration", "ARVO cycle reward": "arvoRate", "USDG cycle reward": "usdcRate",
   "Dual stake boost": "dualBoost", "Combined boost cap": "boostCap", "Minimum ARVO": "minArvo",
-  "Minimum USDC": "minUsdc", "ARVO minimum for USDC rewards": "minArvoUsdc", "Maximum ARVO principal": "maxArvo", "Maximum USDC principal": "maxUsdc",
+  "Minimum USDG": "minUsdc", "ARVO minimum for USDG rewards": "minArvoUsdc", "Maximum ARVO principal": "maxArvo", "Maximum USDG principal": "maxUsdc", "USDG committed outside the app": "committedUsdc",
 };
 const productKeys = Object.fromEntries(Object.entries(productLabels).map(([key,label]) => [label,key])) as Record<string,keyof Products>;
 
@@ -259,11 +259,11 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
                   catch (e) { setError(e instanceof Error ? e.message : "Check the reference price."); }
                 }}>Calculate $500 / 110% minimums</button>
               </div>
-              <p className="text-[11px] leading-5 text-black/45">Rounds the base up to the next 10 ARVO. USDC-reward eligibility is 110% of that amount, approximately $550 at this same price. Save each draft after applying the approved amounts.</p>
+              <p className="text-[11px] leading-5 text-black/45">Rounds the base up to the next 10 ARVO. USDG-reward eligibility is 110% of that amount, approximately $550 at this same price. Save each draft after applying the approved amounts.</p>
               <div className="grid gap-5 md:grid-cols-2">
                 <Field label="Minimum ARVO" suffix="ARVO" placeholder="Approved token amount" />
-                <Field label="ARVO minimum for USDC rewards" suffix="ARVO" placeholder="110% of the base" />
-                <Field label="Minimum USDC" suffix="USDC" placeholder="1,000" />
+                <Field label="ARVO minimum for USDG rewards" suffix="ARVO" placeholder="110% of the base" />
+                <Field label="Minimum USDG" suffix="USDG" placeholder="1,000" />
               </div>
             </div>
           </Panel>
@@ -287,7 +287,7 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
                 </p>
                 <p className="mt-1 text-xs leading-5 text-amber-900/60">
                   Creating the pool establishes its terms and capacity only.
-                  ARVO and USDC rewards must be funded and reserved separately
+                  ARVO and USDG rewards must be funded and reserved separately
                   before the opening time.
                 </p>
               </div>
@@ -302,7 +302,7 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
               <SummaryRow label="Type" value={poolType === "standard" ? standardVaults.find((vault) => vault.kind === standardKind)?.name ?? "—" : "Custom"} />
               <SummaryRow label="Duration" value={poolType === "custom" ? `${values.duration || "—"} days` : standardVaults.find((vault) => vault.kind === standardKind)?.duration ?? "—"} />
               <SummaryRow label="ARVO cycle reward" value={poolType === "custom" ? `${values.arvoRate || "0"}%` : standardVaults.find((vault) => vault.kind === standardKind)?.arvoReward ?? "—"} />
-              <SummaryRow label="USDC cycle reward" value={poolType === "custom" ? `${values.usdcRate || "0"}%` : standardVaults.find((vault) => vault.kind === standardKind)?.usdcReward ?? "—"} />
+              <SummaryRow label="USDG cycle reward" value={poolType === "custom" ? `${values.usdcRate || "0"}%` : standardVaults.find((vault) => vault.kind === standardKind)?.usdcReward ?? "—"} />
               <SummaryRow label="Reward budget" value="Separate step" />
               <SummaryRow label="Mixed rewards" value="Disabled" />
             </div>
@@ -390,7 +390,7 @@ function StandardConfiguration({
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <MiniMetric label="ARVO reward" value={vault.arvoReward} />
-                <MiniMetric label="USDC reward" value={vault.usdcReward} />
+                <MiniMetric label="USDG reward" value={vault.usdcReward} />
               </div>
             </button>
           );
@@ -427,7 +427,7 @@ function CustomConfiguration() {
         />
 
         <Field
-          label="USDC cycle reward"
+          label="USDG cycle reward"
           suffix="%"
           placeholder="0.00"
           help="Maximum 100%."
@@ -452,7 +452,7 @@ function CustomConfiguration() {
       <div className="border-t border-black/[0.06] px-5 py-4 md:px-6">
         <div className="flex items-center gap-3 text-xs text-black/40">
           <LockKeyhole size={14} />
-          Mixed ARVO/USDC reward mode remains disabled. Its value-based split is not
+          Mixed ARVO/USDG reward mode remains disabled. Its value-based split is not
           introduced.
         </div>
       </div>
@@ -500,10 +500,17 @@ function Capacity() {
         />
 
         <Field
-          label="Maximum USDC principal"
-          suffix="USDC"
+          label="Maximum USDG principal"
+          suffix="USDG"
           placeholder="0"
           help="Enter 0 for uncapped."
+        />
+
+        <Field
+          label="USDG committed outside the app"
+          suffix="USDG"
+          placeholder="0"
+          help="Real, signed commitments only. Shown as already committed; the rest of the cap is open for onchain deposits. Record it in Allocation after creation."
         />
       </div>
 
@@ -529,7 +536,7 @@ function ProductControls() {
         {Object.values(productLabels).map(label => <ToggleRow key={label} title={label} />)}
 
         <MixedShareField />
-        <p className="text-xs leading-5 text-black/50">Dual rewards pay ARVO from the ARVO deposit and USDC from the USDC deposit using the chosen weighting. An acquisition pool is configured after creation in Pools → Acquisition vaults, before its opening time.</p>
+        <p className="text-xs leading-5 text-black/50">Dual rewards pay ARVO from the ARVO deposit and USDG from the USDG deposit using the chosen weighting. An acquisition pool is configured after creation in Pools → Acquisition vaults, before its opening time.</p>
       </div>
     </Panel>
   );
@@ -695,4 +702,4 @@ function SummaryRow({
   );
 }
 
-function MixedShareField(){const {values,products,changeValue}=usePoolForm();return products.dualMixed?<label className="block text-xs">ARVO share of dual rewards (%)<input value={values.mixedShare} onChange={e=>changeValue("mixedShare",e.target.value)} inputMode="decimal" className="mt-2 w-full rounded-xl border border-black/10 p-3"/><span className="mt-2 block text-black/50">USDC uses the remaining share. Must be above 0% and below 100%.</span></label>:null;}
+function MixedShareField(){const {values,products,changeValue}=usePoolForm();return products.dualMixed?<label className="block text-xs">ARVO share of dual rewards (%)<input value={values.mixedShare} onChange={e=>changeValue("mixedShare",e.target.value)} inputMode="decimal" className="mt-2 w-full rounded-xl border border-black/10 p-3"/><span className="mt-2 block text-black/50">USDG uses the remaining share. Must be above 0% and below 100%.</span></label>:null;}

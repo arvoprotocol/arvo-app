@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { formatUnits, type Address, type Hash } from "viem";
-import { bonusAbi, bonusBps, bpsLabel, readBonus, type BonusState } from "@/lib/staking/bonus";
+import { bonusAbi, bonusAddresses, bonusBps, bpsLabel, listBonuses, readBonus, type BonusState } from "@/lib/staking/bonus";
 import { transact } from "@/lib/staking/user-transactions";
 
 function arvo(value: bigint) {
@@ -12,12 +12,19 @@ function date(seconds: bigint) {
 }
 
 /** Loads the shared bonus for a pool; null while loading or when none applies. */
+// Shared cache so cards render with their bonus already known (no panel popping in after load).
+const bonusCache = new Map<number, BonusState | null>();
+/** Loads every configured bonus once; the stake page waits for this before showing vault cards. */
+export async function preloadBonuses(): Promise<void> {
+  if (bonusAddresses().length === 0) return;
+  try { for (const s of await listBonuses()) bonusCache.set(s.poolId, s); } catch { /* cards fall back to loading individually */ }
+}
 export function useSharedBonus(poolId: number | null, refreshKey = 0) {
-  const [state, setState] = useState<BonusState | null>(null);
+  const [state, setState] = useState<BonusState | null>(() => poolId === null ? null : bonusCache.get(poolId) ?? null);
   useEffect(() => {
     let cancelled = false;
-    if (poolId === null) return;
-    readBonus(poolId).then(s => { if (!cancelled) setState(s); }).catch(() => { if (!cancelled) setState(null); });
+    if (poolId === null || bonusAddresses().length === 0) return;
+    readBonus(poolId).then(s => { bonusCache.set(poolId, s); if (!cancelled) setState(s); }).catch(() => { if (!cancelled) setState(null); });
     return () => { cancelled = true; };
   }, [poolId, refreshKey]);
   return poolId === null ? null : state;

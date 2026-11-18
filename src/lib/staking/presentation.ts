@@ -27,3 +27,6 @@ export function countdown(target: string, now: number) {
   return `${days}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}m ${String(remainder).padStart(2, "0")}s`;
 }
 export function dateDisplay(raw: string) { return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", dateStyle: "medium", timeStyle: "short" }).format(new Date(raw)) + " UTC"; }
+
+/** Lock wording shared by vault cards. 365 days reads as 12 months. */
+export function lockLabel(days: number): string { return `${days === 365 ? "12-month" : `${days}-day`} lock from your deposit · no early withdrawal`; }

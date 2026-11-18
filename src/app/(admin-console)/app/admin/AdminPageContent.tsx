@@ -23,8 +23,8 @@ import {
 
 export default function AdminOverviewPage() {
   const {data,error,loading,refresh}=useAdminContractData();
-  const amount=(asset:"ARVO"|"USDC",key:"balance"|"principal"|"committed"|"reserved"|"available")=>data?displayAmount(data[asset][key],data[asset].decimals):"—";
-  const pair=(key:"principal"|"committed"|"reserved")=>data?`${amount("ARVO",key)} ARVO · ${amount("USDC",key)} USDC`:"—";
+  const amount=(asset:"ARVO"|"USDG",key:"balance"|"principal"|"committed"|"reserved"|"available")=>data?displayAmount(data[asset][key],data[asset].decimals):"—";
+  const pair=(key:"principal"|"committed"|"reserved")=>data?`${amount("ARVO",key)} ARVO · ${amount("USDG",key)} USDG`:"—";
   return (
     <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
       <PageTitle
@@ -53,7 +53,7 @@ export default function AdminOverviewPage() {
         <StatCard
           label="User principal"
           value={pair("principal")}
-          detail="ARVO + USDC liabilities"
+          detail="ARVO + USDG liabilities"
           icon={<LockKeyhole size={16} />}
         />
 
@@ -84,7 +84,7 @@ export default function AdminOverviewPage() {
           <PanelHeader
             eyebrow="Solvency"
             title="Protocol coverage"
-            action={<StatusPill>{data ? (data.ARVO.solvent && data.USDC.solvent ? "Covered" : "Reserve shortfall") : "Awaiting data"}</StatusPill>}
+            action={<StatusPill>{data ? (data.ARVO.solvent && data.USDG.solvent ? "Covered" : "Reserve shortfall") : "Awaiting data"}</StatusPill>}
           />
 
           <div className="p-5 md:p-6">
@@ -99,12 +99,12 @@ export default function AdminOverviewPage() {
               />
 
               <AssetCoverage
-                asset="USDC"
-                balance={amount("USDC","balance")}
-                principal={amount("USDC","principal")}
-                rewards={amount("USDC","committed")}
-                reserved={amount("USDC","reserved")}
-                status={data ? (data.USDC.solvent ? "Covered" : "Shortfall") : "Pending"}
+                asset="USDG"
+                balance={amount("USDG","balance")}
+                principal={amount("USDG","principal")}
+                rewards={amount("USDG","committed")}
+                reserved={amount("USDG","reserved")}
+                status={data ? (data.USDG.solvent ? "Covered" : "Shortfall") : "Pending"}
               />
             </div>
 
@@ -204,7 +204,7 @@ export default function AdminOverviewPage() {
           <div className="p-5 md:p-6">
             <div className="grid grid-cols-2 gap-3">
               <MiniStat label="ARVO available" value={amount("ARVO","available")} />
-              <MiniStat label="USDC available" value={amount("USDC","available")} />
+              <MiniStat label="USDG available" value={amount("USDG","available")} />
             </div>
 
             <p className="mt-4 text-xs leading-5 text-black/38">

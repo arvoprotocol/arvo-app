@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 const description =
-  "Explore Arvo fixed-term vaults for $ARVO and USDC, with defined terms, maturity dates and reward structures.";
+  "Explore Arvo fixed-term vaults for $ARVO and USDG, with defined terms, maturity dates and reward structures.";
 
 export const metadata: Metadata = {
   title: "Vaults & Staking",

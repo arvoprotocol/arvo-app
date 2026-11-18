@@ -46,13 +46,13 @@ export default function AdminPoolsPage() {
             <PoolField
               icon={<LockKeyhole size={17} />}
               title="Principal capacity"
-              copy="ARVO and USDC each have their own public capacity. A zero cap means uncapped."
+              copy="ARVO and USDG each have their own public capacity. A zero cap means uncapped."
             />
 
             <PoolField
               icon={<Coins size={17} />}
               title="Reward budget"
-              copy="Original and remaining ARVO and USDC reward budgets are tracked independently."
+              copy="Original and remaining ARVO and USDG reward budgets are tracked independently."
             />
 
             <PoolField
@@ -114,7 +114,7 @@ export default function AdminPoolsPage() {
               </h2>
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-white/42">
-                Creating a pool does not create reward capital. Ordinary reward budgets require funds in the staking contract. Acquisition USDC vaults use a separate future reward limit and isolated escrow repayments. Configure these under Acquisition vaults below before opening.
+                Creating a pool does not create reward capital. Ordinary reward budgets require funds in the staking contract. Acquisition USDG vaults use a separate future reward limit and isolated escrow repayments. Configure these under Acquisition vaults below before opening.
               </p>
             </div>
 

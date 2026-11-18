@@ -151,9 +151,9 @@ export default function AdminPositionsPage() {
               title="Principal"
               rows={[
                 ["ARVO principal", "—"],
-                ["USDC principal", "—"],
+                ["USDG principal", "—"],
                 ["ARVO reward", "—"],
-                ["USDC reward", "—"],
+                ["USDG reward", "—"],
               ]}
             />
 

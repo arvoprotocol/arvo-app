@@ -169,8 +169,8 @@ export default function AdminRewardsPage() {
         />
 
         <StatCard
-          label="USDC available"
-          value={amount(accounting, "USDC", "available")}
+          label="USDG available"
+          value={amount(accounting, "USDG", "available")}
           detail="Uncommitted reward capacity"
           icon={<WalletCards size={16} />}
         />
@@ -183,8 +183,8 @@ export default function AdminRewardsPage() {
         />
 
         <StatCard
-          label="USDC reserved"
-          value={amount(accounting, "USDC", "reserved")}
+          label="USDG reserved"
+          value={amount(accounting, "USDG", "reserved")}
           detail="Uncommitted pool budgets"
           icon={<LockKeyhole size={16} />}
         />
@@ -192,7 +192,7 @@ export default function AdminRewardsPage() {
 
       <section className="mt-8 grid gap-5 xl:grid-cols-2">
         <AssetAccounting asset="ARVO" />
-        <AssetAccounting asset="USDC" />
+        <AssetAccounting asset="USDG" />
       </section>
 
       <section className="mt-8 grid gap-5 xl:grid-cols-2">
@@ -205,14 +205,14 @@ export default function AdminRewardsPage() {
 
           <div className="p-5 md:p-6">
             <p className="max-w-xl text-sm leading-6 text-black/45">
-              Transfer ARVO or USDC from the authorised Reward Manager wallet
+              Transfer ARVO or USDG from the authorised Reward Manager wallet
               into the staking contract. Funding increases the contract balance
               but does not assign those assets to a particular pool.
             </p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <FundingCard asset="ARVO" />
-              <FundingCard asset="USDC" />
+              <FundingCard asset="USDG" />
             </div>
           </div>
         </Panel>
@@ -246,10 +246,10 @@ export default function AdminRewardsPage() {
                   suffix="ARVO"
                 />
                 <Field
-                  label="USDC to reserve"
+                  label="USDG to reserve"
                   name="reserveUSDC"
                   placeholder="0"
-                  suffix="USDC"
+                  suffix="USDG"
                 />
               </div>
 
@@ -327,7 +327,7 @@ export default function AdminRewardsPage() {
 
           <div className="grid gap-px bg-black/[0.06] lg:grid-cols-2">
             <SurplusCard asset="ARVO" />
-            <SurplusCard asset="USDC" />
+            <SurplusCard asset="USDG" />
           </div>
 
           <div className="border-t border-black/[0.06] bg-amber-50/60 px-5 py-4 md:px-6">
@@ -352,14 +352,14 @@ export default function AdminRewardsPage() {
   );
 }
 
-function AssetAccounting({ asset }: { asset: "ARVO" | "USDC" }) {
+function AssetAccounting({ asset }: { asset: "ARVO" | "USDG" }) {
   const { accounting } = useRewards();
   const data = accounting?.[asset];
   return (
     <Panel>
       <PanelHeader
         eyebrow={`${asset} accounting`}
-        title={`${asset === "USDC" ? "Ordinary USDC" : asset} reserve`}
+        title={`${asset === "USDG" ? "Ordinary USDG" : asset} reserve`}
         action={
           <span className="flex items-center gap-1.5 text-[10px] font-semibold text-black/35">
             <ShieldCheck size={13} />
@@ -369,7 +369,7 @@ function AssetAccounting({ asset }: { asset: "ARVO" | "USDC" }) {
       />
 
       <div className="divide-y divide-black/[0.06] px-5 md:px-6">
-        {asset==="USDC"&&<p className="py-4 text-xs leading-5 text-black/50">This reserve covers ordinary staking only. Acquisition cash and future USDC commitments are managed separately under Pools → Acquisition vaults.</p>}
+        {asset==="USDG"&&<p className="py-4 text-xs leading-5 text-black/50">This reserve covers ordinary staking only. Acquisition cash and future USDG commitments are managed separately under Pools → Acquisition vaults.</p>}
         <AccountingRow label="Contract balance" value={amount(accounting, asset, "balance")} />
         <AccountingRow label="User principal liability" value={amount(accounting, asset, "principal")} />
         <AccountingRow label="Committed reward liability" value={amount(accounting, asset, "committed")} />
@@ -384,7 +384,7 @@ function AssetAccounting({ asset }: { asset: "ARVO" | "USDC" }) {
   );
 }
 
-function FundingCard({ asset }: { asset: "ARVO" | "USDC" }) {
+function FundingCard({ asset }: { asset: "ARVO" | "USDG" }) {
   const manager = useRewards();
   return (
     <div className="rounded-2xl border border-black/[0.07] p-4">
@@ -428,7 +428,7 @@ function FundingCard({ asset }: { asset: "ARVO" | "USDC" }) {
   );
 }
 
-function SurplusCard({ asset }: { asset: "ARVO" | "USDC" }) {
+function SurplusCard({ asset }: { asset: "ARVO" | "USDG" }) {
   const manager = useRewards();
   return (
     <div className="bg-white/70 p-5 md:p-6">

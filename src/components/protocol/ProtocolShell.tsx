@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuditedBySoken } from "@/components/protocol/SokenBadge";
+import { SoundToggle, UiClickSounds } from "@/components/protocol/UiFeedback";
 import { Activity, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Sparkles, Wallet, Users, X } from "lucide-react";
 
 const nav = [
@@ -43,8 +44,8 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
   });
 
   return (
-    <div className="min-h-screen bg-[#f8f2ed] text-[#07090b]">
-      <div className="noise" /><WalletPicker/>
+    <div className="arvo-app min-h-screen bg-[#f8f2ed] text-[#07090b]">
+      <div className="noise" /><WalletPicker/><UiClickSounds/>
       <aside className="fixed inset-y-0 left-0 z-50 hidden w-[252px] border-r border-white/10 bg-[#07090b] text-white overflow-y-auto lg:flex lg:flex-col">
         <div className="px-6 pb-5 pt-7"><Link href="https://arvoprotocol.com/" className="inline-flex"><Image src="/arvo_logo.svg" alt="Arvo Protocol" width={160} height={34} className="h-8 w-auto" priority /></Link><div className="mt-3 flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/><p className="text-[9px] font-bold uppercase tracking-[0.22em] text-white/32">Protocol app</p></div></div>
         <nav className="px-3 pt-3">{renderNav(nav)}</nav>
@@ -52,6 +53,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
         <p className="px-6 pb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/22">Protocol</p>
         <nav className="px-3">{renderNav(secondary)}</nav>
         <div className="mx-6 mt-5"><AuditedBySoken href={appPath("/app/transparency#security")} compact /></div>
+        <div className="mx-5 mt-3"><SoundToggle className="text-white/40 hover:bg-white/[0.06] hover:text-white/80"/></div>
         <div className="mt-auto"><ProtocolSidebarFooter/></div>
       </aside>
 
@@ -91,6 +93,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
             <button autoFocus aria-label="Close navigation" onClick={() => setMobileOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10"><X size={19}/></button>
           </div>
           <nav className="px-4 py-5">{renderNav(nav)}<div className="my-4 border-t border-white/10"/>{renderNav(secondary)}</nav>
+          <div className="px-5 pb-3"><SoundToggle className="text-white/50 hover:bg-white/[0.06] hover:text-white/80"/></div>
           <div className="mt-auto"><ProtocolSidebarFooter onNavigate={()=>setMobileOpen(false)}/></div>
         </div>
       </div>}

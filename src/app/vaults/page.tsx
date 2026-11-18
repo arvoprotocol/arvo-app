@@ -7,7 +7,7 @@ import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 
-type StakeAsset = "ARVO" | "USDC";
+type StakeAsset = "ARVO" | "USDG";
 
 const vaults = [
   {
@@ -64,7 +64,7 @@ export default function VaultsPage() {
 
   const formatAmount = (value: number) =>
     value.toLocaleString(undefined, {
-      maximumFractionDigits: stakeAsset === "USDC" ? 2 : 4,
+      maximumFractionDigits: stakeAsset === "USDG" ? 2 : 4,
     });
 
   return (
@@ -88,7 +88,7 @@ export default function VaultsPage() {
               </h1>
 
               <p className="mt-8 max-w-2xl text-xl leading-8 text-white/64">
-                Stake ARVO, USDC or both across fixed-term vaults. Each live
+                Stake ARVO, USDG or both across fixed-term vaults. Each live
                 position has defined terms, a fixed maturity date and rewards
                 committed when the position is opened.
               </p>
@@ -127,7 +127,7 @@ export default function VaultsPage() {
                   </div>
 
                   <p className="mt-3 text-sm uppercase tracking-[0.16em] text-white/40">
-                    USDC cycle reward
+                    USDG cycle reward
                   </p>
                 </div>
               </div>
@@ -158,7 +158,7 @@ export default function VaultsPage() {
             </h2>
 
             <p className="mx-auto mt-7 max-w-3xl text-xl leading-8 text-black/60">
-              Compare estimated ARVO and USDC rewards across each fixed-term
+              Compare estimated ARVO and USDG rewards across each fixed-term
               vault.
             </p>
           </div>
@@ -171,7 +171,7 @@ export default function VaultsPage() {
                 </label>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
-                  {(["ARVO", "USDC"] as StakeAsset[]).map((asset) => (
+                  {(["ARVO", "USDG"] as StakeAsset[]).map((asset) => (
                     <button
                       key={asset}
                       type="button"
@@ -327,7 +327,7 @@ export default function VaultsPage() {
                   </p>
 
                   <h3 className="mt-3 text-2xl font-semibold tracking-[-0.035em]">
-                    Stake ARVO + USDC together.
+                    Stake ARVO + USDG together.
                   </h3>
 
                   <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
@@ -365,7 +365,7 @@ export default function VaultsPage() {
               {[
                 [
                   "Choose your position",
-                  "Select an available vault and stake ARVO, USDC or both where Dual staking is enabled. Supported assets, reward modes and capacity are defined for each live vault.",
+                  "Select an available vault and stake ARVO, USDG or both where Dual staking is enabled. Supported assets, reward modes and capacity are defined for each live vault.",
                 ],
                 [
                   "Rewards are reserved",

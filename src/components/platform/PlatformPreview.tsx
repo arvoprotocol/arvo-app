@@ -43,7 +43,7 @@ const vaults = [
     number: "02",
     name: "Advance",
     days: 90,
-    rewardType: "USDC",
+    rewardType: "USDG",
     tag: "Balanced",
   },
   {
@@ -57,7 +57,7 @@ const vaults = [
     number: "04",
     name: "Foundation",
     days: 365,
-    rewardType: "USDC",
+    rewardType: "USDG",
     tag: "Extended",
     featured: true,
   },
@@ -238,7 +238,7 @@ function MiniVaultCard({
 
           <p className="mt-1.5 text-[5px] leading-3 text-white/28">
             {vault.rewardType === "DUAL"
-              ? "ARVO + USDC rewards"
+              ? "ARVO + USDG rewards"
               : `Rewards distributed in ${vault.rewardType}`}
           </p>
         </div>
@@ -410,7 +410,7 @@ function VaultsScreen() {
       </h3>
 
       <p className="mt-1 text-[8px] leading-4 text-black/48">
-        Stake ARVO across defined lock periods, with ARVO, USDC and dual reward structures.
+        Stake ARVO across defined lock periods, with ARVO, USDG and dual reward structures.
       </p>
 
       <div className="mt-4 grid grid-cols-2 gap-3">

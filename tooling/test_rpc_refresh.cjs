@@ -15,7 +15,7 @@ test('Published vault component loads the visible pool',async()=>{const outer=re
 test('Wallet loads balances, positions and acquisition status at latest',async()=>{const v=await render(require('../src/hooks/useStakingData.ts').useStakingData);assert(v.some(x=>x?.arvoBalance===123n&&x.positions?.[0]?.id===7n&&x.acquisitions?.[1]===null));});
 test('Deliberate historical pool reads preserve the block',async()=>{calls=[];await assert.rejects(require('../src/hooks/useStakingData.ts').readPool(1,42n),/unsupported block number 42/);assert(calls.some(r=>r.blockNumber===42n));});
 
-test('settled dual emergency positions retain a separately readable unpaid USDC principal',async()=>{
+test('settled dual emergency positions retain a separately readable unpaid USDG principal',async()=>{
  positionOverride={owner:address,vaultId:1,stakeMode:2,rewardMode:2,maturesAt:2000000000n,openedAt:1700000000n,arvoPrincipal:100n,usdcPrincipal:1000n,arvoReward:10n,usdcReward:100n,settled:true,emergencyExit:true};
  try{const v=await render(require('../src/hooks/useStakingData.ts').useStakingData);assert(v.some(x=>x?.positions?.[0]?.pendingEmergencyUsdc===1000n));assert(calls.some(x=>x.functionName==='pendingEmergencyUsdc'));}finally{positionOverride=null;}
 });

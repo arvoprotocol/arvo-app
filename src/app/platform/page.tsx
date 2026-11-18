@@ -52,7 +52,7 @@ const features = [
   {
     icon: Coins,
     title: "Vaults",
-    copy: "Access fixed-term ARVO, USDC and Dual vaults.",
+    copy: "Access fixed-term ARVO, USDG and Dual vaults.",
   },
   {
     icon: PieChart,

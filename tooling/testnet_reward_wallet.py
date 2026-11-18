@@ -8,7 +8,7 @@ RPC='https://rpc.testnet.chain.robinhood.com'
 PROXY='0x54697F1BE0E26d079CEb97992df54b8A700C6968'
 ADMIN='0x8A382ca8B4536b924C5d1cb77A048f44396C1477'
 KEYSTORE='/root/arvo-testnet-keystores/5c9a7d16-a1b9-4499-97d3-e064e303c6d1'
-TOKENS=[('ARVO','0xD05e38a43FA819945a4082764562B91d6047b76c',18,100_000_000),('USDC','0xD6554EB0B9fBCb8d8f423Ad4Bf842D473bE6d6B2',6,10_000_000)]
+TOKENS=[('ARVO','0xD05e38a43FA819945a4082764562B91d6047b76c',18,100_000_000),('USDG','0xD6554EB0B9fBCb8d8f423Ad4Bf842D473bE6d6B2',6,10_000_000)]
 def run(*args):
     result=subprocess.run([CAST,*map(str,args)],capture_output=True,text=True,timeout=45)
     if result.returncode:raise SystemExit(result.stderr.strip())
@@ -48,8 +48,8 @@ def main():
         if topup:query('call',token,'mint(address,uint256)',ADMIN,topup,'--from',ADMIN)
         print(f'{name}: admin balance {Decimal(balance)/10**decimals:,}; top-up {Decimal(topup)/10**decimals:,}')
     print('Admin:',ADMIN)
-    print('Shared reserve funding:',args.fund_arvo,'ARVO /',args.fund_usdc,'USDC')
-    if args.reserve_pool is not None:print('Pool allocation:',args.reserve_pool,args.reserve_arvo,'ARVO /',args.reserve_usdc,'USDC; contract must still allow allocation before opening.')
+    print('Shared reserve funding:',args.fund_arvo,'ARVO /',args.fund_usdc,'USDG')
+    if args.reserve_pool is not None:print('Pool allocation:',args.reserve_pool,args.reserve_arvo,'ARVO /',args.reserve_usdc,'USDG; contract must still allow allocation before opening.')
     if not args.apply:
         print('Read-only check complete. Add --apply to execute the displayed operations. Enter passwords only at cast prompts.');return
     for (name,token,decimals,target),topup,fund in zip(TOKENS,topups,funding):

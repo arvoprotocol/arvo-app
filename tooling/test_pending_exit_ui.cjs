@@ -13,13 +13,13 @@ const load=Module._load;Module._load=function(n,...r){
  return load.call(this,n,...r);
 };
 const React=require('react'),{renderToStaticMarkup}=require('react-dom/server'),{OnChainPositions}=require('../src/components/protocol/OnChainPositions.tsx');
-test('an exited dual stake still presents its unpaid USDC claim and forfeited rewards',()=>{
+test('an exited dual stake still presents its unpaid USDG claim and forfeited rewards',()=>{
  const html=renderToStaticMarkup(React.createElement(OnChainPositions));
- assert.match(html,/USDC principal pending/);assert.match(html,/ARVO principal returned/);
- assert.match(html,/Forfeited reward/);assert.match(html,/Claim returned USDC principal/);
+ assert.match(html,/USDG principal pending/);assert.match(html,/ARVO principal returned/);
+ assert.match(html,/Forfeited reward/);assert.match(html,/Claim returned USDG principal/);
  assert.doesNotMatch(html,/Claim principal and rewards/);
 });
-test('a collected receipt cannot present another USDC claim action',()=>{
+test('a collected receipt cannot present another USDG claim action',()=>{
  position.pendingEmergencyUsdc=0n;
- try{const html=renderToStaticMarkup(React.createElement(OnChainPositions));assert.doesNotMatch(html,/Claim returned USDC principal/);assert.match(html,/Forfeited reward/);}finally{position.pendingEmergencyUsdc=1000000n;}
+ try{const html=renderToStaticMarkup(React.createElement(OnChainPositions));assert.doesNotMatch(html,/Claim returned USDG principal/);assert.match(html,/Forfeited reward/);}finally{position.pendingEmergencyUsdc=1000000n;}
 });

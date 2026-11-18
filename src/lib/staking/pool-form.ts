@@ -7,11 +7,11 @@ export const standardPools = [
   {kind:"COMPOUND",name:"Compound",days:180,arvo:"10",usdc:"6.5"},
   {kind:"FOUNDATION",name:"Foundation",days:365,arvo:"22",usdc:"14"},
 ] as const;
-export const initialValues = {duration:"120",arvoRate:"0",usdcRate:"0",dualBoost:"10",boostCap:"15",minArvo:"",minArvoUsdc:"",minUsdc:"1000",opens:"",closes:"",maxArvo:"0",maxUsdc:"0",mixedShare:"50"};
+export const initialValues = {duration:"120",arvoRate:"0",usdcRate:"0",dualBoost:"10",boostCap:"15",minArvo:"",minArvoUsdc:"",minUsdc:"1000",opens:"",closes:"",maxArvo:"0",maxUsdc:"0",mixedShare:"50",committedUsdc:"0"};
 export type FormValues = typeof initialValues;
 export const initialProducts = {arvoArvo:true,arvoUsdc:false,usdcUsdc:false,dualArvo:false,dualUsdc:false,dualMixed:false};
 export type Products = typeof initialProducts;
-export const productLabels: Record<keyof Products,string> = {arvoArvo:"Deposit ARVO · earn ARVO",arvoUsdc:"Deposit ARVO · earn USDC",usdcUsdc:"Deposit USDC · earn USDC",dualArvo:"Deposit ARVO + USDC · earn ARVO",dualUsdc:"Deposit ARVO + USDC · earn USDC",dualMixed:"Deposit ARVO + USDC · earn ARVO + USDC"};
+export const productLabels: Record<keyof Products,string> = {arvoArvo:"Deposit ARVO · earn ARVO",arvoUsdc:"Deposit ARVO · earn USDG",usdcUsdc:"Deposit USDG · earn USDG",dualArvo:"Deposit ARVO + USDG · earn ARVO",dualUsdc:"Deposit ARVO + USDG · earn USDG",dualMixed:"Deposit ARVO + USDG · earn ARVO + USDG"};
 export type PreparedPool = {functionName:"createProductPool";args:readonly unknown[];summary:[string,string][]};
 const MAX = (BigInt(1)<<BigInt(256))-BigInt(1);
 export function tokenAmount(raw:string,decimals:number,label:string):bigint {
@@ -34,26 +34,28 @@ export function preparePool(type:PoolType,kind:StandardKind,v:FormValues,p:Produ
  const preset=standardPools.find(x=>x.kind===kind)!;
  const days=type==="custom"?Number(v.duration):preset.days;
  if(type==="custom"&&(!/^\d+$/.test(v.duration)||!Number.isSafeInteger(days)||days<1||days*86400>4294967295))throw new StakingInputError("Duration must be 1–49,710 whole days.");
- const arvoRewardBps=bps(type==="custom"?v.arvoRate:preset.arvo,100,"ARVO cycle reward"),usdcRewardBps=bps(type==="custom"?v.usdcRate:preset.usdc,100,"USDC cycle reward");
+ const arvoRewardBps=bps(type==="custom"?v.arvoRate:preset.arvo,100,"ARVO cycle reward"),usdcRewardBps=bps(type==="custom"?v.usdcRate:preset.usdc,100,"USDG cycle reward");
  const dualBoostBps=bps(type==="custom"?v.dualBoost:"10",50,"Dual boost"),combinedBoostCapBps=bps(type==="custom"?v.boostCap:"15",50,"Boost cap");
  if(dualBoostBps>combinedBoostCapBps)throw new StakingInputError("Combined boost cap must cover the dual boost.");
  if((p.arvoArvo||(p.dualArvo||p.dualMixed))&&arvoRewardBps===0)throw new StakingInputError("Enabled ARVO reward products need a positive rate.");
- if((p.arvoUsdc||p.usdcUsdc||(p.dualUsdc||p.dualMixed))&&usdcRewardBps===0)throw new StakingInputError("Enabled USDC reward products need a positive rate.");
- const minArvo=tokenAmount(v.minArvo||"0",18,"Minimum ARVO"),minUsdc=tokenAmount(v.minUsdc,6,"Minimum USDC"),crossMinimum=tokenAmount(v.minArvoUsdc||"0",18,"ARVO minimum for USDC rewards");
+ if((p.arvoUsdc||p.usdcUsdc||(p.dualUsdc||p.dualMixed))&&usdcRewardBps===0)throw new StakingInputError("Enabled USDG reward products need a positive rate.");
+ const minArvo=tokenAmount(v.minArvo||"0",18,"Minimum ARVO"),minUsdc=tokenAmount(v.minUsdc,6,"Minimum USDG"),crossMinimum=tokenAmount(v.minArvoUsdc||"0",18,"ARVO minimum for USDG rewards");
  if((p.arvoArvo||p.arvoUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&minArvo===BigInt(0))throw new StakingInputError("Minimum ARVO must be positive.");
- if((p.usdcUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&minUsdc===BigInt(0))throw new StakingInputError("Minimum USDC must be positive.");
- if(p.arvoUsdc&&(crossMinimum===BigInt(0)||crossMinimum<minArvo))throw new StakingInputError("ARVO minimum for USDC rewards must cover the base ARVO minimum.");
- const maxArvo=tokenAmount(v.maxArvo,18,"ARVO capacity"),maxUsdc=tokenAmount(v.maxUsdc,6,"USDC capacity");
+ if((p.usdcUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&minUsdc===BigInt(0))throw new StakingInputError("Minimum USDG must be positive.");
+ if(p.arvoUsdc&&(crossMinimum===BigInt(0)||crossMinimum<minArvo))throw new StakingInputError("ARVO minimum for USDG rewards must cover the base ARVO minimum.");
+ const maxArvo=tokenAmount(v.maxArvo,18,"ARVO capacity"),maxUsdc=tokenAmount(v.maxUsdc,6,"USDG capacity");
  if((p.arvoArvo||p.arvoUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&maxArvo!==BigInt(0)&&(maxArvo<minArvo||(p.arvoUsdc&&maxArvo<crossMinimum)))throw new StakingInputError("ARVO capacity must cover each enabled product's minimum or be uncapped.");
- if((p.usdcUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&maxUsdc!==BigInt(0)&&maxUsdc<minUsdc)throw new StakingInputError("USDC capacity must cover its minimum or be uncapped.");
+ if((p.usdcUsdc||(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed))&&maxUsdc!==BigInt(0)&&maxUsdc<minUsdc)throw new StakingInputError("USDG capacity must cover its minimum or be uncapped.");
+ const committedUsdc=tokenAmount(v.committedUsdc||"0",6,"USDG committed outside the app");
+ if(committedUsdc>BigInt(0)&&(maxUsdc===BigInt(0)||committedUsdc>=maxUsdc))throw new StakingInputError("USDG committed outside the app must be below a defined USDG capacity, leaving room for onchain deposits.");
  if(p.dualMixed&&(bps(v.mixedShare,100,"ARVO reward share")===0||bps(v.mixedShare,100,"ARVO reward share")===10000))throw new StakingInputError("Dual rewards need an ARVO share above 0% and below 100%.");
  const config={duration:days*86400,arvoRewardBps,usdcRewardBps,dualBoostBps,combinedBoostCapBps,mixedArvoShareBps:bps(v.mixedShare,100,"ARVO reward share"),minArvo,minUsdc,arvoStakeEnabled:p.arvoArvo||p.arvoUsdc,usdcStakeEnabled:p.usdcUsdc,dualStakeEnabled:(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed),arvoRewardEnabled:p.arvoArvo||(p.dualArvo||p.dualMixed),usdcRewardEnabled:p.arvoUsdc||p.usdcUsdc||(p.dualUsdc||p.dualMixed),mixedRewardEnabled:p.dualMixed};
  return {functionName:"createProductPool",args:[4,config,BigInt(opens),BigInt(closes),maxArvo,maxUsdc,mask,p.arvoUsdc?crossMinimum:BigInt(0)],summary:[
- ["Type",type==="custom"?"Custom":`${preset.name} preset`],["Contract pool type","Custom (fixed terms at creation)"],["Duration",`${days} days`],["ARVO cycle reward",`${arvoRewardBps/100}%`],["USDC cycle reward",`${usdcRewardBps/100}%`],
- ["Minimum ARVO",v.minArvo],["ARVO minimum for USDC rewards",v.minArvoUsdc],["Minimum USDC",v.minUsdc],
+ ["Type",type==="custom"?"Custom":`${preset.name} preset`],["Contract pool type","Custom (fixed terms at creation)"],["Duration",`${days} days`],["ARVO cycle reward",`${arvoRewardBps/100}%`],["USDG cycle reward",`${usdcRewardBps/100}%`],
+ ["Minimum ARVO",v.minArvo],["ARVO minimum for USDG rewards",v.minArvoUsdc],["Minimum USDG",v.minUsdc],
  ["Opens (UTC)",new Date(opens*1000).toISOString()],["Closes (UTC)",closes?new Date(closes*1000).toISOString():"Open-ended"],
- ["ARVO capacity",maxArvo===BigInt(0)?"Uncapped":v.maxArvo],["USDC capacity",maxUsdc===BigInt(0)?"Uncapped":v.maxUsdc],
- ...Object.entries(p).map(([k,x]):[string,string]=>[productLabels[k as keyof Products],x?"Enabled":"Disabled"]),["ARVO share of dual rewards",`${v.mixedShare}%`],["Visibility","Hidden until published"],["Reward budget","Fund and reserve separately"],["ARVO → USDC","Unavailable until validated price oracle configured"]]};
+ ["ARVO capacity",maxArvo===BigInt(0)?"Uncapped":v.maxArvo],["USDG capacity",maxUsdc===BigInt(0)?"Uncapped":v.maxUsdc],["USDG committed outside the app",committedUsdc===BigInt(0)?"None":`${v.committedUsdc} (recorded after creation in Allocation)`],
+ ...Object.entries(p).map(([k,x]):[string,string]=>[productLabels[k as keyof Products],x?"Enabled":"Disabled"]),["ARVO share of dual rewards",`${v.mixedShare}%`],["Visibility","Hidden until published"],["Reward budget","Fund and reserve separately"],["ARVO → USDG","Unavailable until validated price oracle configured"]]};
 }
 
 export function formatTokenAmount(value: bigint, decimals = 18): string {

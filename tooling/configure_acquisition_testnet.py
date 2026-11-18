@@ -53,4 +53,4 @@ if missing:
  p.write_text(data);p.chmod(0o600)
  if os.geteuid()==0:os.chown(p,info.st_uid,info.st_gid)
  print('Added missing public staking settings in .env.production.local.')
-print('Verified Robinhood testnet, staking proxy, escrow controller and USDC binding. Existing non-empty settings retained.')
+print('Verified Robinhood testnet, staking proxy, escrow controller and USDG binding. Existing non-empty settings retained.')

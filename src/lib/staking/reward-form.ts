@@ -1,6 +1,6 @@
 import { isAddress, zeroAddress, type Address } from "viem";
 import { tokenAmount } from "./pool-form";
-export type Asset = "ARVO" | "USDC";
+export type Asset = "ARVO" | "USDG";
 export type RewardAction =
   | { kind: "fund"; asset: Asset; amount: bigint }
   | { kind: "reserve"; poolId: number; arvoAmount: bigint; usdcAmount: bigint }
@@ -15,7 +15,7 @@ export function prepareReservation(id: string, arvo: string, usdc: string): Rewa
   const poolId = Number(id);
   if (!Number.isSafeInteger(poolId) || poolId < 0 || poolId > 4294967295) throw new Error("Pool ID is outside the contract's valid range.");
   const arvoAmount = tokenAmount(arvo, 18, "ARVO reservation");
-  const usdcAmount = tokenAmount(usdc, 6, "USDC reservation");
+  const usdcAmount = tokenAmount(usdc, 6, "USDG reservation");
   if (arvoAmount === BigInt(0) && usdcAmount === BigInt(0)) throw new Error("Reserve a positive amount of at least one asset.");
   return { kind: "reserve", poolId, arvoAmount, usdcAmount };
 }

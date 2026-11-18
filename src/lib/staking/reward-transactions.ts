@@ -3,7 +3,7 @@ import { createWalletClient, custom, erc20Abi, formatUnits, isAddress, zeroAddre
 import { stakingAbi, stakingConnection } from "./pool-transactions";
 import { rewardContractCall, type Asset, type RewardAction } from "./reward-form";
 export type AssetAccounting = { token: Address; decimals: number; balance: bigint; principal: bigint; committed: bigint; reserved: bigint; available: bigint; solvent: boolean; walletBalance: bigint | null };
-export type RewardAccounting = { ARVO: AssetAccounting; USDC: AssetAccounting };
+export type RewardAccounting = { ARVO: AssetAccounting; USDG: AssetAccounting };
 export type RewardReview = { action: RewardAction; account: Address; chainId: number; proxy: Address; token: Address | null; allowance: bigint; approval: "reset" | "approve" | "none"; summary: [string, string][] };
 function connection() {
   const config = stakingConnection();
@@ -50,16 +50,16 @@ export async function readRewardAccounting(account?: Address): Promise<RewardAcc
       account ? publicClient.readContract({ address: token, abi: erc20Abi, functionName: "balanceOf", args: [account], blockNumber: block.number }) : Promise.resolve(null),
     ]);
     let ordinaryPrincipal=principal as bigint,ordinaryCommitted=committed as bigint,ordinaryReserved=reserved as bigint;
-    if(asset==="USDC"){
+    if(asset==="USDG"){
       const [p,r,b]=await Promise.all([stakingRead("acquisitionUsdcPrincipal"),stakingRead("acquisitionUsdcRewards"),stakingRead("acquisitionUsdcBudget")]);
       ordinaryPrincipal-=p as bigint;ordinaryCommitted-=r as bigint;ordinaryReserved-=b as bigint;
       if(ordinaryPrincipal<0n||ordinaryCommitted<0n||ordinaryReserved<0n)throw new Error("Acquisition accounting exceeds total liabilities.");
     }
-    return { token, decimals, balance, principal: ordinaryPrincipal, committed: ordinaryCommitted, reserved: ordinaryReserved, available: available as bigint, solvent: asset==="USDC"?balance>=ordinaryPrincipal+ordinaryCommitted+ordinaryReserved:solvent===true, walletBalance };
+    return { token, decimals, balance, principal: ordinaryPrincipal, committed: ordinaryCommitted, reserved: ordinaryReserved, available: available as bigint, solvent: asset==="USDG"?balance>=ordinaryPrincipal+ordinaryCommitted+ordinaryReserved:solvent===true, walletBalance };
   }
-  const [ARVO, USDC] = await Promise.all([assetAccounting("ARVO"), assetAccounting("USDC")]);
-  if (ARVO.token.toLowerCase() === USDC.token.toLowerCase()) throw new Error("Staking contract returned identical token addresses.");
-  return { ARVO, USDC };
+  const [ARVO, USDG] = await Promise.all([assetAccounting("ARVO"), assetAccounting("USDG")]);
+  if (ARVO.token.toLowerCase() === USDG.token.toLowerCase()) throw new Error("Staking contract returned identical token addresses.");
+  return { ARVO, USDG };
 }
 export async function reviewRewardAction(action: RewardAction, expected?: Address): Promise<RewardReview> {
   const context = await rewardWallet(expected);
@@ -75,14 +75,14 @@ export async function reviewRewardAction(action: RewardAction, expected?: Addres
     if (allowance < action.amount) approval = allowance === BigInt(0) ? "approve" : "reset";
     summary.push(["Operation", `Fund ${action.asset} reserve`], ["Amount", `${formatUnits(action.amount, asset.decimals)} ${action.asset}`], ["Token", token], ["Current allowance", formatUnits(allowance, asset.decimals)], ["Pool allocation", "Separate reservation step"]);
   } else if (action.kind === "reserve") {
-    if(action.usdcAmount>0n&&await context.publicClient.readContract({address:context.address,abi:stakingAbi,functionName:"acquisitionPools",args:[action.poolId]})===true)throw new Error("Acquisition USDC uses a future reward limit under Pools → Acquisition vaults. Reserve ARVO rewards here separately.");
+    if(action.usdcAmount>0n&&await context.publicClient.readContract({address:context.address,abi:stakingAbi,functionName:"acquisitionPools",args:[action.poolId]})===true)throw new Error("Acquisition USDG uses a future reward limit under Pools → Acquisition vaults. Reserve ARVO rewards here separately.");
     const exists = await context.publicClient.readContract({ address: context.address, abi: stakingAbi, functionName: "poolExists", args: [action.poolId] });
     if (exists !== true) throw new Error("This pool does not exist on the configured staking contract.");
     const pool = await context.publicClient.readContract({ address: context.address, abi: stakingAbi, functionName: "pool", args: [action.poolId] }) as { opensAt: bigint; finalized: boolean };
     const block = await context.publicClient.getBlock();
     if (pool.finalized || block.timestamp >= pool.opensAt) throw new Error("Pool budgets are locked once the pool opens or is finalized.");
-    if (action.arvoAmount > accounting.ARVO.available || action.usdcAmount > accounting.USDC.available) throw new Error("Reservation exceeds the available uncommitted reward capacity. Fund reserves first.");
-    summary.push(["Operation", "Reserve pool budget"], ["Pool ID", String(action.poolId)], ["ARVO reservation", formatUnits(action.arvoAmount, 18)], ["USDC reservation", formatUnits(action.usdcAmount, 6)], ["Pool opens (UTC)", new Date(Number(pool.opensAt) * 1000).toISOString()], ["Token transfer", "None; assigns existing reserves"]);
+    if (action.arvoAmount > accounting.ARVO.available || action.usdcAmount > accounting.USDG.available) throw new Error("Reservation exceeds the available uncommitted reward capacity. Fund reserves first.");
+    summary.push(["Operation", "Reserve pool budget"], ["Pool ID", String(action.poolId)], ["ARVO reservation", formatUnits(action.arvoAmount, 18)], ["USDG reservation", formatUnits(action.usdcAmount, 6)], ["Pool opens (UTC)", new Date(Number(pool.opensAt) * 1000).toISOString()], ["Token transfer", "None; assigns existing reserves"]);
   } else {
     const asset = accounting[action.asset]; token = asset.token;
     if (action.recipient.toLowerCase() === context.address.toLowerCase()) throw new Error("Recipient must differ from the staking contract.");
