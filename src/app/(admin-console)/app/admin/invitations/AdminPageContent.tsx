@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
+import { InvitationTools } from "./InvitationTools";
 import {
   PageTitle,
   Panel,
@@ -55,6 +56,8 @@ export default async function AdminInvitationsPage() {
         title="Invitations."
         copy="Manage invitation codes for early access to the Arvo app."
       />
+
+      <InvitationTools />
 
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

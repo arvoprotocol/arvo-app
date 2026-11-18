@@ -46,6 +46,7 @@ const nav: readonly AdminNavItem[] = [
   { label: "Emails", href: "/app/admin/emails", icon: Mail },
   { label: "Pools", href: "/app/admin/pools", icon: Boxes },
   { label: "Rewards", href: "/app/admin/rewards", icon: Coins },
+  { label: "Shared bonus", href: "/app/admin/bonus", icon: Coins },
   { label: "Protocol allocation", href: "/app/admin/allocation", icon: Landmark },
   { label: "Positions", href: "/app/admin/positions", icon: Users },
 ] as const;

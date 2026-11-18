@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/admin/session";
 import { sendAdminBroadcastEmail } from "@/lib/mail/platform";
 import { unsubscribeUrls } from "@/lib/mail/unsubscribe";
+import { invitationCodeFor } from "@/lib/admin/invitations";
 
 export const runtime = "nodejs";
 
@@ -133,10 +134,14 @@ export async function POST(request: Request) {
 
     for (const recipient of recipients) {
       try {
+        // [Invite code] gives each waitlist recipient their own reusable code.
+        const personalBody = waitlist && /\[Invite code\]/i.test(body)
+          ? body.replace(/\[Invite code\]/gi, await invitationCodeFor(recipient.email))
+          : body;
         await sendAdminBroadcastEmail({
           recipient,
           subject,
-          body,
+          body: personalBody,
           unsubscribe: waitlist ? unsubscribeUrls(recipient.email) : undefined,
         });
       } catch (error) {

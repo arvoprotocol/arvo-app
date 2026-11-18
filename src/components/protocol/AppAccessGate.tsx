@@ -55,22 +55,23 @@ export function AppAccessGate({
                 htmlFor="password"
                 className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/35"
               >
-                Access password
+                Invitation code or password
               </label>
 
               <input
                 id="password"
                 name="password"
                 type="password"
+                autoCapitalize="characters"
                 required
                 autoComplete="current-password"
-                placeholder="Enter password"
+                placeholder="Enter your invitation code"
                 className="mt-3 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-4 text-[15px] text-white outline-none transition placeholder:text-white/20 focus:border-[#c9846a]/50"
               />
 
               {invalid && (
                 <p className="mt-3 text-sm text-[#e2a98e]">
-                  That password is not recognised.
+                  That code or password is not recognised.
                 </p>
               )}
 
@@ -83,7 +84,7 @@ export function AppAccessGate({
             </form>
 
             <p className="mt-7 text-center text-xs leading-5 text-white/25">
-              Access is currently limited while the application and vault infrastructure are prepared.
+              Early access is by invitation. Use the code from your Arvo invitation email.
             </p>
           </div>
         </div>

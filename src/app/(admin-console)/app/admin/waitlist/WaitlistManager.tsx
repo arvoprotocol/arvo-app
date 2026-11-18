@@ -75,7 +75,7 @@ export function WaitlistManager({ signups }: { signups: Signup[] }) {
         <button type="button" className={button} disabled={busy || !selectedRows.length} onClick={() => compose(recipientsFor(selectedRows))}>Email selected ({selectedRows.length})</button>
         {!!selected.size && <button type="button" onClick={() => setSelected(new Set())} className="text-xs font-semibold text-black/50">Clear selection</button>}
       </div>
-      <p className="mt-3 text-xs leading-5 text-black/45">Selection covers matching email records across all pages. Telegram-only signups have no email address. Unsubscribed contacts are excluded from all sends, and every waitlist email includes an unsubscribe link. Times shown are UK time.</p>
+      <p className="mt-3 text-xs leading-5 text-black/45">Selection covers matching email records across all pages. Telegram-only signups have no email address. Unsubscribed contacts are excluded from all sends, and every waitlist email includes an unsubscribe link. Write [Invite code] in a message to give each recipient their own early-access code; re-sending reuses the same code. Times shown are UK time.</p>
       <div className="mt-5 overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead><tr className="border-b border-black/10 text-xs text-black/45"><th className="w-10 py-3 pr-3"><span className="sr-only">Select</span></th><th className="px-3 py-3 font-semibold">Contact</th><th className="px-3 py-3 font-semibold">Type</th><th className="px-3 py-3 font-semibold">Signed up</th><th className="px-3 py-3 font-semibold">Source</th><th className="py-3 pl-3 font-semibold">Action</th></tr></thead>
@@ -93,7 +93,7 @@ export function WaitlistManager({ signups }: { signups: Signup[] }) {
     </div>
     {draft && <div ref={composer} className="mt-7 scroll-mt-24">
       <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-lg font-semibold">Email waitlist subscribers</h2><button type="button" disabled={busy} onClick={() => { if (window.confirm('Close this email draft?')) setDraft(null); }} className={button}><X size={15} />Close</button></div>
-      <EmailComposer key={draft.key} partners={[]} initialRecipients={draft.recipients} initialSubject="An update from Arvo" initialBody={'Hi,\n\n\n\nThe Arvo Team'} audienceLabel="waitlist subscribers" audience="waitlist" onBusyChange={setBusy} />
+      <EmailComposer key={draft.key} partners={[]} initialRecipients={draft.recipients} initialSubject="Your Arvo early access invitation" initialBody={'Hi,\n\nEarly access to the Arvo app is open to waitlist members before the public release.\n\nYour personal invitation code: [Invite code]\n\nOpen app.arvoprotocol.com and enter your code to get started. Please keep it to yourself.\n\nThe Arvo Team'} audienceLabel="waitlist subscribers" audience="waitlist" onBusyChange={setBusy} />
     </div>}
   </div>;
 }
