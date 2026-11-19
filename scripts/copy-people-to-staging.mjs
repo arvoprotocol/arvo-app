@@ -39,8 +39,9 @@ const exists = (db, table) => Boolean(db.prepare("select name from sqlite_master
 // Older app versions may store dates as numbers; staging stores ISO text.
 function value(column, v) {
   if (v === null || v === undefined) return null;
-  if (/At$/.test(column) && typeof v === "number") return new Date(v).toISOString();
-  if (/At$/.test(column) && typeof v === "string" && /^\d{12,}$/.test(v)) return new Date(Number(v)).toISOString();
+  if (/At$/.test(column) && typeof v === "number") return new Date(v).toISOString().replace("Z", "+00:00");
+  if (/At$/.test(column) && typeof v === "string" && /^\d{12,}$/.test(v)) return new Date(Number(v)).toISOString().replace("Z", "+00:00");
+  if (/At$/.test(column) && typeof v === "string" && /T.*Z$/.test(v)) return v.replace(/Z$/, "+00:00");
   return v;
 }
 

@@ -44,7 +44,7 @@ const genesisProject = genesisSlug
   ? db.prepare("select slug, title from Project where slug=?").get(genesisSlug)
   : db.prepare("select slug, title from Project where lower(title) like '%ripe%' or lower(slug) like '%ripe%' order by (publishStatus='published') desc, sortOrder asc limit 1").get();
 if (!genesisProject) console.log(`! No ${genesisSlug ? `project "${genesisSlug}"` : "Ripe project"} found: Genesis Pilot keeps its current project link.`);
-const now = new Date().toISOString();
+const now = new Date().toISOString().replace("Z", "+00:00");
 let changes = 0;
 const tx = db.transaction(() => {
   for (const step of plan) {

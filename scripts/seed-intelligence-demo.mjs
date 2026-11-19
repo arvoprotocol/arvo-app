@@ -36,7 +36,7 @@ if (flag("--remove")) {
     for (const d of docs) { db.prepare("delete from IntelligenceChunk where documentId=?").run(d.id); db.prepare("delete from IntelligenceDocument where id=?").run(d.id); }
     for (const projectId of touched) {
       const left = db.prepare("select count(*) n from IntelligenceDocument where projectId=?").get(projectId).n;
-      if (left === 0) db.prepare("update IntelligenceProject set enabled=0, updatedAt=? where projectId=?").run(new Date().toISOString(), projectId);
+      if (left === 0) db.prepare("update IntelligenceProject set enabled=0, updatedAt=? where projectId=?").run(new Date().toISOString().replace("Z", "+00:00"), projectId);
     }
     if (demo) { db.prepare("delete from IntelligenceProject where projectId=?").run(demo.id); db.prepare("delete from Project where id=?").run(demo.id); }
   });
@@ -47,7 +47,7 @@ if (flag("--remove")) {
   if (enableSlug) {
     const real = db.prepare("select id, title, publishStatus from Project where slug=?").get(enableSlug);
     if (!real) throw new Error(`No project with slug "${enableSlug}".`);
-    const at = new Date().toISOString();
+    const at = new Date().toISOString().replace("Z", "+00:00");
     db.prepare("insert into IntelligenceProject (projectId, enabled, updatedAt) values (?,1,?) on conflict(projectId) do update set enabled=1, updatedAt=excluded.updatedAt").run(real.id, at);
     console.log(`Intelligence switched on for ${real.title}${real.publishStatus === "published" ? "" : " (note: this project is not published, so it will not appear until it is)"}. Upload its documents in Admin → Intelligence.`);
   }
@@ -62,7 +62,7 @@ if (slug) {
 } else {
   project = db.prepare("select id, slug, title, location from Project where slug=?").get(DEMO_SLUG);
   if (!project) {
-    const now = new Date().toISOString();
+    const now = new Date().toISOString().replace("Z", "+00:00");
     db.prepare(`insert into Project (slug, title, location, titleNumber, status, statusLabel, stage, acres, plots, plotsSold, currency, description, publishStatus, sortOrder, publishedAt, createdAt, updatedAt)
       values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(DEMO_SLUG, "Sample site · demo data", "Ashworth, Somerset", "", "active", "Demo", "Sample data", "4.2", 8, 0, "GBP",
       "A fictional sample project used to try Arvo Intelligence on staging. None of its documents or figures are real.", "published", 9999, now, now, now);
@@ -102,7 +102,7 @@ Smaller lots consistently achieved a higher price per acre than larger lots.`,
   ]},
 ];
 
-const now = new Date().toISOString();
+const now = new Date().toISOString().replace("Z", "+00:00");
 let added = 0;
 const tx = db.transaction(() => {
   const existing = db.prepare("select id from IntelligenceProject where projectId=?").get(project.id);

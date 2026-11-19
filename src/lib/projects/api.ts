@@ -29,8 +29,11 @@ export async function saveProject(request:Request,id?:number){
   const saved=await prisma.$transaction(async tx=>{
    let projectId:number;
    if(existing){
-    if(body.updatedAt!==existing.updatedAt.toISOString())throw new ProjectConflict("This project changed in another session. Reload before saving.");
-    const result=await tx.project.updateMany({where:{id:existing.id,updatedAt:existing.updatedAt},data:fields});if(!result.count)throw new ProjectConflict("This project changed in another session. Reload before saving.");projectId=existing.id;
+    // Compare the moment, not the stored text: a timestamp written as "…Z" and "…+00:00" is the same time.
+    const sent=typeof body.updatedAt==="string"?Date.parse(body.updatedAt):NaN;
+    const current=await tx.project.findUniqueOrThrow({where:{id:existing.id},select:{updatedAt:true}});
+    if(!Number.isFinite(sent)||sent!==current.updatedAt.getTime())throw new ProjectConflict("This project changed in another session. Reload before saving.");
+    await tx.project.update({where:{id:existing.id},data:fields});projectId=existing.id;
    }else projectId=(await tx.project.create({data:fields})).id;
    const retained=plotDetails.flatMap(p=>p.id===undefined?[]:[p.id]);
    await tx.projectPlot.deleteMany({where:{projectId,...(retained.length?{id:{notIn:retained}}:{})}});

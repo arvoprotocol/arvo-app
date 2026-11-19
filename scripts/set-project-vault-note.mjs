@@ -35,5 +35,5 @@ if (!project) { console.log(`No ${slug ? `project "${slug}"` : "Barbados project
 const display = project.displayJson ? JSON.parse(project.displayJson) : { kind: "plots", showFinancials: true, showMilestones: false, gallery: [], videoUrl: "", metrics: [], milestones: [] };
 if (display.vaultNote && !force) { console.log(`· ${project.title} already has a note (kept). Pass --force to replace it.`); process.exit(0); }
 console.log(`${apply ? "✓" : "→"} ${project.title} (${project.slug}): linked vault note\n\n${BARBADOS_NOTE}\n`);
-if (apply) db.prepare("update Project set displayJson=?, updatedAt=? where id=?").run(JSON.stringify({ ...display, vaultNote: BARBADOS_NOTE }), new Date().toISOString(), project.id);
+if (apply) db.prepare("update Project set displayJson=?, updatedAt=? where id=?").run(JSON.stringify({ ...display, vaultNote: BARBADOS_NOTE }), new Date().toISOString().replace("Z", "+00:00"), project.id);
 else console.log("Run again with --apply to save it.");
