@@ -40,7 +40,7 @@ export async function askClaude(projectTitle: string, question: string, sources:
   const model = process.env.INTELLIGENCE_MODEL || "claude-sonnet-5-5";
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+    headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", ...(workspaceId() ? { "anthropic-workspace-id": workspaceId() as string } : {}) },
     body: JSON.stringify({
       model, max_tokens: 1500, temperature: 0, system: SYSTEM,
       tools: [TOOL], tool_choice: { type: "tool", name: "respond" },
@@ -59,3 +59,6 @@ export async function askClaude(projectTitle: string, question: string, sources:
     inputTokens: result.usage?.input_tokens ?? 0, outputTokens: result.usage?.output_tokens ?? 0,
   };
 }
+
+/** Optional: needed only when the API key is not scoped to a workspace (Anthropic then asks which workspace to use). */
+function workspaceId(): string | null { const id = process.env.ANTHROPIC_WORKSPACE_ID?.trim(); return id && /^[A-Za-z0-9_-]{4,128}$/.test(id) ? id : null; }
