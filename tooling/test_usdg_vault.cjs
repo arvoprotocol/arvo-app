@@ -99,7 +99,7 @@ test('arranging launch vaults orders them, renames the USDG vault and keeps ever
  for(const r of rows){V.validateDraft({title:r.title,poolType:r.poolType,standardKind:r.standardKind,values:JSON.parse(r.valuesJson),products:JSON.parse(r.productsJson),visibility:r.visibility,sortOrder:r.sortOrder});}
  const v=t=>JSON.parse(rows.find(r=>r.title===t).valuesJson);
  assert.equal(v('Full Site Land Acquisition').usdcRate,'14');assert.equal(v('Full Site Land Acquisition').minUsdc,'10000');
- assert.equal(v('First Edition').bonusPct,'5');assert.equal(v('Genesis Pilot').bonusPct,'5');assert.equal(v('Genesis Pilot').projectSlug,'ripe-farm');assert.equal(v('Genesis Pilot').opens,'2026-12-01T12:00');assert.equal(v('Genesis Pilot').closes,'2026-12-06T12:00');assert.equal(v('Genesis Pilot').maxArvo,'200000000');
+ assert.equal(v('First Edition').bonusPct,'5');assert.equal(v('Genesis Pilot').bonusPct,'5');assert.equal(v('Genesis Pilot').projectSlug,'ripe-farm');assert.equal(v('Genesis Pilot').opens,'2027-01-23T12:00');assert.equal(v('Genesis Pilot').closes,'2027-02-02T12:00');assert.equal(v('Genesis Pilot').maxArvo,'200000000');
  assert.equal(v('Build').minArvo,'1500000');assert.equal(v('Build').opens,'');assert.equal(v('Foundation').maxArvo,'100000000');
  assert.equal(v('Community Welcome').minArvo,'850000'); // live vault terms untouched
 });

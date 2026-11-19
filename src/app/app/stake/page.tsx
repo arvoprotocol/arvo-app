@@ -88,7 +88,7 @@ export default function StakePage(){
     return <div key={key}><p className="text-xs leading-5 text-white/70">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={row.vault.arvoRewardBps/100} usdcRate={row.vault.usdcRewardBps/100} share={row.vault.mixedArvoShareBps/100} days={days} dark/>:<><AnnualReward percent={rate} days={days} dark prominent/><RewardLine percent={rate} days={days} asset={pays} bonus={Boolean(bonusLabel)} note={i>=3?"before dual uplift":undefined}/></>}</div>;})}</div>
   </div>
   <div className="mt-5"><TermStats items={[
-   {label:"Minimum",value:minRow?compactNumber(minRow.n):"–",unit:minRow?.unit,usdArvo:minRow?.usd,tip:minRow?.i===1?"Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit.":undefined},
+   {label:"Minimum",value:minRow?compactNumber(minRow.n):"–",unit:minRow?.unit,tip:minRow?.i===1?"Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit.":undefined},
    {label:"Vault size",value:sizeN>0?compactNumber(sizeN):"No limit",unit:sizeN>0?(usdgOnly?"USDG":"ARVO"):undefined,tip:"The most this vault can hold. Once it is full, it stops taking new deposits."},
    bonusNow?{label:"Bonus now",value:bonusNow==="Fixed"?"Fixed":bonusNow,tip:"Your share of the bonus pot at today's vault size. It gets smaller as more ARVO joins and is fixed when deposits close."}:{label:"Reward in",value:paidIn},
   ]}/></div>

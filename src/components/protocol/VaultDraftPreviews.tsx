@@ -56,7 +56,7 @@ export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, 
             </div>)}</div>
           </div>
           <div className="mt-5"><TermStats items={[
-            { label: "Minimum", value: compactNumber(minimum.n), unit: minimum.unit, usdArvo: minimum.usd, tip: first === "arvoUsdc" ? "Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit." : undefined },
+            { label: "Minimum", value: compactNumber(minimum.n), unit: minimum.unit, tip: first === "arvoUsdc" ? "Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit." : undefined },
             { label: "Vault size", value: sizeN ? compactNumber(sizeN) : "No limit", unit: sizeN ? sizeUnit : undefined, tip: "The most this vault can hold. Once it is full, it stops taking new deposits." },
             { label: "Reward in", value: first ? pays(first) : "–" },
           ]} /></div>

@@ -21,11 +21,13 @@ const standard = { minArvo: "1500000", minArvoUsdc: "1500000", maxArvo: "1000000
 const plan = [
   { match: ["community welcome"], order: 1 },
   { match: ["first edition"], order: 2, values: { bonusPct: "5" } },
-  // Opens two days after First Edition closes (29 Nov), with the same 5-day window. Planned dates only:
+  // First Edition deposits close 29 Nov and each stake unlocks 60 days after it was made (23 to 28 Jan).
+  // Genesis opens as the first ones unlock and stays open 5 days past the last, so everyone can move across.
+  // Planned dates only:
   // Genesis opens for real only once the plot-sale contribution has funded its rewards.
   // Size: the 3,000 USDG base reserve at 5% covers $60,000 of stake. At ~$0.0003 per ARVO that is
   // ~200M ARVO. Re-check against the reference price fixed just before Genesis opens.
-  { match: ["genesis pilot"], order: 3, values: { bonusPct: "5", opens: "2026-12-01T12:00", closes: "2026-12-06T12:00", maxArvo: "200000000" }, linkProject: true },
+  { match: ["genesis pilot"], order: 3, values: { bonusPct: "5", opens: "2027-01-23T12:00", closes: "2027-02-02T12:00", maxArvo: "200000000" }, linkProject: true },
   { match: ["usdg 12-month vault", "whole site finance", "full site land acquisition"], order: 4, title: "Full Site Land Acquisition", values: { usdcRate: "14", minUsdc: "10000" } },
   { match: ["build"], order: 5, values: standard },
   { match: ["advance"], order: 6, values: standard },

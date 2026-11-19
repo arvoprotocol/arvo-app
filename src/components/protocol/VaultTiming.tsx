@@ -21,7 +21,7 @@ export function VaultTiming({ opensAt, closesAt, preview = false, dark = false, 
     const when = phase === "upcoming" && opensAt ? shortDate(opensAt) : phase === "window" && closesAt ? shortDate(closesAt) : phase === "window" ? "No closing date" : phase === "closed" ? "Existing stakes continue" : "";
     return <div className="flex min-h-[2.75rem] flex-wrap items-center justify-between gap-x-3 gap-y-0.5 rounded-xl bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#a98bf0_135%)] px-4 py-2.5 text-[13px] text-[#07090b]">
       <span className="flex items-center gap-1.5">{sentence}{target && <span className="font-semibold tabular-nums" role="timer" aria-label={phase === "upcoming" ? "Time until deposits open" : "Time until deposits close"}>{now === null ? "\u00a0" : countdown(target, now)}</span>}{tip && <InfoTip ink size={12} label="About the deposit window">{tip}</InfoTip>}</span>
-      {when && <span className="text-[#07090b]/70">{when}</span>}
+      {when && <span className="font-semibold tabular-nums">{when}</span>}
     </div>;
   }
   return <div className={`${flush ? "h-full" : "mt-5"} rounded-2xl border p-4 ${hero ? "border-[#c9846a]/30 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] text-[#07090b]" : dark ? "border-white/10 bg-white/[0.04]" : "border-black/10 bg-[#f8f4ef]"}`}>
