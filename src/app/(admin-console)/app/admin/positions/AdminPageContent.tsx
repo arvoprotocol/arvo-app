@@ -28,28 +28,28 @@ export default function AdminPositionsPage() {
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total positions"
-          value="—"
+          value="–"
           detail="Created on-chain"
           icon={<WalletCards size={16} />}
         />
 
         <StatCard
           label="Active"
-          value="—"
+          value="–"
           detail="Not yet settled"
           icon={<ShieldCheck size={16} />}
         />
 
         <StatCard
           label="Settled"
-          value="—"
+          value="–"
           detail="Completed positions"
           icon={<LockKeyhole size={16} />}
         />
 
         <StatCard
           label="Wallets"
-          value="—"
+          value="–"
           detail="Unique position owners"
           icon={<UserRound size={16} />}
         />
@@ -130,40 +130,40 @@ export default function AdminPositionsPage() {
             <DetailGroup
               title="Identity"
               rows={[
-                ["Position ID", "—"],
-                ["Owner", "—"],
-                ["Pool ID", "—"],
-                ["Status", "—"],
+                ["Position ID", "–"],
+                ["Owner", "–"],
+                ["Pool ID", "–"],
+                ["Status", "–"],
               ]}
             />
 
             <DetailGroup
               title="Configuration"
               rows={[
-                ["Stake mode", "—"],
-                ["Reward mode", "—"],
-                ["Dual boost", "—"],
-                ["Loyalty boost", "—"],
+                ["Stake mode", "–"],
+                ["Reward mode", "–"],
+                ["Dual boost", "–"],
+                ["Loyalty boost", "–"],
               ]}
             />
 
             <DetailGroup
               title="Principal"
               rows={[
-                ["ARVO principal", "—"],
-                ["USDG principal", "—"],
-                ["ARVO reward", "—"],
-                ["USDG reward", "—"],
+                ["ARVO principal", "–"],
+                ["USDG principal", "–"],
+                ["ARVO reward", "–"],
+                ["USDG reward", "–"],
               ]}
             />
 
             <DetailGroup
               title="Lifecycle"
               rows={[
-                ["Opened", "—"],
-                ["Matures", "—"],
-                ["Settled", "—"],
-                ["Emergency exit", "—"],
+                ["Opened", "–"],
+                ["Matures", "–"],
+                ["Settled", "–"],
+                ["Emergency exit", "–"],
               ]}
             />
           </div>
@@ -185,7 +185,7 @@ export default function AdminPositionsPage() {
             <div className="mt-6 space-y-3">
               <LineageItem
                 label="Previous position"
-                value="—"
+                value="–"
               />
 
               <div className="flex justify-center text-black/20">
@@ -196,7 +196,7 @@ export default function AdminPositionsPage() {
                 <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#a9654f]">
                   Selected
                 </p>
-                <p className="mt-1 text-sm font-semibold">Position —</p>
+                <p className="mt-1 text-sm font-semibold">Position –</p>
               </div>
 
               <div className="flex justify-center text-black/20">
@@ -205,7 +205,7 @@ export default function AdminPositionsPage() {
 
               <LineageItem
                 label="Next position"
-                value="—"
+                value="–"
               />
             </div>
           </div>

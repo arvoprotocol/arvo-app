@@ -19,7 +19,7 @@ import {
 export const dynamic = "force-dynamic";
 
 function formatDate(value: Date | null) {
-  if (!value) return "—";
+  if (!value) return "–";
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
@@ -165,7 +165,7 @@ export default async function AdminInvitationsPage() {
                           ? invitation.claimedType === "telegram"
                             ? `@${invitation.claimedBy}`
                             : invitation.claimedBy
-                          : "—"
+                          : "–"
                       }
                     />
 

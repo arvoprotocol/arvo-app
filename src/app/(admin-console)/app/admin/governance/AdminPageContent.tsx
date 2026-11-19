@@ -29,28 +29,28 @@ export default function AdminGovernancePage() {
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Governance status"
-          value="—"
+          value="–"
           detail="Topology verification"
           icon={<ShieldCheck size={16} />}
         />
 
         <StatCard
           label="Timelock"
-          value="—"
+          value="–"
           detail="Minimum execution delay"
           icon={<Clock3 size={16} />}
         />
 
         <StatCard
           label="Deployment wallet"
-          value="—"
+          value="–"
           detail="Residual staking roles"
           icon={<KeyRound size={16} />}
         />
 
         <StatCard
           label="Role holders"
-          value="—"
+          value="–"
           detail="Verified on-chain"
           icon={<WalletCards size={16} />}
         />
@@ -280,7 +280,7 @@ function RoleCard({
 
       <div className="mt-4 border-t border-black/[0.05] pt-3">
         <p className="text-[10px] text-black/30">
-          Actual holder: —
+          Actual holder: –
         </p>
       </div>
     </div>

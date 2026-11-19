@@ -22,7 +22,7 @@ import { PartnerCreateForm } from "./PartnerCreateForm";
 export const dynamic = "force-dynamic";
 
 function formatDate(value: Date | null) {
-  if (!value) return "—";
+  if (!value) return "–";
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",

@@ -7,21 +7,27 @@ import { appPath } from "@/lib/protocol/app-url";
 import type { VaultProject } from "@/lib/staking/vault-draft";
 
 /**
- * Column vault card. Every card has the same sections in the same order, each with a fixed height,
- * so cards side by side line up section by section and the button always sits at the bottom.
+ * Vault card (one per row). Every card has the same sections in the same order.
  */
-export function VaultCardShell({ id, order, ribbon, highlighted = false, children }: {
-  id: string; order: number; ribbon?: ReactNode; highlighted?: boolean; children: ReactNode;
+export function VaultCardShell({ id, order, highlighted = false, children }: {
+  id: string; order: number; highlighted?: boolean; children: ReactNode;
 }) {
-  return <article id={id} data-vault-card data-order={order} style={{ order }} className={`relative flex h-full scroll-mt-28 flex-col overflow-hidden rounded-[26px] border bg-[#07090b] p-6 text-white transition-[border-color,box-shadow] duration-300 ${highlighted ? "border-[#c9846a]/60 shadow-[0_0_0_1px_rgba(201,132,106,.35),0_24px_60px_rgba(7,9,11,.22)]" : "border-white/10"}`}>
-    {ribbon}
+  return <article id={id} data-vault-card data-order={order} style={{ order }} className={`relative flex h-full scroll-mt-28 flex-col overflow-hidden rounded-[26px] border bg-[#07090b] p-6 text-white md:p-8 transition-[border-color,box-shadow] duration-300 ${highlighted ? "border-[#c9846a]/60 shadow-[0_0_0_1px_rgba(201,132,106,.35),0_24px_60px_rgba(7,9,11,.22)]" : "border-white/10"}`}>
     {children}
   </article>;
 }
 
-/** Status line at the top of a card. Leaves room for the bonus strip. */
-export function CardStatus({ dot, label, tip, hasRibbon }: { dot: string; label: string; tip?: ReactNode; hasRibbon?: boolean }) {
-  return <p className={`flex h-5 items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#e2a98e] ${hasRibbon ? "pr-40" : ""}`}><span className={`h-1.5 w-1.5 rounded-full ${dot}`} />{label}{tip && <InfoTip dark label="About this status">{tip}</InfoTip>}</p>;
+/** Status line at the top of a card, with the bonus badge (if any) on the right. */
+export function CardStatus({ dot, label, tip, bonus }: { dot: string; label: string; tip?: ReactNode; bonus?: { label: string; tip: ReactNode } | null }) {
+  return <div className="flex h-6 items-center justify-between gap-3">
+    <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#e2a98e]"><span className={`h-1.5 w-1.5 rounded-full ${dot}`} />{label}{tip && <InfoTip dark label="About this status">{tip}</InfoTip>}</p>
+    {bonus && <BonusBadge label={bonus.label} tip={bonus.tip} />}
+  </div>;
+}
+
+/** The bonus lozenge (same as the overview cards), with an explanation. */
+export function BonusBadge({ label, tip }: { label: string; tip: ReactNode }) {
+  return <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[linear-gradient(135deg,#b9775d_0%,#e2a98e_45%,#f0d2b0_75%)] py-1 pl-3 pr-1.5 text-[10px] font-extrabold uppercase tracking-[.08em] text-[#07090b]">{label}<InfoTip ink size={12} align="right" label="About the bonus">{tip}</InfoTip></span>;
 }
 
 /** Title row with the share control on the right. */
@@ -48,19 +54,10 @@ export function PlannedActivity() {
   return <div className="flex h-11 items-center rounded-2xl border border-white/10 px-4 text-xs text-white/45">No deposits yet · opens soon</div>;
 }
 
-/** Corner strip for vaults with a shared bonus pot. */
-export function BonusRibbon({ label, tip }: { label: string; tip: ReactNode }) {
-  // Sits over the card's corner (-1px) so no border line shows around it.
-  return <div className="absolute -right-px -top-px z-10 flex items-center gap-1.5 rounded-bl-2xl rounded-tr-[26px] bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.4),transparent_35%),linear-gradient(135deg,#b9775d_0%,#e2a98e_45%,#f0d2b0_70%,#a98bf0_140%)] py-2 pl-4 pr-4 text-[12px] font-extrabold uppercase tracking-[0.1em] text-[#07090b]">
-    {label}
-    <InfoTip ink label="About the bonus" align="right" size={13}>{tip}</InfoTip>
-  </div>;
-}
-
 /** "What am I staking in?": the land model in plain words, plus the linked project when there is one. */
 export function StakingIn({ asset, project, acquisition = false }: { asset: string; project?: VaultProject | null; acquisition?: boolean }) {
   return <details className="group rounded-2xl border border-white/10 bg-white/[0.03]">
-    <summary className="flex min-h-[3.25rem] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-xs font-semibold text-white/85 [&::-webkit-details-marker]:hidden">
+    <summary className="flex min-h-[2.75rem] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-xs font-semibold text-white/85 [&::-webkit-details-marker]:hidden">
       <span className="flex min-w-0 items-center gap-3">
         {project && (project.image ? <img src={project.image} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" /> : <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#c9846a]/15 text-[#e2a98e]"><MapPin size={14} /></span>)}
         <span className="min-w-0"><span className="block">What am I staking in?</span>{project && <span className="block truncate text-[11px] font-normal text-white/45">{project.title}</span>}</span>

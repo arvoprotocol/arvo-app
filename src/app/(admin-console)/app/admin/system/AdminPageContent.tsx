@@ -11,15 +11,15 @@ export default function AdminSystemPage(){
  {error&&<p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
  <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
  <StatCard label="Network" value={network} detail="RPC network checked against configuration"/>
- <StatCard label="Chain ID" value={data?String(data.chainId):"—"}/>
+ <StatCard label="Chain ID" value={data?String(data.chainId):"–"}/>
  <StatCard label="Staking proxy" value={data?"Connected":"Unverified"} detail="Proxy and implementation code checked"/>
- <StatCard label="Protocol state" value={data?(data.paused?"Paused":"Not paused"):"—"}/>
+ <StatCard label="Protocol state" value={data?(data.paused?"Paused":"Not paused"):"–"}/>
  </section>
  <section className="mt-8 grid gap-5 xl:grid-cols-2">
  <Panel><PanelHeader eyebrow="Deployment" title="Staking contract" action={<StatusPill>{data?"Read verified":"Awaiting data"}</StatusPill>}/><div className="px-5 md:px-6">
- <Row label="Proxy address" value={data?.proxy??"—"}/><Row label="Implementation" value={data?.implementation??"—"}/><Row label="Next pool ID" value={data?String(data.nextVaultId):"—"}/><Row label="Next position ID" value={data?data.nextPositionId.toLocaleString():"—"}/><Row label="Enabled, non-finalized pools" value={data?.enabledPools?.toLocaleString()??"Unavailable"}/><Row label="Price oracle" value={data?(data.oracle.toLowerCase()===zeroAddress?"Not configured":data.oracle):"—"}/>
+ <Row label="Proxy address" value={data?.proxy??"–"}/><Row label="Implementation" value={data?.implementation??"–"}/><Row label="Next pool ID" value={data?String(data.nextVaultId):"–"}/><Row label="Next position ID" value={data?data.nextPositionId.toLocaleString():"–"}/><Row label="Enabled, non-finalized pools" value={data?.enabledPools?.toLocaleString()??"Unavailable"}/><Row label="Price oracle" value={data?(data.oracle.toLowerCase()===zeroAddress?"Not configured":data.oracle):"–"}/>
  </div></Panel>
- <Panel><PanelHeader eyebrow="Assets" title="Token configuration"/><div className="px-5 md:px-6">{(["ARVO","USDG"] as const).map(asset=><div key={asset}><Row label={`${asset} token`} value={data?.[asset].token??"—"}/><Row label={`${asset} decimals`} value={data?String(data[asset].decimals):"—"}/><Row label={`${asset} protected balances`} value={data?(data[asset].solvent?"Covered":"Reserve shortfall"):"—"}/></div>)}</div></Panel>
+ <Panel><PanelHeader eyebrow="Assets" title="Token configuration"/><div className="px-5 md:px-6">{(["ARVO","USDG"] as const).map(asset=><div key={asset}><Row label={`${asset} token`} value={data?.[asset].token??"–"}/><Row label={`${asset} decimals`} value={data?String(data[asset].decimals):"–"}/><Row label={`${asset} protected balances`} value={data?(data[asset].solvent?"Covered":"Reserve shortfall"):"–"}/></div>)}</div></Panel>
  </section>
  <Panel className="mt-8"><PanelHeader eyebrow="Governance" title="Handoff pending"/><div className="p-5 md:p-6"><p className="text-sm leading-6 text-black/55">The Safe and Timelock handoff has not been verified by this page. A working RPC, deployed proxy and covered balances do not establish that governance is ready for mainnet.</p><p className="mt-3 text-xs leading-5 text-black/45">Run the existing governance audit tool against the final deployment manifest before treating the handoff as complete. Token address reads identify the configured assets; they do not certify token authenticity or mainnet readiness.</p></div></Panel>
  </div>;

@@ -32,28 +32,28 @@ export default function AdminActivityPage() {
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Transactions"
-          value="—"
+          value="–"
           detail="Indexed protocol activity"
           icon={<Activity size={16} />}
         />
 
         <StatCard
           label="User activity"
-          value="—"
+          value="–"
           detail="Stake and settlement events"
           icon={<WalletCards size={16} />}
         />
 
         <StatCard
           label="Pool operations"
-          value="—"
+          value="–"
           detail="Pool lifecycle events"
           icon={<Boxes size={16} />}
         />
 
         <StatCard
           label="Treasury operations"
-          value="—"
+          value="–"
           detail="Funding and allocation events"
           icon={<Landmark size={16} />}
         />
@@ -197,13 +197,13 @@ export default function AdminActivityPage() {
           />
 
           <div className="divide-y divide-black/[0.06] px-5 md:px-6">
-            <DetailRow label="Event" value="—" />
-            <DetailRow label="Transaction" value="—" />
-            <DetailRow label="Block" value="—" />
-            <DetailRow label="Timestamp" value="—" />
-            <DetailRow label="Caller / user" value="—" />
-            <DetailRow label="Position ID" value="—" />
-            <DetailRow label="Pool ID" value="—" />
+            <DetailRow label="Event" value="–" />
+            <DetailRow label="Transaction" value="–" />
+            <DetailRow label="Block" value="–" />
+            <DetailRow label="Timestamp" value="–" />
+            <DetailRow label="Caller / user" value="–" />
+            <DetailRow label="Position ID" value="–" />
+            <DetailRow label="Pool ID" value="–" />
           </div>
 
           <div className="border-t border-black/[0.06] p-5 md:p-6">

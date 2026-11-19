@@ -84,7 +84,7 @@ export function WaitlistManager({ signups }: { signups: Signup[] }) {
             <td className="max-w-[300px] break-words px-3 py-4 font-medium">{s.contact}</td>
             <td className="px-3 py-4"><span className="rounded-full bg-[#f8f2ed] px-2.5 py-1 text-xs font-semibold">{s.type === 'email' ? 'Email' : s.type === 'telegram' ? 'Telegram' : s.type}</span>{s.unsubscribedAt && <span className="ml-2 rounded-full bg-black/5 px-2.5 py-1 text-xs font-semibold text-black/55">Unsubscribed</span>}</td>
             <td className="whitespace-nowrap px-3 py-4 text-xs text-black/55">{date(s.createdAt)}</td>
-            <td className="px-3 py-4 text-xs text-black/55">{s.source || '—'}</td>
+            <td className="px-3 py-4 text-xs text-black/55">{s.source || '–'}</td>
             <td className="py-4 pl-3">{emailSignup(s) ? <button type="button" disabled={busy} className="inline-flex items-center gap-1.5 text-xs font-semibold disabled:opacity-40" onClick={() => compose(recipientsFor([s]))}><Mail size={14} />Email</button> : s.type === 'telegram' && /^@?[a-zA-Z0-9_]{5,32}$/.test(s.contact) ? <a href={`https://t.me/${s.contact.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold">Open Telegram</a> : <span className="text-xs text-black/35">{s.unsubscribedAt ? 'Unsubscribed' : 'No email'}</span>}</td>
           </tr>) : <tr><td colSpan={6} className="py-12 text-center text-sm text-black/45">{signups.length ? 'No signups match this search.' : 'No waitlist signups yet.'}</td></tr>}</tbody>
         </table>

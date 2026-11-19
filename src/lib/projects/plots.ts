@@ -1,4 +1,4 @@
-export const plotStatuses={available:"Available",auction:"At auction",sold:"Sold — awaiting completion",completed:"Completed"} as const;
+export const plotStatuses={available:"Available",auction:"At auction",sold:"Sold, awaiting completion",completed:"Completed"} as const;
 export type PlotStatus=keyof typeof plotStatuses;
 export type PlotForm={id?:number;label:string;status:PlotStatus;salePrice:string;completionDate:string;};
 export function dateOnly(value:string,label:string){

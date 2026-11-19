@@ -23,8 +23,8 @@ import {
 
 export default function AdminOverviewPage() {
   const {data,error,loading,refresh}=useAdminContractData();
-  const amount=(asset:"ARVO"|"USDG",key:"balance"|"principal"|"committed"|"reserved"|"available")=>data?displayAmount(data[asset][key],data[asset].decimals):"—";
-  const pair=(key:"principal"|"committed"|"reserved")=>data?`${amount("ARVO",key)} ARVO · ${amount("USDG",key)} USDG`:"—";
+  const amount=(asset:"ARVO"|"USDG",key:"balance"|"principal"|"committed"|"reserved"|"available")=>data?displayAmount(data[asset][key],data[asset].decimals):"–";
+  const pair=(key:"principal"|"committed"|"reserved")=>data?`${amount("ARVO",key)} ARVO · ${amount("USDG",key)} USDG`:"–";
   return (
     <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
       <PageTitle
@@ -73,7 +73,7 @@ export default function AdminOverviewPage() {
 
         <StatCard
           label="Enabled pools"
-          value={data?.enabledPools?.toLocaleString() ?? "—"}
+          value={data?.enabledPools?.toLocaleString() ?? "–"}
           detail="Enabled, non-finalized pools; may not yet be open"
           icon={<Boxes size={16} />}
         />

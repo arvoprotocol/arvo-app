@@ -53,7 +53,7 @@ export function TransparencyView({ t, inner }: { t: Transparency; inner: string 
             ].map(([label, value]) => <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><p className="text-xs text-white/45">{label}</p><p className="mt-2 text-xl font-semibold tabular-nums">{value}</p></div>)}
           </div>
           <div className="mt-5 flex flex-wrap gap-3 text-sm">
-            <span className={`rounded-full border px-4 py-2 ${live.arvoSolvent && live.usdcSolvent ? "border-emerald-400/30 text-emerald-300" : "border-red-400/40 text-red-300"}`}>{live.arvoSolvent && live.usdcSolvent ? "✓ Contract solvent: holdings cover principal and rewards owed" : "Solvency check failed — see explorer"}</span>
+            <span className={`rounded-full border px-4 py-2 ${live.arvoSolvent && live.usdcSolvent ? "border-emerald-400/30 text-emerald-300" : "border-red-400/40 text-red-300"}`}>{live.arvoSolvent && live.usdcSolvent ? "✓ Contract solvent: holdings cover principal and rewards owed" : "Solvency check failed. See the explorer."}</span>
             <span className={`rounded-full border px-4 py-2 ${live.paused ? "border-amber-400/40 text-amber-300" : "border-white/15 text-white/70"}`}>{live.paused ? "Deposits paused" : "Deposits not paused"}</span>
           </div>
           <p className="mt-4 text-xs text-white/40">Read at {new Date(t.readAt).toUTCString()} · refreshed every minute.</p>
@@ -64,7 +64,7 @@ export function TransparencyView({ t, inner }: { t: Transparency; inner: string 
     <section id="governance" className="scroll-mt-24 border-t border-white/10 py-16">
       <div className={inner}>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e2a98e]">Governance</p>
-        <h2 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">Who controls what — verified onchain.</h2>
+        <h2 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">Who controls what, verified onchain.</h2>
         {t.roles.length ? <div className="mt-8 overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead><tr className="border-b border-white/10 text-xs text-white/45"><th className="py-3 pr-4">Role</th><th className="px-4">Held by</th><th className="px-4">Can</th><th className="pl-4">Onchain check</th></tr></thead><tbody>
           {t.roles.map(r => <tr key={r.role} className="border-b border-white/[0.06]"><td className="py-4 pr-4 font-semibold">{r.role}</td><td className="px-4"><a className="underline decoration-white/20 underline-offset-4" href={link(r.address)} target="_blank" rel="noreferrer">{r.holder} · {short(r.address)}</a></td><td className="px-4 text-white/60">{r.powers}</td><td className="pl-4">{r.verified === true ? <span className="text-emerald-300">✓ Verified</span> : r.verified === false ? <span className="text-red-300">✗ Not held</span> : <span className="text-white/40">Unavailable</span>}</td></tr>)}
         </tbody></table></div> : <p className="mt-8 text-white/55">Governance addresses will be published here at deployment.</p>}

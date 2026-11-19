@@ -102,7 +102,7 @@ export function bonusBps(state: BonusState, total: bigint): bigint | null {
 }
 
 export function bpsLabel(bps: bigint | null): string {
-  if (bps === null) return "—";
+  if (bps === null) return "–";
   const whole = Number(bps) / 100;
   return `${whole >= 100 ? whole.toFixed(0) : whole.toFixed(2).replace(/\.?0+$/, "")}%`;
 }

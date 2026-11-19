@@ -26,28 +26,28 @@ export default function AdminAllocationPage() {
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="ARVO allocated"
-          value="—"
+          value="–"
           detail="Across all pools"
           icon={<Landmark size={16} />}
         />
 
         <StatCard
           label="USDG allocated"
-          value="—"
+          value="–"
           detail="Across all pools"
           icon={<Landmark size={16} />}
         />
 
         <StatCard
           label="Pools with allocation"
-          value="—"
+          value="–"
           detail="Protocol capacity assigned"
           icon={<Boxes size={16} />}
         />
 
         <StatCard
           label="Available capacity"
-          value="—"
+          value="–"
           detail="Across capped pools"
           icon={<ShieldCheck size={16} />}
         />
@@ -95,8 +95,8 @@ export default function AdminAllocationPage() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <PoolMetric label="ARVO capacity remaining" value="—" />
-                <PoolMetric label="USDG capacity remaining" value="—" />
+                <PoolMetric label="ARVO capacity remaining" value="–" />
+                <PoolMetric label="USDG capacity remaining" value="–" />
               </div>
 
               <button
@@ -124,14 +124,14 @@ export default function AdminAllocationPage() {
             />
 
             <div className="divide-y divide-black/[0.06] px-5">
-              <SummaryRow label="Pool" value="—" />
-              <SummaryRow label="Status" value="—" />
-              <SummaryRow label="ARVO maximum" value="—" />
-              <SummaryRow label="ARVO user principal" value="—" />
-              <SummaryRow label="ARVO protocol allocation" value="—" />
-              <SummaryRow label="USDG maximum" value="—" />
-              <SummaryRow label="USDG user principal" value="—" />
-              <SummaryRow label="USDG protocol allocation" value="—" />
+              <SummaryRow label="Pool" value="–" />
+              <SummaryRow label="Status" value="–" />
+              <SummaryRow label="ARVO maximum" value="–" />
+              <SummaryRow label="ARVO user principal" value="–" />
+              <SummaryRow label="ARVO protocol allocation" value="–" />
+              <SummaryRow label="USDG maximum" value="–" />
+              <SummaryRow label="USDG user principal" value="–" />
+              <SummaryRow label="USDG protocol allocation" value="–" />
             </div>
           </Panel>
 

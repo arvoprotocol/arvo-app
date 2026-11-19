@@ -30,7 +30,7 @@ export function usdApprox(arvo: number, p: MarketPrice | null): string | null {
   return v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(2)}m` : v >= 10_000 ? `$${(v / 1000).toFixed(1)}k` : `$${v.toLocaleString("en-US", { maximumFractionDigits: v < 10 ? 2 : 0 })}`;
 }
 export function formatArvoPrice(p: MarketPrice | null): string {
-  if (!p) return "—";
+  if (!p) return "–";
   const n = Number(p.priceUsd);
   return `$${n < 0.01 ? n.toPrecision(4).replace(/0+$/, "") : n.toFixed(4)}`;
 }

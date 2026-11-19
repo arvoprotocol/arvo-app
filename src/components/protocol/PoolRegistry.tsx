@@ -74,10 +74,10 @@ export function PoolRegistry() {
     catch (e) { setError(e instanceof Error ? e.message : "Control failed."); }
     finally { setBusy(false); }
   }
-  const count = (state: string) => data ? String(data.rows.filter((row) => row.status === state).length) : "—";
+  const count = (state: string) => data ? String(data.rows.filter((row) => row.status === state).length) : "–";
   return <>
     <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <StatCard label="Total pools" value={data ? String(data.total) : "—"} detail="Created on-chain" icon={<Boxes size={16} />} />
+      <StatCard label="Total pools" value={data ? String(data.total) : "–"} detail="Created on-chain" icon={<Boxes size={16} />} />
       <StatCard label="Open on this page" value={count("Open")} detail="Currently accepting stakes" icon={<ShieldCheck size={16} />} />
       <StatCard label="Scheduled on this page" value={count("Scheduled")} detail="Waiting to open" icon={<CalendarClock size={16} />} />
       <StatCard label="Finalized on this page" value={count("Finalized")} detail="Permanently closed" icon={<LockKeyhole size={16} />} />

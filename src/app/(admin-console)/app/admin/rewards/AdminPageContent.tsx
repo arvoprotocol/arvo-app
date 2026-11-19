@@ -40,7 +40,7 @@ function useRewards() {
 function amount(accounting: RewardAccounting | null, asset: Asset, key: "balance" | "principal" | "committed" | "reserved" | "available" | "walletBalance") {
   const data = accounting?.[asset];
   const value = data?.[key];
-  return data && value !== null && value !== undefined ? formatUnits(value, data.decimals) : "—";
+  return data && value !== null && value !== undefined ? formatUnits(value, data.decimals) : "–";
 }
 
 export default function AdminRewardsPage() {

@@ -68,7 +68,7 @@ export default function AdminBonusPage() {
           <Row label="Treasury (leftovers)" value={b.treasury} />
           <Row label="Funded balance" value={`${arvo(b.balance)}${b.balance < b.pot && !b.snapshotTaken ? " · below pot" : ""}`} />
           <Row label={b.snapshotTaken ? "Eligible ARVO (final)" : "Eligible ARVO (live)"} value={arvo(b.eligible)} />
-          <Row label={b.snapshotTaken ? "Bonus rate (final)" : "Bonus rate now"} value={b.eligible === 0n ? "—" : bpsLabel(current)} />
+          <Row label={b.snapshotTaken ? "Bonus rate (final)" : "Bonus rate now"} value={b.eligible === 0n ? "–" : bpsLabel(current)} />
           <Row label="Bonus rate at full capacity" value={full ? bpsLabel(full) : "Uncapped pool"} />
           <Row label="Entries close" value={when(b.closesAt)} />
           <Row label="Record totals by" value={`${when(b.earliestMaturity)} (first maturity)`} />

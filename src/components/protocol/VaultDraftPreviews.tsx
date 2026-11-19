@@ -15,7 +15,7 @@ import { TokenAmountInput } from "./TokenAmountInput";
 import { CommittedCapacity } from "./CommittedCapacity";
 import { InfoTip } from "./InfoTip";
 import { LockLine, RewardLine, TermRow } from "./VaultCopy";
-import { BonusRibbon, CardStatus, CardTitle, EstimateButton, PlannedActivity, PlannedCapacity, StakingIn, VaultCardShell, cardOrder } from "./VaultCardShell";
+import { CardStatus, CardTitle, EstimateButton, PlannedActivity, PlannedCapacity, StakingIn, VaultCardShell, cardOrder } from "./VaultCardShell";
 import { VaultGridSkeleton } from "./VaultSkeleton";
 
 function draftUnits(raw: string | undefined, decimals: number) { try { return tokenAmount(raw || "0", decimals, "Amount"); } catch { return 0n; } }
@@ -39,32 +39,32 @@ export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, 
   if (!rows.length && !Children.count(children)) return null;
   return <section className="arvo-fade mt-8" aria-label="Vaults">
       {error && <p role="alert" className="mb-4 text-xs text-red-700">{error}</p>}
-      <div className="grid items-stretch gap-5 lg:grid-cols-2">{children}{(compact ? rows.slice(0, 3) : rows).map(row => { const bonus = Number(row.bonusPct || 0); const pays = (key: keyof Products) => key === "arvoArvo" || key === "dualArvo" ? "ARVO" : "USDG"; const enabled = (Object.keys(productLabels) as (keyof Products)[]).filter(key => row.products[key]); const first = enabled[0];
+      <div className="grid gap-5">{children}{(compact ? rows.slice(0, 3) : rows).map(row => { const bonus = Number(row.bonusPct || 0); const pays = (key: keyof Products) => key === "arvoArvo" || key === "dualArvo" ? "ARVO" : "USDG"; const enabled = (Object.keys(productLabels) as (keyof Products)[]).filter(key => row.products[key]); const first = enabled[0];
         const minimum = row.products.arvoArvo ? { v: `${formatAmount(row.minArvo)} ARVO`, usd: Number(row.minArvo) } : row.products.arvoUsdc ? { v: `${formatAmount(row.minArvoUsdc)} ARVO`, usd: Number(row.minArvoUsdc) } : row.products.usdcUsdc ? { v: `${formatAmount(row.minUsdc)} USDG`, usd: undefined } : { v: `${formatAmount(row.minArvo)} ARVO + ${formatAmount(row.minUsdc)} USDG`, usd: undefined };
         const arvoSize = !/^0+(?:\.0+)?$/.test(row.maxArvo) ? `${formatAmount(row.maxArvo)} ARVO` : null, usdgSize = !/^0+(?:\.0+)?$/.test(row.maxUsdc) ? `${formatAmount(row.maxUsdc)} USDG` : null;
         const size = row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc ? usdgSize : arvoSize;
         const committed = draftUnits(row.committedUsdc, 6);
         return <VaultCardShell key={row.id} id={`vault-preview-${row.id}`} order={cardOrder(row.sortOrder ?? 0, row.id, true)}
-        ribbon={bonus > 0 ? <BonusRibbon label={`+${bonus}% bonus`} tip={<>On top of the fixed reward, a bonus pot is shared between everyone in this vault by how much they stake. If the vault fills up, the bonus works out at about {bonus}% extra; if it is less full, each share is bigger. Planned figure: it is confirmed when the vault opens.</>} /> : undefined}>
-          <CardStatus dot="bg-[#e2a98e]/70" label="Coming soon" hasRibbon={bonus > 0} tip="A preview of a planned vault. Deposits are not open yet, and the terms shown may still change before it opens." />
+>
+          <CardStatus dot="bg-[#e2a98e]/70" label="Coming soon" tip="A preview of a planned vault. Deposits are not open yet, and the terms shown may still change before it opens." bonus={bonus > 0 ? { label: `+${bonus}% bonus`, tip: <>On top of the fixed reward, a bonus pot is shared between everyone in this vault by how much they stake. If the vault fills up, the bonus works out at about {bonus}% extra; if it is less full, each share is bigger. Planned figure: it is confirmed when the vault opens.</> } : null} />
           <CardTitle title={row.title} share={<VaultShare title={row.title} days={row.days} anchor={`vault-preview-${row.id}`} preview dark/>} />
           <LockLine days={row.days} className="mt-1" />
-          <div className="mt-5 grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-            <div className="min-h-[7rem]">{enabled.map(key => <div key={key}>
+          <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div>{enabled.map(key => <div key={key}>
               <p className="text-xs leading-5 text-white/60">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={Number(row.arvoRate)} usdcRate={Number(row.usdcRate)} share={Number(row.mixedShare??"50")} days={row.days} dark/>:<><AnnualReward percent={Number(pays(key) === "ARVO" ? row.arvoRate : row.usdcRate)} days={row.days} dark prominent/>
               <RewardLine percent={Number(pays(key) === "ARVO" ? row.arvoRate : row.usdcRate)} days={row.days} asset={pays(key)} bonus={bonus > 0} note={key.startsWith("dual") ? "before dual uplift" : undefined} /></>}
             </div>)}</div>
-            <dl className="space-y-2 self-end text-xs leading-5 sm:border-l sm:border-white/10 sm:pl-5">
+            <dl className="w-full space-y-2 self-end text-xs leading-5 md:max-w-[24rem] md:border-l md:border-white/10 md:pl-6">
               <TermRow label="Minimum deposit" value={minimum.v} usdArvo={minimum.usd} tip={first === "arvoUsdc" ? "Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit." : undefined} />
               <TermRow label="Vault size" value={size ?? "No limit"} usdArvo={size && size.endsWith("ARVO") ? Number(row.maxArvo) : undefined} tip="The most this vault can hold. Once it is full, it stops taking new deposits." />
-              <TermRow label="Reward paid in" value={first ? pays(first) : "—"} />
+              <TermRow label="Reward paid in" value={first ? pays(first) : "–"} />
             </dl>
           </div>
           <div className="mt-5 border-t border-white/10 pt-4">{committed > 0n ? <CommittedCapacity bare preview asset="USDG" cap={draftUnits(row.maxUsdc, 6)} committed={committed} deposited={0n} decimals={6} committedLabel="committed outside the app" /> : <PlannedCapacity size={size} />}</div>
-          <div className="mt-4 grid items-start gap-3 sm:grid-cols-2"><PlannedActivity /><StakingIn asset={row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc ? "USDG" : "ARVO"} project={row.project} /></div>
-          <div className="mt-auto grid gap-3 pt-5 sm:grid-cols-2">
-            <VaultTiming opensAt={row.opensAt} closesAt={row.closesAt} preview dark compact flush />
-            <div className="flex flex-col justify-end gap-3"><EstimateButton onClick={() => setSelectedId(row.id)} /><div className="rounded-xl border border-white/10 px-4 py-3.5 text-center text-sm font-semibold text-white/45">Deposits not open yet</div></div>
+          <div className="mt-4 space-y-3"><PlannedActivity /><StakingIn asset={row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc ? "USDG" : "ARVO"} project={row.project} /><EstimateButton onClick={() => setSelectedId(row.id)} /></div>
+          <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+            <VaultTiming opensAt={row.opensAt} closesAt={row.closesAt} preview dark inline />
+            <div className="flex items-center justify-center rounded-xl border border-white/10 px-4 py-3.5 text-center text-sm font-semibold text-white/45">Deposits not open yet</div>
           </div>
         </VaultCardShell>; })}</div>
       {selected && <RewardDialog onClose={() => setSelectedId(null)} key={`${selected.id}-${selected.arvoRate}-${selected.usdcRate}-${selected.minArvo}-${selected.minArvoUsdc}-${JSON.stringify(selected.products)}`} row={selected} />}
@@ -122,7 +122,7 @@ function DraftCalculator({ row, preview }: { row: DraftPreview; preview: boolean
     {needsUsdc && <label className="mt-4 block text-xs font-semibold">USDG deposit<TokenAmountInput label="Preview USDG deposit" value={usdc} onChange={setUsdc} /><RewardAmountSlider label="USDG deposit slider" value={usdc} minimum={row.minUsdc} capacity={row.maxUsdc} decimals={6} asset="USDG" onChange={setUsdc}/></label>}
     <div className="mt-3 flex gap-2">{[1, 2, 5].map(multiplier => <button type="button" key={multiplier} onClick={() => { if (needsArvo) setArvo(tokenDisplay(minArvo * BigInt(multiplier), 18).replaceAll(",", "")); if (needsUsdc) setUsdc(tokenDisplay(minUsdc * BigInt(multiplier), 6).replaceAll(",", "")); }} className="rounded-lg border border-black/10 px-3 py-2 text-[11px] font-semibold">{multiplier === 1 ? "Minimum" : `${multiplier}× min`}</button>)}</div>
     {cross && <div role="status" className="mt-4 rounded-xl bg-black/[.03] p-3 text-xs leading-5">{preview&&price&&<p className="font-semibold">ARVO market price: ${price}</p>}<p className="text-black/55">{priceStatus}</p></div>}
-    <div className="mt-4 rounded-2xl bg-[#f8f4ef] p-5"><p className="text-[10px] font-semibold uppercase tracking-widest text-black/45">{cross ? preview ? "Estimated USDG reward" : "Current contract USDG quote" : "Your fixed reward"}</p><p className="mt-3 break-words text-2xl font-semibold tabular-nums">{product==="dualMixed"?(mixed?`${tokenDisplay(mixed.arvo,18)} ARVO + ${tokenDisplay(mixed.usdc,6)} USDG`:"—"):reward === null ? "—" : tokenDisplay(reward, paysArvo ? 18 : 6)} <span className="text-sm text-black/45">{product==="dualMixed"?"":paysArvo ? "ARVO" : "USDG"}</span></p><p className="mt-2 text-xs text-black/50">{product==="dualMixed"?`${row.mixedShare??"50"}% ARVO / ${100-Number(row.mixedShare??"50")}% USDG weighting · `:""}{paysArvo ? row.arvoRate : row.usdcRate}% for {row.days} days{dual ? ` · ${row.dualBoost}% dual uplift, capped at ${row.boostCap}%` : ""}</p>
+    <div className="mt-4 rounded-2xl bg-[#f8f4ef] p-5"><p className="text-[10px] font-semibold uppercase tracking-widest text-black/45">{cross ? preview ? "Estimated USDG reward" : "Current contract USDG quote" : "Your fixed reward"}</p><p className="mt-3 break-words text-2xl font-semibold tabular-nums">{product==="dualMixed"?(mixed?`${tokenDisplay(mixed.arvo,18)} ARVO + ${tokenDisplay(mixed.usdc,6)} USDG`:"–"):reward === null ? "–" : tokenDisplay(reward, paysArvo ? 18 : 6)} <span className="text-sm text-black/45">{product==="dualMixed"?"":paysArvo ? "ARVO" : "USDG"}</span></p><p className="mt-2 text-xs text-black/50">{product==="dualMixed"?`${row.mixedShare??"50"}% ARVO / ${100-Number(row.mixedShare??"50")}% USDG weighting · `:""}{paysArvo ? row.arvoRate : row.usdcRate}% for {row.days} days{dual ? ` · ${row.dualBoost}% dual uplift, capped at ${row.boostCap}%` : ""}</p>
       {!invalid && !cross && product!=="dualMixed" && reward !== null && <p className="mt-4 border-t border-black/10 pt-3 text-xs leading-5 text-black/55">You get back: <strong>{tokenDisplay(principal + reward, paysArvo ? 18 : 6)} {paysArvo ? "ARVO" : "USDG"}</strong>{dual ? `. Your ${paysArvo ? `${tokenDisplay(u, 6)} USDG` : `${tokenDisplay(a, 18)} ARVO`} principal is returned separately.` : "."}</p>}
     </div>
     {!dual && !cross && <AnnualReward percent={Number(paysArvo ? row.arvoRate : row.usdcRate)} days={row.days}/>}

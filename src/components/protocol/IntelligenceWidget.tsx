@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, ChevronRight, FileText, MapPin, Send, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, BrainCircuit, ChevronRight, FileText, MapPin, Send, X } from "lucide-react";
 import { appPath } from "@/lib/protocol/app-url";
 import type { IntelligenceAnswer } from "@/lib/intelligence/core";
 
@@ -100,8 +100,8 @@ export function IntelligenceWidget({ hidden = false }: { hidden?: boolean }) {
       className="arvo-widget fixed bottom-[calc(env(safe-area-inset-bottom)+88px)] right-4 z-[70] flex h-[min(600px,calc(100dvh-120px))] w-[min(400px,calc(100vw-32px))] flex-col overflow-hidden rounded-[26px] border border-white/10 bg-[#0b0d10] text-white shadow-[0_30px_80px_rgba(7,9,11,.45)] md:right-6">
       <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5">
         {project ? <button type="button" onClick={() => { setProject(null); setTurns([]); }} aria-label="Choose another project" className="flex h-8 w-8 items-center justify-center rounded-full text-white/60 hover:bg-white/10 hover:text-white"><ArrowLeft size={16} /></button>
-          : <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,#b9775d,#f0d2b0)] text-[#07090b]"><Sparkles size={15} /></span>}
-        <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{project ? project.title : "Arvo Intelligence"}</p><p className="flex items-center gap-1.5 truncate text-[11px] text-white/45"><span className="relative flex h-1.5 w-1.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" /><span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" /></span>{busy ? "Reading…" : project ? `Online · ${project.documents} document${project.documents === 1 ? "" : "s"} read` : "Online · beta"}</p></div>
+          : <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,#b9775d,#f0d2b0)] text-[#07090b]"><BrainCircuit size={15} /></span>}
+        <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{project ? project.title : "Arvo Intelligence"}</p><p className="flex items-center gap-1.5 truncate text-[11px] text-white/45"><span className="relative flex h-1.5 w-1.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e2a98e]/60" /><span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#e2a98e]" /></span>{busy ? "Reading…" : project ? `Online · ${project.documents} document${project.documents === 1 ? "" : "s"} read` : "Online · beta"}</p></div>
         <button type="button" onClick={() => setOpen(false)} aria-label="Close Arvo Intelligence" className="flex h-8 w-8 items-center justify-center rounded-full text-white/60 hover:bg-white/10 hover:text-white"><X size={16} /></button>
       </header>
 
@@ -144,12 +144,12 @@ export function IntelligenceWidget({ hidden = false }: { hidden?: boolean }) {
     </div>}
 
     {teaser && !open && <button type="button" onClick={() => { setTeaser(null); setOpen(true); }} className="arvo-widget fixed bottom-[calc(env(safe-area-inset-bottom)+88px)] right-4 z-[70] max-w-[260px] rounded-2xl rounded-br-md border border-black/[0.06] bg-white px-4 py-3 text-left text-[13px] leading-5 text-[#07090b] shadow-[0_18px_40px_rgba(7,9,11,.18)] md:right-6">
-      <span className="mb-0.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ad7058]"><Sparkles size={11} />Arvo Intelligence</span>{teaser}
+      <span className="mb-0.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ad7058]"><BrainCircuit size={11} />Arvo Intelligence</span>{teaser}
       <span role="button" tabIndex={0} aria-label="Dismiss" onClick={e => { e.stopPropagation(); setTeaser(null); }} onKeyDown={e => { if (e.key === "Enter") { e.stopPropagation(); setTeaser(null); } }} className="absolute right-2 top-2 rounded-full p-1 text-black/35 hover:bg-black/5 hover:text-black/70"><X size={12} /></span>
     </button>}
     <button type="button" data-sound="soft" onClick={() => { setTeaser(null); setOpen(o => !o); }} aria-expanded={open} aria-label={open ? "Close Arvo Intelligence" : "Ask Arvo Intelligence about a project"}
       className={`fixed bottom-[calc(env(safe-area-inset-bottom)+20px)] right-4 z-[70] flex h-14 w-14 items-center justify-center gap-2.5 rounded-full text-sm sm:w-auto sm:pl-4 sm:pr-5 font-semibold shadow-[0_16px_40px_rgba(7,9,11,.28)] transition-[transform,background-color] duration-200 hover:-translate-y-0.5 md:right-6 ${open ? "" : "arvo-breathe "}${open ? "bg-[#07090b] text-white" : "bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] text-[#07090b]"}`}>
-      {open ? <X size={18} /> : <span className="relative"><Sparkles size={18} className="arvo-twinkle" /><span className="absolute -right-1 -top-1 h-2 w-2 rounded-full border border-[#f0d2b0] bg-emerald-400" /></span>}<span className="sr-only sm:not-sr-only">{open ? "Close" : "Ask Arvo"}</span>
+      {open ? <X size={18} /> : <BrainCircuit size={19} />}<span className="sr-only sm:not-sr-only">{open ? "Close" : "Ask Arvo Intelligence"}</span>
     </button>
   </>;
 }

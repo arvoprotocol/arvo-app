@@ -14,14 +14,14 @@ import { usePathname } from "next/navigation";
 import { AuditedBySoken } from "@/components/protocol/SokenBadge";
 import { SoundToggle, UiClickSounds } from "@/components/protocol/UiFeedback";
 import { IntelligenceWidget } from "@/components/protocol/IntelligenceWidget";
-import { Activity, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Sparkles, Wallet, Users, X } from "lucide-react";
+import { Activity, BrainCircuit, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Sparkles, Wallet, Users, X } from "lucide-react";
 
 const nav = [
   { label: "Overview", href: "/app", icon: LayoutDashboard },
   { label: "Stake", href: "/app/stake", icon: Coins, featured: true },
   { label: "Portfolio", href: "/app/portfolio", icon: PieChart },
   { label: "Projects", href: "/app/projects", icon: FolderKanban },
-  { label: "Intelligence", href: "/app/intelligence", icon: Sparkles },
+  { label: "Intelligence", href: "/app/intelligence", icon: BrainCircuit },
   { label: "Rewards", href: "/app/rewards", icon: Gift },
   { label: "Treasury", href: "/app/treasury", icon: Landmark },
 ] as const;

@@ -30,28 +30,28 @@ export default function AdminEmergencyPage() {
       <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Protocol state"
-          value="—"
+          value="–"
           detail="Awaiting contract connection"
           icon={<PauseCircle size={16} />}
         />
 
         <StatCard
           label="Pause authority"
-          value="—"
+          value="–"
           detail="PAUSER_ROLE"
           icon={<ShieldAlert size={16} />}
         />
 
         <StatCard
           label="Unpause authority"
-          value="—"
+          value="–"
           detail="Timelock / Default Admin"
           icon={<Clock3 size={16} />}
         />
 
         <StatCard
           label="Emergency exits"
-          value="—"
+          value="–"
           detail="User initiated"
           icon={<UserRound size={16} />}
         />

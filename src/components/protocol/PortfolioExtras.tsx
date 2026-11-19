@@ -84,7 +84,7 @@ export function FoundingStakerBadge({ account }: { account: string | null }) {
     return () => { cancelled = true; };
   }, [account]);
   if (!account || !info?.founding) return null;
-  const share = `I'm a founding staker in the Arvo First Edition vault — staking connected to real land projects. ${appUrl("/app/stake")}`;
+  const share = `I'm a founding staker in the Arvo First Edition vault, staking connected to real land projects. ${appUrl("/app/stake")}`;
   return <section className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-[#c9846a]/40 bg-gradient-to-r from-[#07090b] to-[#2a1d17] p-5 text-white md:p-6">
     <div>
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#e2a98e]">Founding staker{info.rank ? ` · #${info.rank}` : ""}</p>

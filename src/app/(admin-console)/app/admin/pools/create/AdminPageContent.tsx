@@ -300,10 +300,10 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
           <Panel>
             <PanelHeader eyebrow="Review" title="Pool summary" />
             <div className="divide-y divide-black/[0.06] px-5">
-              <SummaryRow label="Type" value={poolType === "standard" ? standardVaults.find((vault) => vault.kind === standardKind)?.name ?? "—" : "Custom"} />
-              <SummaryRow label="Duration" value={poolType === "custom" ? `${values.duration || "—"} days` : standardVaults.find((vault) => vault.kind === standardKind)?.duration ?? "—"} />
-              <SummaryRow label="ARVO cycle reward" value={poolType === "custom" ? `${values.arvoRate || "0"}%` : standardVaults.find((vault) => vault.kind === standardKind)?.arvoReward ?? "—"} />
-              <SummaryRow label="USDG cycle reward" value={poolType === "custom" ? `${values.usdcRate || "0"}%` : standardVaults.find((vault) => vault.kind === standardKind)?.usdcReward ?? "—"} />
+              <SummaryRow label="Type" value={poolType === "standard" ? standardVaults.find((vault) => vault.kind === standardKind)?.name ?? "–" : "Custom"} />
+              <SummaryRow label="Duration" value={poolType === "custom" ? `${values.duration || "–"} days` : standardVaults.find((vault) => vault.kind === standardKind)?.duration ?? "–"} />
+              <SummaryRow label="ARVO cycle reward" value={poolType === "custom" ? `${values.arvoRate || "0"}%` : standardVaults.find((vault) => vault.kind === standardKind)?.arvoReward ?? "–"} />
+              <SummaryRow label="USDG cycle reward" value={poolType === "custom" ? `${values.usdcRate || "0"}%` : standardVaults.find((vault) => vault.kind === standardKind)?.usdcReward ?? "–"} />
               <SummaryRow label="Reward budget" value="Separate step" />
               <SummaryRow label="Mixed rewards" value="Disabled" />
             </div>
