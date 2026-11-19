@@ -92,13 +92,13 @@ test('arranging launch vaults orders them, renames the USDG vault and keeps ever
  for(const [t,k] of [['Build','BUILD'],['Advance','ADVANCE'],['Compound','COMPOUND'],['Foundation','FOUNDATION']])db.prepare("insert into StakingVaultDraft (title,poolType,standardKind,valuesJson,productsJson,visibility,sortOrder,revision,createdAt,updatedAt) values (?,?,?,?,?,?,0,1,'x','x')").run(t,'standard',k,JSON.stringify(old),JSON.stringify({...F.initialProducts,arvoArvo:false,arvoUsdc:true}),'openingSoon');
  db.prepare("insert into StakingVaultDraft (title,poolType,standardKind,valuesJson,productsJson,visibility,sortOrder,revision,linkedChainId,linkedProxy,linkedPoolId,createdAt,updatedAt) values ('Community Welcome','custom','BUILD',?,?,'openingSoon',9,1,46630,'0xabc',0,'x','x')").run(JSON.stringify({...F.initialValues,arvoRate:'10',minArvo:'850000',maxArvo:'50000000'}),JSON.stringify(F.initialProducts));
  const dry=execFileSync(process.execPath,[path.join(__dirname,'../scripts/arrange-launch-vaults.mjs')],{env}).toString();
- assert.match(dry,/Run again with --apply/);assert.equal(db.prepare("select count(*) n from StakingVaultDraft where title='Whole Site Finance'").get().n,0);
+ assert.match(dry,/Run again with --apply/);assert.equal(db.prepare("select count(*) n from StakingVaultDraft where title='Full Site Land Acquisition'").get().n,0);
  execFileSync(process.execPath,[path.join(__dirname,'../scripts/arrange-launch-vaults.mjs'),'--apply'],{env});
  const rows=db.prepare('select * from StakingVaultDraft order by sortOrder').all();
- assert.deepEqual(rows.map(r=>r.title),['Community Welcome','First Edition','Genesis Pilot','Whole Site Finance','Build','Advance','Compound','Foundation']);
+ assert.deepEqual(rows.map(r=>r.title),['Community Welcome','First Edition','Genesis Pilot','Full Site Land Acquisition','Build','Advance','Compound','Foundation']);
  for(const r of rows){V.validateDraft({title:r.title,poolType:r.poolType,standardKind:r.standardKind,values:JSON.parse(r.valuesJson),products:JSON.parse(r.productsJson),visibility:r.visibility,sortOrder:r.sortOrder});}
  const v=t=>JSON.parse(rows.find(r=>r.title===t).valuesJson);
- assert.equal(v('Whole Site Finance').usdcRate,'14');assert.equal(v('Whole Site Finance').minUsdc,'10000');
+ assert.equal(v('Full Site Land Acquisition').usdcRate,'14');assert.equal(v('Full Site Land Acquisition').minUsdc,'10000');
  assert.equal(v('First Edition').bonusPct,'5');assert.equal(v('Genesis Pilot').bonusPct,'5');assert.equal(v('Genesis Pilot').projectSlug,'ripe-farm');assert.equal(v('Genesis Pilot').opens,'2026-12-01T12:00');assert.equal(v('Genesis Pilot').closes,'2026-12-06T12:00');assert.equal(v('Genesis Pilot').maxArvo,'200000000');
  assert.equal(v('Build').minArvo,'1500000');assert.equal(v('Build').opens,'');assert.equal(v('Foundation').maxArvo,'100000000');
  assert.equal(v('Community Welcome').minArvo,'850000'); // live vault terms untouched

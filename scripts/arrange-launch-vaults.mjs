@@ -26,7 +26,7 @@ const plan = [
   // Size: the 3,000 USDG base reserve at 5% covers $60,000 of stake. At ~$0.0003 per ARVO that is
   // ~200M ARVO. Re-check against the reference price fixed just before Genesis opens.
   { match: ["genesis pilot"], order: 3, values: { bonusPct: "5", opens: "2026-12-01T12:00", closes: "2026-12-06T12:00", maxArvo: "200000000" }, linkProject: true },
-  { match: ["usdg 12-month vault", "whole site finance"], order: 4, title: "Whole Site Finance", values: { usdcRate: "14", minUsdc: "10000" } },
+  { match: ["usdg 12-month vault", "whole site finance", "full site land acquisition"], order: 4, title: "Full Site Land Acquisition", values: { usdcRate: "14", minUsdc: "10000" } },
   { match: ["build"], order: 5, values: standard },
   { match: ["advance"], order: 6, values: standard },
   { match: ["compound"], order: 7, values: standard },

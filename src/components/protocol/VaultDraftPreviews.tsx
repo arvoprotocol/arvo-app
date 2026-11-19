@@ -14,8 +14,8 @@ import { RewardAmountSlider } from "./RewardAmountSlider";
 import { TokenAmountInput } from "./TokenAmountInput";
 import { CommittedCapacity } from "./CommittedCapacity";
 import { InfoTip } from "./InfoTip";
-import { LockLine, RewardLine, TermRow } from "./VaultCopy";
-import { CardStatus, CardTitle, EstimateButton, PlannedActivity, PlannedCapacity, StakingIn, VaultCardShell, cardOrder } from "./VaultCardShell";
+import { LockLine, RewardLine, TermStats, compactNumber } from "./VaultCopy";
+import { CardList, CardStatus, CardTitle, EstimateButton, PlannedActivity, PlannedCapacity, StakingIn, VaultCardShell, cardOrder } from "./VaultCardShell";
 import { VaultGridSkeleton } from "./VaultSkeleton";
 
 function draftUnits(raw: string | undefined, decimals: number) { try { return tokenAmount(raw || "0", decimals, "Amount"); } catch { return 0n; } }
@@ -40,9 +40,9 @@ export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, 
   return <section className="arvo-fade mt-8" aria-label="Vaults">
       {error && <p role="alert" className="mb-4 text-xs text-red-700">{error}</p>}
       <div className="grid items-stretch gap-5 lg:grid-cols-2">{children}{(compact ? rows.slice(0, 3) : rows).map(row => { const bonus = Number(row.bonusPct || 0); const pays = (key: keyof Products) => key === "arvoArvo" || key === "dualArvo" ? "ARVO" : "USDG"; const enabled = (Object.keys(productLabels) as (keyof Products)[]).filter(key => row.products[key]); const first = enabled[0];
-        const minimum = row.products.arvoArvo ? { v: `${formatAmount(row.minArvo)} ARVO`, usd: Number(row.minArvo) } : row.products.arvoUsdc ? { v: `${formatAmount(row.minArvoUsdc)} ARVO`, usd: Number(row.minArvoUsdc) } : row.products.usdcUsdc ? { v: `${formatAmount(row.minUsdc)} USDG`, usd: undefined } : { v: `${formatAmount(row.minArvo)} ARVO + ${formatAmount(row.minUsdc)} USDG`, usd: undefined };
+        const minimum = row.products.arvoArvo ? { n: Number(row.minArvo), unit: "ARVO", usd: Number(row.minArvo) } : row.products.arvoUsdc ? { n: Number(row.minArvoUsdc), unit: "ARVO", usd: Number(row.minArvoUsdc) } : row.products.usdcUsdc ? { n: Number(row.minUsdc), unit: "USDG", usd: undefined } : { n: Number(row.minArvo), unit: "ARVO + USDG", usd: undefined };
         const arvoSize = !/^0+(?:\.0+)?$/.test(row.maxArvo) ? `${formatAmount(row.maxArvo)} ARVO` : null, usdgSize = !/^0+(?:\.0+)?$/.test(row.maxUsdc) ? `${formatAmount(row.maxUsdc)} USDG` : null;
-        const size = row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc ? usdgSize : arvoSize;
+        const usdgOnlyDraft = row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc; const size = usdgOnlyDraft ? usdgSize : arvoSize; const sizeN = size ? Number(usdgOnlyDraft ? row.maxUsdc : row.maxArvo) : 0, sizeUnit = usdgOnlyDraft ? "USDG" : "ARVO";
         const committed = draftUnits(row.committedUsdc, 6);
         return <VaultCardShell key={row.id} id={`vault-preview-${row.id}`} order={cardOrder(row.sortOrder ?? 0, row.id, true)}
 >
@@ -51,20 +51,20 @@ export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, 
           <LockLine days={row.days} className="mt-1" />
           <div className="mt-5">
             <div>{enabled.map(key => <div key={key}>
-              <p className="text-xs leading-5 text-white/60">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={Number(row.arvoRate)} usdcRate={Number(row.usdcRate)} share={Number(row.mixedShare??"50")} days={row.days} dark/>:<><AnnualReward percent={Number(pays(key) === "ARVO" ? row.arvoRate : row.usdcRate)} days={row.days} dark prominent/>
+              <p className="text-xs leading-5 text-white/70">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={Number(row.arvoRate)} usdcRate={Number(row.usdcRate)} share={Number(row.mixedShare??"50")} days={row.days} dark/>:<><AnnualReward percent={Number(pays(key) === "ARVO" ? row.arvoRate : row.usdcRate)} days={row.days} dark prominent/>
               <RewardLine percent={Number(pays(key) === "ARVO" ? row.arvoRate : row.usdcRate)} days={row.days} asset={pays(key)} bonus={bonus > 0} note={key.startsWith("dual") ? "before dual uplift" : undefined} /></>}
             </div>)}</div>
-            <dl className="mt-5 space-y-2 border-t border-white/10 pt-4 text-xs leading-5">
-              <TermRow label="Minimum deposit" value={minimum.v} usdArvo={minimum.usd} tip={first === "arvoUsdc" ? "Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit." : undefined} />
-              <TermRow label="Vault size" value={size ?? "No limit"} usdArvo={size && size.endsWith("ARVO") ? Number(row.maxArvo) : undefined} tip="The most this vault can hold. Once it is full, it stops taking new deposits." />
-              <TermRow label="Reward paid in" value={first ? pays(first) : "–"} />
-            </dl>
           </div>
+          <div className="mt-5"><TermStats items={[
+            { label: "Minimum", value: compactNumber(minimum.n), unit: minimum.unit, usdArvo: minimum.usd, tip: first === "arvoUsdc" ? "Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit." : undefined },
+            { label: "Vault size", value: sizeN ? compactNumber(sizeN) : "No limit", unit: sizeN ? sizeUnit : undefined, tip: "The most this vault can hold. Once it is full, it stops taking new deposits." },
+            { label: "Reward in", value: first ? pays(first) : "–" },
+          ]} /></div>
           <div className="mt-5 border-t border-white/10 pt-4">{committed > 0n ? <CommittedCapacity bare preview asset="USDG" cap={draftUnits(row.maxUsdc, 6)} committed={committed} deposited={0n} decimals={6} committedLabel="committed outside the app" /> : <PlannedCapacity size={size} />}</div>
-          <div className="mt-4 space-y-3"><PlannedActivity /><StakingIn asset={row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc ? "USDG" : "ARVO"} project={row.project} /><EstimateButton onClick={() => setSelectedId(row.id)} /></div>
-          <div className="mt-auto space-y-3 pt-4">
+          <CardList><PlannedActivity bare /><StakingIn bare asset={row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc ? "USDG" : "ARVO"} project={row.project} /><EstimateButton bare onClick={() => setSelectedId(row.id)} /></CardList>
+          <div className="mt-auto space-y-2.5 pt-4">
             <VaultTiming opensAt={row.opensAt} closesAt={row.closesAt} preview dark inline />
-            <div className="flex items-center justify-center rounded-xl border border-white/10 px-4 py-3.5 text-center text-sm font-semibold text-white/45">Deposits not open yet</div>
+            <p className="text-right text-xs text-white/55">Deposits are not open yet</p>
           </div>
         </VaultCardShell>; })}</div>
       {selected && <RewardDialog onClose={() => setSelectedId(null)} key={`${selected.id}-${selected.arvoRate}-${selected.usdcRate}-${selected.minArvo}-${selected.minArvoUsdc}-${JSON.stringify(selected.products)}`} row={selected} />}

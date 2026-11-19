@@ -43,28 +43,28 @@ export function CardSection({ children, min, divider = false }: { children: Reac
 /** Placeholder in the capacity slot for vaults that are not live yet. */
 export function PlannedCapacity({ size }: { size: string | null }) {
   return <div>
-    <div className="flex items-center justify-between gap-3 text-[11px]"><span className="font-semibold uppercase tracking-[0.14em] text-white/45">Vault filled</span><span className="tabular-nums text-white/45">{size ? "0%" : "No limit"}</span></div>
+    <div className="flex items-center justify-between gap-3 text-[11px]"><span className="font-semibold uppercase tracking-[0.14em] text-white/60">Vault filled</span><span className="tabular-nums text-white/60">{size ? "0%" : "No limit"}</span></div>
     <div className="mt-2 h-1.5 rounded-full bg-white/10" />
-    <p className="mt-2 text-[11px] text-white/45">{size ? `0 of ${size} · fills once deposits open` : "Fills once deposits open"}</p>
+    <p className="mt-2 text-[11px] text-white/60">{size ? `0 of ${size} · fills once deposits open` : "Fills once deposits open"}</p>
   </div>;
 }
 
 /** One-line activity row for planned vaults (same height as live activity). */
-export function PlannedActivity() {
-  return <div className="flex h-11 items-center rounded-2xl border border-white/10 px-4 text-xs text-white/45">No deposits yet · opens soon</div>;
+export function PlannedActivity({ bare = false }: { bare?: boolean }) {
+  return <div className={`flex h-11 items-center px-4 text-xs text-white/65 ${bare ? "" : "rounded-2xl border border-white/10"}`}>No deposits yet · opens soon</div>;
 }
 
 /** "What am I staking in?": the land model in plain words, plus the linked project when there is one. */
-export function StakingIn({ asset, project, acquisition = false }: { asset: string; project?: VaultProject | null; acquisition?: boolean }) {
-  return <details className="group rounded-2xl border border-white/10 bg-white/[0.03]">
+export function StakingIn({ asset, project, acquisition = false, bare = false }: { asset: string; project?: VaultProject | null; acquisition?: boolean; bare?: boolean }) {
+  return <details className={`group ${bare ? "" : "rounded-2xl border border-white/10 bg-white/[0.03]"}`}>
     <summary className="flex min-h-[2.75rem] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-xs font-semibold text-white/85 [&::-webkit-details-marker]:hidden">
       <span className="flex min-w-0 items-center gap-3">
         {project && (project.image ? <img src={project.image} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" /> : <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#c9846a]/15 text-[#e2a98e]"><MapPin size={14} /></span>)}
-        <span className="min-w-0"><span className="block">What am I staking in?</span>{project && <span className="block truncate text-[11px] font-normal text-white/45">{project.title}</span>}</span>
+        <span className="min-w-0"><span className="block">What am I staking in?</span>{project && <span className="block truncate text-[11px] font-normal text-white/60">{project.title}</span>}</span>
       </span>
       <ChevronDown size={14} className="shrink-0 text-white/45 transition-transform duration-200 group-open:rotate-180" />
     </summary>
-    <div className="space-y-2.5 border-t border-white/10 px-4 py-4 text-xs leading-5 text-white/60">
+    <div className="space-y-2.5 border-t border-white/10 px-4 py-4 text-xs leading-5 text-white/70">
       {acquisition
         ? <p>Your {asset} deposit helps fund the purchase of the site below. It is repaid to you, with the fixed reward, at the end of the term, once the vault has been repaid.</p>
         : <p>Your {asset} stays in the audited staking contract for the whole term and comes back to you at the end. It is not spent on land.</p>}
@@ -114,6 +114,11 @@ export function useRowEndOrder(cardId: string | null): number | null {
 
 /** The one style for "Estimate my reward" everywhere (matches the inline estimator). */
 export const estimateStyle = "flex w-full items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs font-semibold text-[#e2a98e] hover:border-[#c9846a]/40 hover:bg-white/[0.05]";
-export function EstimateButton({ onClick }: { onClick: () => void }) {
-  return <button type="button" aria-haspopup="dialog" onClick={onClick} className={estimateStyle}><span className="inline-flex items-center gap-2"><Calculator size={14} />Estimate my reward</span><ChevronDown size={14} className="-rotate-90" /></button>;
+export function EstimateButton({ onClick, bare = false }: { onClick: () => void; bare?: boolean }) {
+  return <button type="button" aria-haspopup="dialog" onClick={onClick} className={bare ? "flex w-full items-center justify-between gap-2 px-4 py-3 text-xs font-semibold text-[#e2a98e] hover:bg-white/[0.04]" : estimateStyle}><span className="inline-flex items-center gap-2"><Calculator size={14} />Estimate my reward</span><ChevronDown size={14} className="-rotate-90" /></button>;
+}
+
+/** Groups the card's list rows (activity, "What am I staking in?", estimate) in one quiet box. */
+export function CardList({ children }: { children: ReactNode }) {
+  return <div className="mt-4 divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10">{children}</div>;
 }

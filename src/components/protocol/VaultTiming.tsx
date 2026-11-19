@@ -16,11 +16,14 @@ export function VaultTiming({ opensAt, closesAt, preview = false, dark = false, 
     : phase === "upcoming" ? `Deposits open at this time.${closesAt ? ` They close ${shortDate(closesAt)}.` : ""} Your term starts when you deposit, not when the vault opens.`
     : phase === "window" ? "This vault has no closing date. It stops taking deposits when it is full or its rewards are fully allocated." : null;
   const hero = compact && dark;
-  if (inline) return <div className="flex min-h-[3.25rem] flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] px-4 py-2.5 text-[#07090b]">
-    <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest text-[#07090b]/65">{label}{tip && <InfoTip ink label="About the deposit window">{tip}</InfoTip>}</span>
-    {target ? <span className="font-mono text-base font-semibold tabular-nums" role="timer" aria-label={phase === "upcoming" ? "Time until deposits open" : "Time until deposits close"}>{now === null ? "\u00a0" : countdown(target, now)}</span> : <span className="text-sm font-semibold">{phase === "window" ? "Open now" : phase === "closed" ? "Closed" : "Coming soon"}</span>}
-    <span className="text-xs text-[#07090b]/70">{line}</span>
-  </div>;
+  if (inline) {
+    const sentence = phase === "unscheduled" ? "Opening date to be announced" : phase === "closed" ? "Deposits closed" : phase === "window" && !closesAt ? "Open for deposits" : phase === "window" ? "Deposits close in" : "Opens in";
+    const when = phase === "upcoming" && opensAt ? shortDate(opensAt) : phase === "window" && closesAt ? shortDate(closesAt) : phase === "window" ? "No closing date" : phase === "closed" ? "Existing stakes continue" : "";
+    return <div className="flex min-h-[2.75rem] flex-wrap items-center justify-between gap-x-3 gap-y-0.5 rounded-xl bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#a98bf0_135%)] px-4 py-2.5 text-[13px] text-[#07090b]">
+      <span className="flex items-center gap-1.5">{sentence}{target && <span className="font-semibold tabular-nums" role="timer" aria-label={phase === "upcoming" ? "Time until deposits open" : "Time until deposits close"}>{now === null ? "\u00a0" : countdown(target, now)}</span>}{tip && <InfoTip ink size={12} label="About the deposit window">{tip}</InfoTip>}</span>
+      {when && <span className="text-[#07090b]/70">{when}</span>}
+    </div>;
+  }
   return <div className={`${flush ? "h-full" : "mt-5"} rounded-2xl border p-4 ${hero ? "border-[#c9846a]/30 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] text-[#07090b]" : dark ? "border-white/10 bg-white/[0.04]" : "border-black/10 bg-[#f8f4ef]"}`}>
     <p className={`flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest ${hero ? "text-[#07090b]/65" : dark ? "text-[#e2a98e]" : "text-[#ad7058]"}`}>{label}{tip && <InfoTip label="About the deposit window" dark={dark && !hero}>{tip}</InfoTip>}</p>
     {target ? <p className="mt-1.5 font-mono text-base font-semibold tabular-nums" role="timer" aria-label={phase === "upcoming" ? "Time until deposits open" : "Time until deposits close"}>{now === null ? "\u00a0" : countdown(target, now)}</p>

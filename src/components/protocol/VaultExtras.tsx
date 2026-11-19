@@ -15,7 +15,7 @@ function ago(s: number) {
 }
 
 /** ARVO→ARVO rewards calculator: base, estimated shared bonus, APY comparison and maturity date. */
-export function VaultCalculator({ row }: { row: PoolRow }) {
+export function VaultCalculator({ row, bare = false }: { row: PoolRow; bare?: boolean }) {
   const bonus = useSharedBonus(row.id);
   const [input, setInput] = useState("");
   const [now] = useState(() => Math.floor(Date.now() / 1000));
@@ -28,7 +28,7 @@ export function VaultCalculator({ row }: { row: PoolRow }) {
   const rates = annualRates(row.vault.arvoRewardBps / 100, days);
   const start = Math.max(now, Number(row.pool.opensAt));
   const belowMin = amount > 0n && amount < row.vault.minArvo;
-  return <details className="group rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 hover:border-[#c9846a]/40 open:pb-4">
+  return <details className={`group px-4 py-3 open:pb-4 ${bare ? "" : "rounded-2xl border border-white/10 bg-white/[0.03] hover:border-[#c9846a]/40"}`}>
     <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-xs font-semibold text-[#e2a98e] [&::-webkit-details-marker]:hidden"><span className="inline-flex items-center gap-2"><Calculator size={14} />Estimate my reward</span><ChevronDown size={14} className="transition-transform duration-200 group-open:rotate-180" /></summary>
     <label className="mt-3 block text-[11px] text-white/50">How much ARVO would you stake?
       <input value={input} onChange={e => setInput(e.target.value)} inputMode="decimal" placeholder={fmt(row.vault.minArvo, 18, 0)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c9846a]/60" />
@@ -49,7 +49,7 @@ export function VaultCalculator({ row }: { row: PoolRow }) {
 type Momentum = { stakers: number; deposits: number; recent: { user: string; arvo: string; usdc?: string; at: number | null }[] };
 const momentumCache = new Map<number, Momentum>();
 /** Live activity in a fixed-height slot: skeleton → data (or an empty state) without moving the card. */
-export function VaultMomentum({ poolId, flush = false }: { poolId: number; flush?: boolean }) {
+export function VaultMomentum({ poolId, flush = false, bare = false }: { poolId: number; flush?: boolean; bare?: boolean }) {
   const [data, setData] = useState<Momentum | null>(() => momentumCache.get(poolId) ?? null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -64,10 +64,10 @@ export function VaultMomentum({ poolId, flush = false }: { poolId: number; flush
   }, [poolId]);
   const amount = (r: Momentum["recent"][number]) => BigInt(r.usdc ?? "0") > 0n && BigInt(r.arvo) === 0n ? `${fmt(BigInt(r.usdc!), 6, 0)} USDG` : `${fmt(BigInt(r.arvo), 18, 0)} ARVO`;
   // One fixed-height row (no jump while loading); the list opens only when someone asks for it.
-  const row = "flex h-11 items-center justify-between gap-3 px-4 text-xs", top = flush ? "" : "mt-4 ";
-  if (!data) return <div className={`${top}rounded-2xl border border-white/10`}><div className={row}>{failed ? <span className="text-white/45">Recent activity is unavailable right now</span> : <span aria-hidden className="arvo-skeleton-dark h-3 w-36" />}</div></div>;
-  if (data.deposits === 0) return <div className={`arvo-fade ${top}rounded-2xl border border-white/10`}><div className={row}><span className="text-white/60">No deposits yet · be one of the first</span></div></div>;
-  return <details className={`arvo-fade group ${top}rounded-2xl border border-white/10`}>
+  const row = "flex h-11 items-center justify-between gap-3 px-4 text-xs", top = flush || bare ? "" : "mt-4 ", box = bare ? "" : "rounded-2xl border border-white/10";
+  if (!data) return <div className={`${top}${box}`}><div className={row}>{failed ? <span className="text-white/45">Recent activity is unavailable right now</span> : <span aria-hidden className="arvo-skeleton-dark h-3 w-36" />}</div></div>;
+  if (data.deposits === 0) return <div className={`arvo-fade ${top}${box}`}><div className={row}><span className="text-white/70">No deposits yet · be one of the first</span></div></div>;
+  return <details className={`arvo-fade group ${top}${box}`}>
     <summary className={`${row} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>
       <span className="flex items-center gap-2 font-semibold text-white/85"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />{data.stakers.toLocaleString("en-GB")} staker{data.stakers === 1 ? "" : "s"} · {data.deposits.toLocaleString("en-GB")} deposit{data.deposits === 1 ? "" : "s"}</span>
       <span className="inline-flex items-center gap-1 text-white/45 group-open:text-white/70"><span className="group-open:hidden">Recent</span><span className="hidden group-open:inline">Hide</span><ChevronDown size={14} className="transition-transform duration-200 group-open:rotate-180" /></span>

@@ -7,7 +7,7 @@ import {assetCapacity,productAvailability,vaultAvailability,vaultName} from "@/l
 import {VaultShare} from "@/components/protocol/VaultShare";
 import {SharedBonus,BonusEstimate,cachedBonus,preloadBonuses} from "@/components/protocol/SharedBonus";
 import {bonusBps,bpsLabel} from "@/lib/staking/bonus";
-import {CardStatus,CardTitle,EstimateButton,StakingIn,VaultCardShell,cardOrder,useRowEndOrder} from "@/components/protocol/VaultCardShell";
+import {CardList,CardStatus,CardTitle,EstimateButton,StakingIn,VaultCardShell,cardOrder,useRowEndOrder} from "@/components/protocol/VaultCardShell";
 import {AuditedBySoken} from "@/components/protocol/SokenBadge";
 import {VaultCalculator,VaultMomentum} from "@/components/protocol/VaultExtras";
 import {appPath} from "@/lib/protocol/app-url";
@@ -17,7 +17,7 @@ import {VaultTiming,useVaultClock} from "@/components/protocol/VaultTiming";
 import {TokenAmountInput} from "@/components/protocol/TokenAmountInput";
 import {availabilityLabel,cycleReward,lockLabel,shortDate,termLabel,tokenDisplay} from "@/lib/staking/presentation";
 import {InfoTip} from "@/components/protocol/InfoTip";
-import {LockLine,RewardLine,TermRow,UsdHint} from "@/components/protocol/VaultCopy";
+import {LockLine,RewardLine,TermStats,UsdHint,compactNumber} from "@/components/protocol/VaultCopy";
 import {poolPreview} from "@/lib/staking/pool-preview";
 import {usePoolMetadata} from "@/hooks/usePoolTitles";
 import {VaultDraftPreviews,RewardDialog} from "@/components/protocol/VaultDraftPreviews";
@@ -74,7 +74,8 @@ export default function StakePage(){
  const liveBonus=cachedBonus(row.id),fullBps=liveBonus&&liveBonus.maxPrincipal>0n?bonusBps(liveBonus,liveBonus.maxPrincipal):null,plannedBonus=Number(extras[row.id]?.bonusPct||0);
  const bonusLabel=liveBonus?(fullBps!==null?`+${bpsLabel(fullBps)} bonus pot`:"Bonus pot"):plannedBonus>0?`+${plannedBonus}% bonus pot`:null;
  const usdgOnly=products.length>0&&products.every(k=>k==="usdcUsdc");
- const minRow=products.map(key=>{const i=keys.indexOf(key);return {key,i,value:i===2?`${tokenDisplay(row.vault.minUsdc,6)} USDG`:i>=3?`${tokenDisplay(row.vault.minArvo,18)} ARVO + ${tokenDisplay(row.vault.minUsdc,6)} USDG`:`${tokenDisplay(i===1?row.crossMinimum:row.vault.minArvo,18)} ARVO`,usd:i===0||i===1?Number(formatUnits(i===1?row.crossMinimum:row.vault.minArvo,18)):undefined};})[0];
+ const minRow=products.map(key=>{const i=keys.indexOf(key);return {key,i,n:Number(formatUnits(i===2?row.vault.minUsdc:i===1?row.crossMinimum:row.vault.minArvo,i===2?6:18)),unit:i===2?"USDG":i>=3?"ARVO + USDG":"ARVO",value:i===2?`${tokenDisplay(row.vault.minUsdc,6)} USDG`:i>=3?`${tokenDisplay(row.vault.minArvo,18)} ARVO + ${tokenDisplay(row.vault.minUsdc,6)} USDG`:`${tokenDisplay(i===1?row.crossMinimum:row.vault.minArvo,18)} ARVO`,usd:i===0||i===1?Number(formatUnits(i===1?row.crossMinimum:row.vault.minArvo,18)):undefined};})[0];
+ const sizeN=Number(formatUnits(usdgOnly?row.pool.maxUsdcPrincipal:row.pool.maxArvoPrincipal,usdgOnly?6:18));
  const size=usdgOnly?(row.pool.maxUsdcPrincipal>0n?`${tokenDisplay(row.pool.maxUsdcPrincipal,6)} USDG`:"No limit"):(row.pool.maxArvoPrincipal>0n?`${tokenDisplay(row.pool.maxArvoPrincipal,18)} ARVO`:"No limit");
  const paidIn=[...new Set(products.map(k=>{const i=keys.indexOf(k);return i===5?"ARVO + USDG":i===0||i===3?"ARVO":"USDG";}))].join(" or ");
  const bonusNow=liveBonus&&!liveBonus.snapshotTaken?(liveBonus.eligible===0n?"Whole pot":`+${bpsLabel(bonusBps(liveBonus,liveBonus.eligible))}`):liveBonus?.snapshotTaken?"Fixed":null;
@@ -85,19 +86,22 @@ export default function StakePage(){
   <LockLine days={days} className="mt-1"/>
   <div className="mt-5">
    <div>{products.map(key=>{const i=keys.indexOf(key),rate=(i===0||i===3?row.vault.arvoRewardBps:row.vault.usdcRewardBps)/100;const pays=i===0||i===3?"ARVO":"USDG";
-    return <div key={key}><p className="text-xs leading-5 text-white/60">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={row.vault.arvoRewardBps/100} usdcRate={row.vault.usdcRewardBps/100} share={row.vault.mixedArvoShareBps/100} days={days} dark/>:<><AnnualReward percent={rate} days={days} dark prominent/><RewardLine percent={rate} days={days} asset={pays} bonus={Boolean(bonusLabel)} note={i>=3?"before dual uplift":undefined}/></>}</div>;})}</div>
-   <dl className="mt-5 space-y-2 border-t border-white/10 pt-4 text-xs leading-5">
-    <TermRow label="Minimum deposit" value={minRow?.value??"–"} usdArvo={minRow?.usd} tip={minRow?.i===1?"Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit.":undefined}/>
-    <TermRow label="Vault size" value={size} usdArvo={!usdgOnly&&row.pool.maxArvoPrincipal>0n?Number(formatUnits(row.pool.maxArvoPrincipal,18)):undefined} tip="The most this vault can hold. Once it is full, it stops taking new deposits."/>
-    {bonusNow?<TermRow label="Bonus if you join now" value={bonusNow==="Fixed"?"Shares fixed":bonusNow} tip="Your share of the bonus pot at today's vault size. It gets smaller as more ARVO joins and is fixed when deposits close."/>:<TermRow label="Reward paid in" value={paidIn}/>}
-   </dl>
+    return <div key={key}><p className="text-xs leading-5 text-white/70">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={row.vault.arvoRewardBps/100} usdcRate={row.vault.usdcRewardBps/100} share={row.vault.mixedArvoShareBps/100} days={days} dark/>:<><AnnualReward percent={rate} days={days} dark prominent/><RewardLine percent={rate} days={days} asset={pays} bonus={Boolean(bonusLabel)} note={i>=3?"before dual uplift":undefined}/></>}</div>;})}</div>
   </div>
+  <div className="mt-5"><TermStats items={[
+   {label:"Minimum",value:minRow?compactNumber(minRow.n):"–",unit:minRow?.unit,usdArvo:minRow?.usd,tip:minRow?.i===1?"Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit.":undefined},
+   {label:"Vault size",value:sizeN>0?compactNumber(sizeN):"No limit",unit:sizeN>0?(usdgOnly?"USDG":"ARVO"):undefined,tip:"The most this vault can hold. Once it is full, it stops taking new deposits."},
+   bonusNow?{label:"Bonus now",value:bonusNow==="Fixed"?"Fixed":bonusNow,tip:"Your share of the bonus pot at today's vault size. It gets smaller as more ARVO joins and is fixed when deposits close."}:{label:"Reward in",value:paidIn},
+  ]}/></div>
   <AcquisitionFunding state={row.acquisition} dark/>
   <div className="mt-5 border-t border-white/10 pt-4"><VaultCapacity row={row} bare/></div>
-  <div className="mt-4 space-y-3"><VaultMomentum poolId={row.id} flush/><StakingIn asset={usdgOnly?"USDG":"ARVO"} project={extras[row.id]?.project} acquisition={Boolean(row.acquisition)}/>{products.length===1&&products[0]==="arvoArvo"?<VaultCalculator row={row}/>:<EstimateButton onClick={()=>setCalculator(row)}/>}</div>
-  <div className="mt-auto space-y-3 pt-4">
+  <CardList><VaultMomentum poolId={row.id} bare/><StakingIn bare asset={usdgOnly?"USDG":"ARVO"} project={extras[row.id]?.project} acquisition={Boolean(row.acquisition)}/>{products.length===1&&products[0]==="arvoArvo"?<VaultCalculator row={row} bare/>:<EstimateButton bare onClick={()=>setCalculator(row)}/>}</CardList>
+  <div className="mt-auto space-y-2.5 pt-4">
    <VaultTiming opensAt={dateFor(row.pool.opensAt)} closesAt={dateFor(row.pool.closesAt)} dark inline/>
-   <button data-sound="confirm" disabled={busy||Boolean(pending)||!availability.available} onClick={()=>selected?.id===row.id?setSelected(null):choose(row)} aria-expanded={selected?.id===row.id} className="w-full rounded-xl bg-[#f8f2ed] px-4 py-3.5 text-sm font-semibold text-[#07090b] transition hover:bg-white disabled:opacity-40">{selected?.id===row.id?"Hide stake details":availability.available ? open ? "Stake in this vault" : "View terms" : availabilityLabel(availability.reason,beforeOpen)}</button>
+   {selected?.id===row.id?<button type="button" onClick={()=>setSelected(null)} aria-expanded className="ml-auto block text-xs font-semibold text-[#e2a98e] hover:text-white">Hide stake details</button>
+   :availability.available&&open?<button data-sound="confirm" disabled={busy||Boolean(pending)} onClick={()=>choose(row)} aria-expanded={false} className="w-full rounded-xl bg-[#f8f2ed] px-4 py-3.5 text-sm font-semibold text-[#07090b] transition hover:bg-white disabled:opacity-40">Stake in this vault</button>
+   :availability.available?<button type="button" disabled={busy||Boolean(pending)} onClick={()=>choose(row)} aria-expanded={false} className="ml-auto block text-xs font-semibold text-[#e2a98e] hover:text-white disabled:opacity-40">View terms →</button>
+   :<p className="text-right text-xs text-white/55">{availabilityLabel(availability.reason,beforeOpen)}</p>}
   </div>
  </VaultCardShell>;
  })}
