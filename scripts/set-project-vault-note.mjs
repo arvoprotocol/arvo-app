@@ -11,10 +11,12 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 export const BARBADOS_NOTE = [
-  "We intend to open a vault linked to this project, built around rental yield.",
-  "Once the property is complete and earning, a share of its rental income will flow into the vault’s rewards. That gives stakers returns tied to real, recurring income from a finished asset, not just one-off sales.",
-  "The reward rate, terms and opening date will be published here before it opens.",
-].join("\n\n");
+  "Vaults linked to this project are planned in two stages.",
+  "First, milestone vaults will give participants the opportunity to help fund construction as each stage of the build progresses. Then, once the resort is complete and operating under Rumi Resorts, rental-yield vaults will share a portion of its rental income with vault participants.",
+  "Full terms for each vault, including its purpose, reward, lock period and opening date, will be published here before it opens.",
+].join("
+
+");
 
 const args = process.argv.slice(2);
 const apply = args.includes("--apply"), force = args.includes("--force");
