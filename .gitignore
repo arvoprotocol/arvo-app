@@ -33,3 +33,6 @@ next-env.d.ts
 *~
 *.save
 __pycache__/
+
+# Self-hosted project videos are uploaded to the server, not committed
+/public/project-videos/
