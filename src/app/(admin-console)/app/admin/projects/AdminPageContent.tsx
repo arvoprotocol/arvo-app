@@ -106,7 +106,7 @@ export default async function AdminProjectsPage() {
                   No projects yet.
                 </p>
 
-                <p className="mt-1.5 max-w-md text-xs leading-5 text-black/38">
+                <p className="mt-1.5 max-w-md text-xs leading-5 text-black/60">
                   Create the first project to begin managing operating activity
                   through the admin console.
                 </p>
@@ -119,6 +119,11 @@ export default async function AdminProjectsPage() {
                   key={project.id}
                   className="grid gap-5 p-5 md:p-6 xl:grid-cols-[1.3fr_.65fr_.65fr_auto] xl:items-center"
                 >
+                  <div className="flex min-w-0 items-center gap-4">
+                    {project.image
+                      // eslint-disable-next-line @next/next/no-img-element -- admin thumbnail of an uploaded image
+                      ? <img src={project.image} alt="" loading="lazy" className="h-16 w-20 shrink-0 rounded-xl border border-black/[0.06] object-cover" />
+                      : <div aria-hidden="true" className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl border border-dashed border-black/15 bg-[#fbfaf9] text-[10px] font-semibold text-black/50">No image</div>}
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <PublishBadge status={project.publishStatus} />
@@ -134,6 +139,7 @@ export default async function AdminProjectsPage() {
                       <span>{project.location}</span>
                       <ProjectTitleBadge titleNumber={project.titleNumber}/>
                     </div>
+                  </div>
                   </div>
 
                   <ProjectDatum

@@ -435,7 +435,7 @@ function SurplusCard({ asset }: { asset: "ARVO" | "USDG" }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold">{asset}</p>
-          <p className="mt-1 text-xs text-black/38">
+          <p className="mt-1 text-xs text-black/60">
             Currently withdrawable: {amount(manager.accounting, asset, "available")}
           </p>
         </div>
@@ -479,7 +479,7 @@ function AccountingRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 py-3.5">
-      <span className="text-xs text-black/42">{label}</span>
+      <span className="text-xs text-black/60">{label}</span>
       <span className="min-w-0 break-all text-right text-xs font-semibold">{value}</span>
     </div>
   );

@@ -57,7 +57,7 @@ export function AcquisitionControls({projects}:{projects:Project[]}){
  }
  const a=row?.acquisition,locked=busy||Boolean(hash),future=row&&Number(row.pool.opensAt)>Date.now()/1000&&!row.pool.finalized;
  const field="mt-2 w-full rounded-xl border border-black/10 p-3 text-sm",button="rounded-xl border border-black/10 px-4 py-3 text-xs font-semibold disabled:opacity-40";
- return <section id="acquisition-controls" className="px-4 pb-10 md:px-7 lg:px-9 xl:px-11"><Panel><PanelHeader eyebrow="Treasury operations" title="Acquisition vaults"/><div className="space-y-5 p-5 md:p-6">
+ return <section id="acquisition-controls" className="mt-8"><Panel><PanelHeader eyebrow="Treasury operations" title="Acquisition vaults"/><div className="space-y-5 p-5 md:p-6">
  <p className="text-sm leading-6 text-black/60">Create a capped USDG or dual-deposit pool above with a future opening time. Keep it hidden while binding Treasury, linking a project and setting its future USDG reward limit. ARVO rewards remain funded through Reward funding.</p>
  <div className="flex items-end gap-3"><label className="text-xs">Pool ID<input value={poolId} onChange={e=>{setPoolId(e.target.value);setRow(null);}} disabled={locked} inputMode="numeric" className={field}/></label><button className={button} disabled={locked} onClick={()=>void run(load)}>Load pool</button></div>
  {hash&&<p className="break-all text-xs">Submitted: {hash} <button disabled={busy} onClick={()=>void run(checkPending)} className="underline">Check confirmation</button></p>}

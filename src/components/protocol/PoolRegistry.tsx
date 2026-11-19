@@ -17,7 +17,15 @@ type VaultConfig = { duration: number; arvoRewardBps: number; usdcRewardBps: num
 type Row = { id: number; pool: PoolConfig; vault: VaultConfig; status: string; visibility: number; products: number };
 const PAGE_SIZE = 20;
 const names = ["Build", "Advance", "Compound", "Foundation", "Custom"];
-function date(seconds: bigint) { return seconds === BigInt("0") ? "Open-ended" : new Date(Number(seconds) * 1000).toLocaleString(); }
+function date(seconds: bigint) { return seconds === BigInt("0") ? "Open-ended" : new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(new Date(Number(seconds) * 1000)) + " UTC"; }
+const visibilityLabels = ["Hidden", "Opening soon", "Published"];
+function Fact({ label, value, wide = false }: { label: string; value: string; wide?: boolean }) {
+  return <div className={wide ? "col-span-2" : ""}><dt className="text-black/55">{label}</dt><dd className="mt-0.5 font-semibold text-[#07090b]">{value}</dd></div>;
+}
+function CopyRow({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  return <div className="flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2"><span className="w-32 shrink-0 font-semibold text-black/70">{label}</span><code className="min-w-0 flex-1 truncate font-mono text-[11px]">{value}</code><button type="button" onClick={() => { void navigator.clipboard?.writeText(value).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }); }} className="shrink-0 rounded-md border border-black/10 px-2 py-1 text-[11px] font-semibold hover:border-black/25">{copied ? "Copied" : "Copy"}</button></div>;
+}
 function status(pool: PoolConfig, now: bigint) {
   if (pool.finalized) return "Finalized";
   if (!pool.enabled) return "Disabled";
@@ -26,7 +34,7 @@ function status(pool: PoolConfig, now: bigint) {
   return "Open";
 }
 export function PoolRegistry() {
-  const [calldata, setCalldata] = useState("");
+  const [safeTx, setSafeTx] = useState<{ what: string; to: string; data: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState("");
   const [offset, setOffset] = useState(0);
@@ -66,33 +74,58 @@ export function PoolRegistry() {
     load().catch((err) => { if (!cancelled) setError(err instanceof Error ? err.message : "Unable to load pools."); }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [offset, refresh]);
-  async function control(functionName: string, args: readonly unknown[]) {
+  async function control(functionName: string, args: readonly unknown[], what: string) {
     if (busy || pending) return;
     setBusy(true); setError("");
-    setCalldata(encodeFunctionData({abi: stakingAbi, functionName, args}));
-    try { await transact(functionName, args, hash => setPending(hash), "VAULT_MANAGER_ROLE"); setPending(""); setRefresh(x => x + 1); }
+    const c = stakingConnection();
+    if (c) setSafeTx({ what, to: c.address, data: encodeFunctionData({abi: stakingAbi, functionName, args}) });
+    try { await transact(functionName, args, hash => setPending(hash), "VAULT_MANAGER_ROLE"); setPending(""); setSafeTx(null); setRefresh(x => x + 1); }
     catch (e) { setError(e instanceof Error ? e.message : "Control failed."); }
     finally { setBusy(false); }
   }
   const count = (state: string) => data ? String(data.rows.filter((row) => row.status === state).length) : "–";
   return <>
     <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <StatCard label="Total pools" value={data ? String(data.total) : "–"} detail="Created on-chain" icon={<Boxes size={16} />} />
-      <StatCard label="Open on this page" value={count("Open")} detail="Currently accepting stakes" icon={<ShieldCheck size={16} />} />
-      <StatCard label="Scheduled on this page" value={count("Scheduled")} detail="Waiting to open" icon={<CalendarClock size={16} />} />
-      <StatCard label="Finalized on this page" value={count("Finalized")} detail="Permanently closed" icon={<LockKeyhole size={16} />} />
+      <StatCard label="Live vaults" value={data ? String(data.total) : "–"} detail="Created onchain" icon={<Boxes size={16} />} />
+      <StatCard label="Open now" value={count("Open")} detail="Currently accepting stakes" icon={<ShieldCheck size={16} />} />
+      <StatCard label="Scheduled" value={count("Scheduled")} detail="Waiting to open" icon={<CalendarClock size={16} />} />
+      <StatCard label="Finalized" value={count("Finalized")} detail="Permanently closed" icon={<LockKeyhole size={16} />} />
     </section>
     <section className="mt-8"><Panel>
-      <PanelHeader eyebrow="Pool registry" title="All pools" action={<Link href="/app/admin/pools/create" className="inline-flex items-center gap-2 rounded-xl bg-[#07090b] px-4 py-3 text-xs font-semibold text-white"><Plus size={14} />Create pool</Link>} />
+      <PanelHeader eyebrow="Onchain" title="Live vaults" action={<Link href="/app/admin/pools/create" className="inline-flex items-center gap-2 rounded-xl bg-[#07090b] px-4 py-3 text-xs font-semibold text-white"><Plus size={14} />Create vault</Link>} />
       <div className="p-5 md:p-6">
-        {!configured && <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-black/10 bg-black/[0.018] px-6 text-center"><StatusPill>Pre-deployment</StatusPill><h3 className="mt-4 text-xl font-semibold">No contract data yet.</h3><p className="mt-2 max-w-md text-sm leading-6 text-black/40">Configure pool terms now. Pools will appear here after the staking proxy is connected on testnet.</p></div>}
-        {calldata && <label className="mb-4 block text-xs">Selected control calldata for the staking proxy (Safe/timelock)<textarea readOnly value={calldata} rows={3} className="mt-2 w-full rounded-xl border border-black/10 p-3" /></label>}
+        {!configured && <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-black/10 bg-black/[0.018] px-6 text-center"><StatusPill>Pre-deployment</StatusPill><h3 className="mt-4 text-xl font-semibold">No contract data yet.</h3><p className="mt-2 max-w-md text-sm leading-6 text-black/55">Configure pool terms now. Pools will appear here after the staking proxy is connected on testnet.</p></div>}
+        {safeTx && <div className="mb-5 rounded-2xl border border-[#c9846a]/35 bg-[#fbf3ee] p-5">
+          <p className="text-sm font-semibold">Send this through the Governance Safe</p>
+          <p className="mt-1 text-xs leading-5 text-black/70">{safeTx.what}. If your wallet doesn’t hold the Vault manager role, create a new transaction in the Safe with these details, then have the owners sign.</p>
+          <div className="mt-3 grid gap-2 text-xs">
+            <CopyRow label="To (staking contract)" value={safeTx.to} />
+            <CopyRow label="Value" value="0" />
+            <CopyRow label="Data" value={safeTx.data} />
+          </div>
+          <button type="button" onClick={() => setSafeTx(null)} className="mt-3 text-xs font-semibold text-black/60 hover:text-black">Dismiss</button>
+        </div>}
         {busy && !pending && <p role="status" className="mb-3 text-xs text-black/60">Checking the request. If your wallet opens, approve the network switch or transaction to continue.</p>}
         {pending && <p className="break-all text-xs">Submitted: {pending}. Check confirmation in your wallet before another control transaction.</p>}
         {loading && <p role="status" className="py-10 text-center text-sm text-black/50">Loading on-chain pools…</p>}
         {error && <p role="alert" className="rounded-xl bg-red-50 p-4 text-xs text-red-800">{error}</p>}
         {data && data.total === 0 && <p className="py-10 text-center text-sm text-black/50">No pools have been created on this staking contract.</p>}
-        {data && data.rows.length > 0 && <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b border-black/10 text-black/45">{["Pool", "Status", "Cycle", "Rewards per cycle", "Window", "Principal capacity", "Remaining reward budget", "Visibility & deposits"].map((label) => <th key={label} className="whitespace-nowrap px-3 py-3 font-semibold">{label}</th>)}</tr></thead><tbody>{data.rows.map((row) => <tr key={row.id} className="border-b border-black/[0.06] align-top"><td className="px-3 py-4 font-semibold">#{row.id} {titles[row.id] ?? names[row.pool.kind] ?? "Pool"}</td><td className="px-3 py-4"><StatusPill tone={row.status === "Open" ? "good" : "neutral"}>{row.status}</StatusPill></td><td className="whitespace-nowrap px-3 py-4">{row.vault.duration / 86400} days</td><td className="whitespace-nowrap px-3 py-4">ARVO {row.vault.arvoRewardBps / 100}%<br />USDG {row.vault.usdcRewardBps / 100}%</td><td className="whitespace-nowrap px-3 py-4">{date(row.pool.opensAt)}<br />{date(row.pool.closesAt)}</td><td className="whitespace-nowrap px-3 py-4">ARVO {row.pool.maxArvoPrincipal === BigInt("0") ? "Uncapped" : tokenDisplay(row.pool.maxArvoPrincipal, 18)}<br />USDG {row.pool.maxUsdcPrincipal === BigInt("0") ? "Uncapped" : tokenDisplay(row.pool.maxUsdcPrincipal, 6)}</td><td className="whitespace-nowrap px-3 py-4">ARVO {tokenDisplay(row.pool.arvoRewardBudgetRemaining, 18)}<br />USDG {tokenDisplay(row.pool.usdcRewardBudgetRemaining, 6)}</td><td className="min-w-[210px] px-3 py-4"><label className="block text-xs">Visibility<select value={row.visibility} disabled={busy || Boolean(pending)} onChange={e => control("setPoolVisibility", [row.id, Number(e.target.value)])} className="mt-2 w-full rounded-lg border border-black/10 p-2"><option value={0}>Hidden</option><option value={1}>Opening soon</option><option value={2}>Published</option></select></label><button disabled={busy || Boolean(pending) || row.pool.finalized || (!row.pool.enabled && Number(row.pool.opensAt) <= Date.now() / 1000)} onClick={() => control("setPoolEnabled", [row.id, !row.pool.enabled])} className="mt-2 rounded-lg border border-black/10 p-2 text-xs disabled:opacity-40">{row.pool.enabled ? "Close deposits" : "Try enabling deposits"}</button><button disabled={busy || Boolean(pending) || row.pool.enabled || row.pool.finalized} onClick={() => { if (window.confirm(`Permanently finalize pool #${row.id}? This cannot be undone. Existing user positions remain governed by the contract.`)) void control("finalizePool", [row.id]); }} className="mt-2 block rounded-lg border border-black/10 p-2 text-xs disabled:opacity-40">{row.pool.finalized ? "Finalized" : "Finalize closed pool"}</button><p className="mt-2 text-[10px] text-black/45">Visibility does not close on-chain deposits. Closed pools cannot reopen after their opening time.</p></td></tr>)}</tbody></table></div>}
+        {data && data.rows.length > 0 && <div className="grid gap-4 xl:grid-cols-2">{data.rows.map(row => <article key={row.id} className="rounded-2xl border border-black/[0.08] bg-white p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-black/55">Vault #{row.id}</p><h3 className="mt-0.5 text-lg font-semibold tracking-[-0.02em]">{titles[row.id] ?? names[row.pool.kind] ?? "Vault"}</h3></div><div className="flex flex-wrap gap-1.5"><StatusPill tone={row.status === "Open" ? "good" : "neutral"}>{row.status}</StatusPill><StatusPill tone={row.visibility === 2 ? "warm" : "neutral"}>{visibilityLabels[row.visibility] ?? "Unknown"}</StatusPill></div></div>
+          <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-xs sm:grid-cols-3">
+            <Fact label="Term" value={`${row.vault.duration / 86400} days`} />
+            <Fact label="Fixed reward" value={[row.vault.arvoRewardBps ? `${row.vault.arvoRewardBps / 100}% ARVO` : "", row.vault.usdcRewardBps ? `${row.vault.usdcRewardBps / 100}% USDG` : ""].filter(Boolean).join(" + ") || "None"} />
+            <Fact label="Deposits" value={`${date(row.pool.opensAt)} → ${row.pool.closesAt === BigInt("0") ? "no end date" : date(row.pool.closesAt)}`} wide />
+            <Fact label="Vault size" value={[row.pool.maxArvoPrincipal ? `${tokenDisplay(row.pool.maxArvoPrincipal, 18)} ARVO` : "", row.pool.maxUsdcPrincipal ? `${tokenDisplay(row.pool.maxUsdcPrincipal, 6)} USDG` : ""].filter(Boolean).join(" + ") || "No limit"} />
+            <Fact label="Rewards left to give" value={`${tokenDisplay(row.pool.arvoRewardBudgetRemaining, 18)} ARVO · ${tokenDisplay(row.pool.usdcRewardBudgetRemaining, 6)} USDG`} wide />
+          </dl>
+          <div className="mt-5 flex flex-wrap items-end gap-2 border-t border-black/[0.06] pt-4">
+            <label className="text-xs font-semibold text-black/70">Shown in the app<select value={row.visibility} disabled={busy || Boolean(pending)} onChange={e => control("setPoolVisibility", [row.id, Number(e.target.value)], `${visibilityLabels[Number(e.target.value)]}: vault #${row.id}`)} className="mt-1.5 block w-44 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm font-normal"><option value={0}>Hidden</option><option value={1}>Opening soon</option><option value={2}>Published</option></select></label>
+            <button disabled={busy || Boolean(pending) || row.pool.finalized || (!row.pool.enabled && Number(row.pool.opensAt) <= Date.now() / 1000)} onClick={() => control("setPoolEnabled", [row.id, !row.pool.enabled], `${row.pool.enabled ? "Close" : "Enable"} deposits: vault #${row.id}`)} className="rounded-lg border border-black/10 px-3 py-2 text-sm font-semibold hover:border-black/25 disabled:opacity-40">{row.pool.enabled ? "Close deposits" : "Enable deposits"}</button>
+            <button disabled={busy || Boolean(pending) || row.pool.enabled || row.pool.finalized} onClick={() => { if (window.confirm(`Permanently finalize vault #${row.id}? This cannot be undone. Existing stakes stay claimable.`)) void control("finalizePool", [row.id], `Finalize vault #${row.id}`); }} className="rounded-lg border border-black/10 px-3 py-2 text-sm font-semibold hover:border-black/25 disabled:opacity-40">{row.pool.finalized ? "Finalized" : "Finalize"}</button>
+          </div>
+          <p className="mt-3 text-[11px] leading-5 text-black/55">Hiding only removes it from the app’s lists. Closing deposits stops new stakes; once a vault has opened, closed deposits can’t be reopened. Finalize releases unused rewards after closing.</p>
+        </article>)}</div>}
         {configured && <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs"><button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)} className="rounded-lg border border-black/10 px-3 py-2 disabled:opacity-40">Refresh</button><div className="flex items-center gap-3"><button type="button" disabled={loading || offset === 0} onClick={() => setOffset((value) => Math.max(0, value - PAGE_SIZE))} className="rounded-lg border border-black/10 px-3 py-2 disabled:opacity-40">Newer</button><span>Page {Math.floor(offset / PAGE_SIZE) + 1}</span><button type="button" disabled={loading || !data || offset + PAGE_SIZE >= data.total} onClick={() => setOffset((value) => value + PAGE_SIZE)} className="rounded-lg border border-black/10 px-3 py-2 disabled:opacity-40">Older</button></div></div>}
       </div>
     </Panel></section>

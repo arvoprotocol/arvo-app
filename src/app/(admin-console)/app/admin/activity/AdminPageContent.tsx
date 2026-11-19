@@ -123,7 +123,7 @@ export default function AdminActivityPage() {
                 No contract activity connected.
               </p>
 
-              <p className="mt-1.5 max-w-lg text-xs leading-5 text-black/38">
+              <p className="mt-1.5 max-w-lg text-xs leading-5 text-black/60">
                 After Robinhood testnet deployment, this screen will read
                 contract events and transaction data directly from the
                 deployed protocol.
@@ -291,7 +291,7 @@ function EventGroup({
         {events.map((event) => (
           <p
             key={event}
-            className="font-mono text-[10px] leading-4 text-black/38"
+            className="font-mono text-[10px] leading-4 text-black/60"
           >
             {event}
           </p>

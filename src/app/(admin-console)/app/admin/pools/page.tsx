@@ -8,5 +8,5 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   if (!await getAdminSession()) return null;
   const projects=await prisma.project.findMany({select:{id:true,title:true,publishStatus:true},orderBy:{id:"asc"}});
-  return <><AdminPageContent /><AcquisitionControls projects={projects}/></>;
+  return <AdminPageContent acquisition={<AcquisitionControls projects={projects}/>} />;
 }

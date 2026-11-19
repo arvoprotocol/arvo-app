@@ -82,7 +82,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const renderGroups = () => groups.map(group => <div key={group.label ?? "top"} className={group.label ? "mt-4" : ""}>
-    {group.label && <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">{group.label}</p>}
+    {group.label && <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">{group.label}</p>}
     {renderNav(group.items)}
   </div>);
 

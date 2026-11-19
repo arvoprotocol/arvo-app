@@ -373,7 +373,7 @@ function StandardConfiguration({
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-base font-semibold">{vault.name}</p>
-                  <p className="mt-1 text-xs text-black/38">
+                  <p className="mt-1 text-xs text-black/60">
                     {vault.duration} fixed cycle
                   </p>
                 </div>

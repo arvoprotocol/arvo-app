@@ -227,7 +227,7 @@ export default function AdminPositionsPage() {
                 No wallet selected.
               </p>
 
-              <p className="mt-1.5 max-w-md text-xs leading-5 text-black/38">
+              <p className="mt-1.5 max-w-md text-xs leading-5 text-black/60">
                 Enter a wallet address above to retrieve its position IDs and
                 inspect individual staking positions.
               </p>
@@ -249,7 +249,7 @@ export default function AdminPositionsPage() {
                 Administrators cannot alter user positions.
               </p>
 
-              <p className="mt-1.5 max-w-3xl text-xs leading-5 text-white/45">
+              <p className="mt-1.5 max-w-3xl text-xs leading-5 text-white/60">
                 This section is intentionally read-only. Position ownership,
                 principal, rewards and settlement are controlled by the staking
                 contract. The admin console does not provide an override for
@@ -282,7 +282,7 @@ function DetailGroup({
             key={label}
             className="flex items-center justify-between gap-4 py-2.5"
           >
-            <span className="text-xs text-black/38">{label}</span>
+            <span className="text-xs text-black/60">{label}</span>
             <span className="max-w-[60%] truncate text-xs font-semibold">
               {value}
             </span>

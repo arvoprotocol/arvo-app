@@ -168,7 +168,7 @@ export default async function AdminPartnersPage() {
                   No partners added yet.
                 </p>
 
-                <p className="mt-1.5 max-w-md text-xs leading-5 text-black/38">
+                <p className="mt-1.5 max-w-md text-xs leading-5 text-black/60">
                   Add each Strategic Partner or Advisor together with the wallet
                   address you currently have on record.
                 </p>

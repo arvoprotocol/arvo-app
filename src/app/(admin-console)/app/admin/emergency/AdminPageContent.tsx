@@ -77,7 +77,7 @@ export default function AdminEmergencyPage() {
                   Stop new staking commitments.
                 </p>
 
-                <p className="mt-1.5 max-w-2xl text-xs leading-5 text-black/42">
+                <p className="mt-1.5 max-w-2xl text-xs leading-5 text-black/60">
                   The authorised PAUSER_ROLE wallet can immediately pause the
                   staking contract when an incident requires new staking
                   activity to stop.
@@ -136,7 +136,7 @@ export default function AdminEmergencyPage() {
                   Recovery is deliberately slower.
                 </p>
 
-                <p className="mt-1.5 text-xs leading-5 text-black/42">
+                <p className="mt-1.5 text-xs leading-5 text-black/60">
                   Unpause requires DEFAULT_ADMIN_ROLE. Under the final
                   governance topology that authority belongs to the Timelock,
                   not the emergency wallet.
@@ -246,7 +246,7 @@ export default function AdminEmergencyPage() {
                   User principal remains user-controlled.
                 </p>
 
-                <p className="mt-1.5 text-xs leading-5 text-white/45">
+                <p className="mt-1.5 text-xs leading-5 text-white/60">
                   There is no administrator emergency-withdraw function for
                   user positions. Emergency exits are pulled by the position
                   owner and funds are transferred directly back to that owner.
@@ -320,7 +320,7 @@ function ProtectionCard({
 
       <p className="mt-4 text-sm font-semibold">{title}</p>
 
-      <p className="mt-2 text-[11px] leading-5 text-black/38">
+      <p className="mt-2 text-[11px] leading-5 text-black/60">
         {copy}
       </p>
 

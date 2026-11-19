@@ -41,7 +41,7 @@ export function Panel({ children, className = "" }: { children: React.ReactNode;
 }
 
 export function PanelHeader({ title, eyebrow, action }: { title: string; eyebrow?: string; action?: React.ReactNode }) {
-  return <div className="flex items-center justify-between gap-4 border-b border-black/[0.07] px-5 py-5 md:px-6"><div>{eyebrow && <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.2em] text-[#ad7058]">{eyebrow}</p>}<h2 className="text-xl font-semibold tracking-[-0.03em]">{title}</h2></div>{action}</div>;
+  return <div className="flex items-center justify-between gap-4 border-b border-black/[0.07] px-5 py-5 md:px-6"><div>{eyebrow && <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#ad7058]">{eyebrow}</p>}<h2 className="text-xl font-semibold tracking-[-0.03em]">{title}</h2></div>{action}</div>;
 }
 
 export function StatusPill({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "good" | "warm" }) {

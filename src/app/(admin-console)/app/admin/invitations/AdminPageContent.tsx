@@ -106,7 +106,7 @@ export default async function AdminInvitationsPage() {
                   No invitation codes yet.
                 </p>
 
-                <p className="mt-1.5 max-w-md text-xs leading-5 text-black/38">
+                <p className="mt-1.5 max-w-md text-xs leading-5 text-black/60">
                   Generate an invitation when you are ready to provide early
                   access to the Arvo app.
                 </p>
@@ -148,7 +148,7 @@ export default async function AdminInvitationsPage() {
                         {invitation.code}
                       </p>
 
-                      <p className="mt-1.5 text-xs text-black/38">
+                      <p className="mt-1.5 text-xs text-black/60">
                         {invitation.label || "Invitation"}
                       </p>
                     </div>

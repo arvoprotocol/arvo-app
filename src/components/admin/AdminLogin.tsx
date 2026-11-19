@@ -153,7 +153,7 @@ export function AdminLogin() {
             Admin console.
           </h1>
 
-          <p className="mt-3 text-sm leading-6 text-white/45">
+          <p className="mt-3 text-sm leading-6 text-white/60">
             Connect and sign with an authorised wallet to access
             protocol operations and project management.
           </p>

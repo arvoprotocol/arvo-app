@@ -143,7 +143,7 @@ export default function AdminAllocationPage() {
               </p>
             </div>
 
-            <p className="mt-3 text-xs leading-5 text-white/45">
+            <p className="mt-3 text-xs leading-5 text-white/60">
               Protocol allocation does not transfer tokens into the staking
               contract and does not create a user position or reward-bearing
               stake.
@@ -167,7 +167,7 @@ export default function AdminAllocationPage() {
                 No contract data yet.
               </p>
 
-              <p className="mt-1.5 max-w-md text-xs leading-5 text-black/38">
+              <p className="mt-1.5 max-w-md text-xs leading-5 text-black/60">
                 Pool capacity and protocol allocations will be read directly
                 from the staking contract after Robinhood testnet deployment.
               </p>

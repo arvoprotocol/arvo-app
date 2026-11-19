@@ -207,7 +207,7 @@ export default function AdminOverviewPage() {
               <MiniStat label="USDG available" value={amount("USDG","available")} />
             </div>
 
-            <p className="mt-4 text-xs leading-5 text-black/38">
+            <p className="mt-4 text-xs leading-5 text-black/60">
               Available capacity excludes protected principal, committed rewards and reserved pool budgets. Refresh after a transaction confirms.
             </p>
           </div>
@@ -227,7 +227,7 @@ export default function AdminOverviewPage() {
                 <p className="text-sm font-semibold">
                   Governance handoff pending
                 </p>
-                <p className="mt-1 text-xs leading-5 text-black/38">
+                <p className="mt-1 text-xs leading-5 text-black/60">
                   Safe and Timelock authorities will be shown here after the
                   staged testnet governance handoff.
                 </p>
@@ -283,7 +283,7 @@ function Metric({
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="text-xs text-black/38">{label}</span>
+      <span className="text-xs text-black/60">{label}</span>
       <span className="min-w-0 break-all text-right text-sm font-semibold">{value}</span>
     </div>
   );
@@ -298,7 +298,7 @@ function SystemRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-5 py-4">
-      <span className="text-xs text-black/38">{label}</span>
+      <span className="text-xs text-black/60">{label}</span>
       <span className="max-w-[65%] break-all text-right text-xs font-semibold">{value}</span>
     </div>
   );
@@ -344,7 +344,7 @@ function OperationCard({
       </div>
 
       <p className="mt-5 font-semibold">{title}</p>
-      <p className="mt-1 text-xs leading-5 text-black/38">{copy}</p>
+      <p className="mt-1 text-xs leading-5 text-black/60">{copy}</p>
 
       <ArrowRight
         size={15}

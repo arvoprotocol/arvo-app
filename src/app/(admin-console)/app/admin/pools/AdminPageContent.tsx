@@ -2,6 +2,7 @@ import { VaultDraftRegistry } from "@/components/protocol/VaultDraftRegistry";
 import {PriceOracleControl} from "@/components/protocol/PriceOracleControl";
 import { PoolRegistry } from "@/components/protocol/PoolRegistry";
 import Link from "next/link";
+import { AdminTabs } from "@/components/admin/AdminTabs";
 import {
   ArrowRight,
   CalendarClock,
@@ -16,20 +17,30 @@ import {
   PanelHeader,
 } from "@/components/protocol/ProtocolUI";
 
-export default function AdminPoolsPage() {
+export default function AdminPoolsPage({ acquisition }: { acquisition?: React.ReactNode }) {
   return (
     <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
       <PageTitle
-        eyebrow="Staking operations"
-        title="Pools."
-        copy="Create and monitor staking pools, capacity, reward budgets and lifecycle status."
+        eyebrow="Vaults & rewards"
+        title="Vaults."
+        copy="Plan vaults, then manage the ones that are live onchain."
       />
 
-      <VaultDraftRegistry />
-      <PoolRegistry />
-      <PriceOracleControl />
+      <AdminTabs tabs={[
+        { id: "live", label: "Live vaults", hint: "onchain", content: <PoolRegistry /> },
+        { id: "planned", label: "Planned vaults", hint: "shown as coming soon", content: <VaultDraftRegistry /> },
+        { id: "advanced", label: "Advanced", hint: "price source, acquisition, guide", content: <><PriceOracleControl />{acquisition}<Guide /></> },
+      ]} />
+    </div>
+  );
+}
 
-      <section className="mt-8 grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
+function Guide() {
+  return (
+    <details className="group mt-8 rounded-2xl border border-black/[0.08] bg-white">
+      <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold md:px-6 [&::-webkit-details-marker]:hidden">How vaults work <span className="ml-1 text-xs font-normal text-black/55">(show)</span></summary>
+      <div className="border-t border-black/[0.06] p-5 md:p-6">
+      <section className="grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
         <Panel>
           <PanelHeader
             eyebrow="Pool model"
@@ -99,7 +110,7 @@ export default function AdminPoolsPage() {
         </Panel>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-5">
         <div className="relative overflow-hidden rounded-2xl bg-[#07090b] p-6 text-white md:p-8">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#c9846a]/15 blur-3xl" />
 
@@ -113,7 +124,7 @@ export default function AdminPoolsPage() {
                 Pool funding is deliberately separate from pool creation.
               </h2>
 
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/42">
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
                 Creating a pool does not create reward capital. Ordinary reward budgets require funds in the staking contract. Acquisition USDG vaults use a separate future reward limit and isolated escrow repayments. Configure these under Acquisition vaults below before opening.
               </p>
             </div>
@@ -128,7 +139,8 @@ export default function AdminPoolsPage() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </details>
   );
 }
 
@@ -148,7 +160,7 @@ function PoolField({
       </div>
 
       <p className="mt-4 text-sm font-semibold">{title}</p>
-      <p className="mt-1.5 text-xs leading-5 text-black/38">{copy}</p>
+      <p className="mt-1.5 text-xs leading-5 text-black/60">{copy}</p>
     </div>
   );
 }
@@ -170,7 +182,7 @@ function LifecycleRow({
 
       <div>
         <p className="text-sm font-semibold">{title}</p>
-        <p className="mt-1 text-xs leading-5 text-black/38">{copy}</p>
+        <p className="mt-1 text-xs leading-5 text-black/60">{copy}</p>
       </div>
     </div>
   );
