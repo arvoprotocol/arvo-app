@@ -47,7 +47,7 @@ export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, 
         return <VaultCardShell key={row.id} id={`vault-preview-${row.id}`} order={cardOrder(row.sortOrder ?? 0, row.id, true)}
 >
           <CardStatus dot="bg-[#e2a98e]/70" label="Coming soon" tip="A preview of a planned vault. Deposits are not open yet, and the terms shown may still change before it opens." bonus={bonus > 0 ? { label: `+${bonus}% bonus`, tip: <>On top of the fixed reward, a bonus pot is shared between everyone in this vault by how much they stake. If the vault fills up, the bonus works out at about {bonus}% extra; if it is less full, each share is bigger. Planned figure: it is confirmed when the vault opens.</> } : null} />
-          <CardTitle title={row.title} share={<VaultShare title={row.title} days={row.days} anchor={`vault-preview-${row.id}`} preview dark/>} />
+          <CardTitle title={row.title} share={<VaultShare title={row.title} days={row.days} anchor={`vault-preview-${row.id}`} preview dark info={{ title: row.title, days: row.days, rate: Number(first && pays(first) === "ARVO" ? row.arvoRate : row.usdcRate) || 0, asset: first ? pays(first) : "ARVO", bonusPct: bonus, kind: row.explainer, projectTitle: row.project?.title ?? null, opensAt: row.opensAt ? Date.parse(row.opensAt) : null }}/>} />
           <LockLine days={row.days} className="mt-1" />
           <div className="mt-5">
             <div>{enabled.map(key => <div key={key}>
