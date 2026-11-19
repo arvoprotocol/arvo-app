@@ -86,7 +86,7 @@ export default function AdminEmergencyPage() {
             </div>
 
             <div className="mt-6 rounded-xl border border-red-500/15 bg-red-50/60 p-4">
-              <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-red-700/70">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-red-700/70">
                 Current state
               </p>
 
@@ -95,7 +95,7 @@ export default function AdminEmergencyPage() {
                   Not connected
                 </p>
 
-                <span className="rounded-full bg-black/[0.05] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-black/35">
+                <span className="rounded-full bg-black/[0.05] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black/55">
                   Unverified
                 </span>
               </div>
@@ -110,7 +110,7 @@ export default function AdminEmergencyPage() {
               Pause protocol
             </button>
 
-            <p className="mt-3 text-[11px] leading-5 text-black/35">
+            <p className="mt-3 text-[11px] leading-5 text-black/55">
               This control will only become available to the connected
               PAUSER_ROLE authority on the correct network.
             </p>
@@ -290,7 +290,7 @@ function ProcessStep({
 }) {
   return (
     <div className="flex gap-3 rounded-xl bg-black/[0.025] px-4 py-3">
-      <span className="text-[9px] font-bold tracking-[0.12em] text-[#ad7058]">
+      <span className="text-[10px] font-bold tracking-[0.12em] text-[#ad7058]">
         {number}
       </span>
 
@@ -324,7 +324,7 @@ function ProtectionCard({
         {copy}
       </p>
 
-      <p className="mt-4 text-[9px] font-bold uppercase tracking-[0.12em] text-black/30">
+      <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.12em] text-black/50">
         {status}
       </p>
     </div>
@@ -334,7 +334,7 @@ function ProtectionCard({
 function ChecklistRow({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-3 py-3.5">
-      <CheckCircle2 size={14} className="shrink-0 text-black/20" />
+      <CheckCircle2 size={14} className="shrink-0 text-black/50" />
 
       <p className="text-xs leading-5 text-black/48">
         {text}

@@ -14,15 +14,19 @@ import {
   AlertTriangle,
   ArrowLeft,
   Boxes,
+  BrainCircuit,
   Coins,
-  Gauge,
   FolderKanban,
+  Gift,
+  Handshake,
   KeyRound,
   Landmark,
   LayoutDashboard,
+  LifeBuoy,
+  ListChecks,
   Menu,
+  Send,
   Settings,
-  Mail,
   ShieldCheck,
   Users,
   Wallet,
@@ -36,28 +40,36 @@ type AdminNavItem = {
   icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
 };
 
-const nav: readonly AdminNavItem[] = [
-  { label: "Overview", href: "/app/admin", icon: LayoutDashboard },
-  { label: "Projects", href: "/app/admin/projects", icon: FolderKanban },
-  { label: "Invitations", href: "/app/admin/invitations", icon: KeyRound },
-  { label: "Waitlist", href: "/app/admin/waitlist", icon: Users },
-  { label: "Partners", href: "/app/admin/partners", icon: Users },
-  { label: "Support", href: "/app/admin/support", icon: Mail },
-  { label: "Emails", href: "/app/admin/emails", icon: Mail },
-  { label: "Pools", href: "/app/admin/pools", icon: Boxes },
-  { label: "Rewards", href: "/app/admin/rewards", icon: Coins },
-  { label: "Shared bonus", href: "/app/admin/bonus", icon: Coins },
-  { label: "Intelligence", href: "/app/admin/intelligence", icon: FolderKanban },
-  { label: "Protocol allocation", href: "/app/admin/allocation", icon: Landmark },
-  { label: "Positions", href: "/app/admin/positions", icon: Users },
-] as const;
+type AdminNavGroup = { label: string | null; items: readonly AdminNavItem[] };
 
-const controls: readonly AdminNavItem[] = [
-  { label: "Governance", href: "/app/admin/governance", icon: ShieldCheck },
-  { label: "Emergency", href: "/app/admin/emergency", icon: AlertTriangle },
-  { label: "Activity", href: "/app/admin/activity", icon: Activity },
-  { label: "System", href: "/app/admin/system", icon: Settings },
-] as const;
+// Grouped by job, so the console reads like the app: people, vaults, content, then protocol safety.
+const groups: readonly AdminNavGroup[] = [
+  { label: null, items: [{ label: "Overview", href: "/app/admin", icon: LayoutDashboard }] },
+  { label: "People & access", items: [
+    { label: "Waitlist & invites", href: "/app/admin/waitlist", icon: Users },
+    { label: "Invite codes", href: "/app/admin/invitations", icon: KeyRound },
+    { label: "Partners", href: "/app/admin/partners", icon: Handshake },
+    { label: "Emails", href: "/app/admin/emails", icon: Send },
+    { label: "Support", href: "/app/admin/support", icon: LifeBuoy },
+  ] },
+  { label: "Vaults & rewards", items: [
+    { label: "Vaults", href: "/app/admin/pools", icon: Boxes },
+    { label: "Rewards", href: "/app/admin/rewards", icon: Coins },
+    { label: "Shared bonus", href: "/app/admin/bonus", icon: Gift },
+    { label: "Protocol allocation", href: "/app/admin/allocation", icon: Landmark },
+    { label: "Positions", href: "/app/admin/positions", icon: ListChecks },
+  ] },
+  { label: "Content", items: [
+    { label: "Projects", href: "/app/admin/projects", icon: FolderKanban },
+    { label: "Intelligence", href: "/app/admin/intelligence", icon: BrainCircuit },
+  ] },
+  { label: "Protocol safety", items: [
+    { label: "Governance", href: "/app/admin/governance", icon: ShieldCheck },
+    { label: "Emergency", href: "/app/admin/emergency", icon: AlertTriangle },
+    { label: "Activity", href: "/app/admin/activity", icon: Activity },
+    { label: "System", href: "/app/admin/system", icon: Settings },
+  ] },
+];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = internalAppPath(usePathname());
@@ -68,6 +80,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const network=stakingNetwork(Number.isSafeInteger(chainId)&&chainId>0?chainId:null);
   const configured=Boolean(process.env.NEXT_PUBLIC_STAKING_PROXY_ADDRESS&&process.env.NEXT_PUBLIC_STAKING_RPC_URL&&network.label!=="Preview");
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const renderGroups = () => groups.map(group => <div key={group.label ?? "top"} className={group.label ? "mt-4" : ""}>
+    {group.label && <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">{group.label}</p>}
+    {renderNav(group.items)}
+  </div>);
 
   const renderNav = (items: readonly AdminNavItem[]) =>
     items.map((item) => {
@@ -82,13 +99,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           key={item.href}
           href={appPath(item.href)}
           onClick={() => setMobileOpen(false)}
-          className={`mb-1 flex items-center gap-3 rounded-xl px-3.5 py-3 text-[14px] font-semibold transition ${
+          aria-current={active ? "page" : undefined}
+          className={`mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2 text-[13.5px] font-medium transition ${
             active
-              ? "bg-white text-[#07090b] shadow-sm"
-              : "text-white/52 hover:bg-white/[0.055] hover:text-white"
+              ? "bg-white font-semibold text-[#07090b] shadow-sm"
+              : "text-white/70 hover:bg-white/[0.06] hover:text-white"
           }`}
         >
-          <Icon size={17} strokeWidth={1.8} />
+          <Icon size={16} strokeWidth={1.8} />
           <span>{item.label}</span>
 
           {active && (
@@ -117,44 +135,32 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
           <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#c9846a]/25 bg-[#c9846a]/10 px-3 py-1.5">
             <ShieldCheck size={12} className="text-[#e2a98e]" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#e2a98e]">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#e2a98e]">
               Admin console
             </span>
           </div>
         </div>
 
-        <p className="px-6 pb-2 pt-3 text-[9px] font-bold uppercase tracking-[0.2em] text-white/22">
-          Operations
-        </p>
-
-        <nav className="px-3">{renderNav(nav)}</nav>
-
-        <div className="mx-6 my-4 border-t border-white/8" />
-
-        <p className="px-6 pb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/22">
-          Protocol control
-        </p>
-
-        <nav className="px-3">{renderNav(controls)}</nav>
+        <nav aria-label="Admin" className="px-3 pb-2">{renderGroups()}</nav>
 
         <div className="mt-auto p-4">
           <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-amber-400" />
-              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/40">
+              <span className={`h-2 w-2 rounded-full ${configured ? "bg-emerald-400" : "bg-amber-400"}`} />
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
                 Contract status
               </p>
             </div>
 
             <p className="mt-3 text-sm font-semibold">{configured?"Connection configured":"Not configured"}</p>
-            <p className="mt-1 text-[11px] leading-5 text-white/30">
+            <p className="mt-1 text-[11px] leading-5 text-white/55">
               {configured?`${network.label} · verify deployment in System.`:"Awaiting staking deployment configuration."}
             </p>
           </div>
 
           <Link
             href="/app"
-            className="mt-4 flex items-center gap-2 px-2 text-xs font-medium text-white/30 transition hover:text-white"
+            className="mt-4 flex items-center gap-2 px-2 text-xs font-medium text-white/55 transition hover:text-white"
           >
             <ArrowLeft size={13} />
             User app
@@ -174,34 +180,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <Menu size={19} />
               </button>
 
-              <div className="hidden items-center gap-3 md:flex">
-                <Gauge size={16} className="text-black/30" />
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-black/30">
-                    Network
-                  </p>
-                  <p className="text-xs font-semibold text-black/65">
-                    {network.label}
-                  </p>
-                </div>
-              </div>
+              <span className="hidden items-center gap-2 rounded-full border border-black/[0.08] bg-white px-3 py-1.5 text-xs font-semibold text-black/70 md:inline-flex">
+                <span className={`h-1.5 w-1.5 rounded-full ${configured ? "bg-emerald-500" : "bg-amber-500"}`} />
+                {network.label}
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
-              <button type="button" disabled={signingOut} onClick={()=>void signOut()} title="Sign out of admin" aria-label="Sign out of admin" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white disabled:opacity-40"><LogOut size={16}/></button>
-              <div className="hidden rounded-xl border border-black/[0.08] bg-white/65 px-3.5 py-2.5 sm:block">
-                <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-black/25">
-                  Access
-                </p>
-                <p className="mt-0.5 text-xs font-semibold text-black/55">
-                  Admin session active
-                </p>
-              </div>
+              <button type="button" disabled={signingOut} onClick={()=>void signOut()} title="Sign out of admin" className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-black/10 bg-white px-3 text-xs font-semibold text-black/70 hover:border-black/25 disabled:opacity-40"><LogOut size={15}/><span className="hidden sm:inline">Sign out</span></button>
 
               <button
                 type="button"
                 onClick={openWalletPicker}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#07090b] px-3 py-3 text-xs font-semibold text-white sm:px-4 sm:text-sm"
+                title="The wallet used to approve contract changes. Signing in to admin does not connect it."
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#07090b] px-3 text-xs font-semibold text-white sm:px-4"
               >
                 <Wallet size={16} />
                 {wallet.account?`${wallet.account.slice(0,6)}…${wallet.account.slice(-4)}`:"Connect transaction wallet"}
@@ -225,7 +217,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 height={32}
                 className="h-8 w-auto"
               />
-              <p className="mt-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[#e2a98e]">
+              <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#e2a98e]">
                 Admin console
               </p>
             </div>
@@ -240,19 +232,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="overflow-y-auto px-4 py-5">
-            <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-[0.2em] text-white/22">
-              Operations
-            </p>
-
-            <nav>{renderNav(nav)}</nav>
-
-            <div className="my-4 border-t border-white/10" />
-
-            <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-[0.2em] text-white/22">
-              Protocol control
-            </p>
-
-            <nav>{renderNav(controls)}</nav>
+            <nav aria-label="Admin">{renderGroups()}</nav>
           </div>
         </div>
       )}

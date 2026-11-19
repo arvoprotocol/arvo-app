@@ -134,7 +134,7 @@ export default function AdminRewardsPage() {
 
       <div className="mt-6 rounded-2xl border border-black/10 bg-white/70 p-5">
         <p className="text-sm font-semibold">{connection ? "Reward manager connection" : "Testnet connection pending"}</p>
-        <p className="mt-2 text-xs leading-5 text-black/45">{connection ? `Chain ${connection.chain.id} · Staking proxy ${connection.address}` : "Live balances and transactions become available when the testnet staking proxy is connected."}</p>
+        <p className="mt-2 text-xs leading-5 text-black/60">{connection ? `Chain ${connection.chain.id} · Staking proxy ${connection.address}` : "Live balances and transactions become available when the testnet staking proxy is connected."}</p>
         {account && <p className="mt-2 break-all text-xs text-black/50">Wallet balances shown for: {account}</p>}
         <div className="mt-4 flex flex-wrap gap-3">
           <button type="button" disabled={!connection || busy || Boolean(pending)} onClick={connectWallet} className="rounded-xl bg-[#07090b] px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-35">{busy ? "Working…" : account ? "Reconnect reward manager" : "Connect reward manager"}</button>
@@ -204,7 +204,7 @@ export default function AdminRewardsPage() {
           />
 
           <div className="p-5 md:p-6">
-            <p className="max-w-xl text-sm leading-6 text-black/45">
+            <p className="max-w-xl text-sm leading-6 text-black/60">
               Transfer ARVO or USDG from the authorised Reward Manager wallet
               into the staking contract. Funding increases the contract balance
               but does not assign those assets to a particular pool.
@@ -225,7 +225,7 @@ export default function AdminRewardsPage() {
           />
 
           <div className="p-5 md:p-6">
-            <p className="max-w-xl text-sm leading-6 text-black/45">
+            <p className="max-w-xl text-sm leading-6 text-black/60">
               Assign already-funded reward capacity to a specific pool. The
               reservation becomes protected and can no longer fund another
               reward promise or be withdrawn as surplus.
@@ -263,7 +263,7 @@ export default function AdminRewardsPage() {
                 Review reservation
               </button>
 
-              <p className="text-[11px] leading-5 text-black/35">
+              <p className="text-[11px] leading-5 text-black/55">
                 Reward budgets can only be added before the pool opens and
                 cannot exceed currently available reward capacity.
               </p>
@@ -361,7 +361,7 @@ function AssetAccounting({ asset }: { asset: "ARVO" | "USDG" }) {
         eyebrow={`${asset} accounting`}
         title={`${asset === "USDG" ? "Ordinary USDG" : asset} reserve`}
         action={
-          <span className="flex items-center gap-1.5 text-[10px] font-semibold text-black/35">
+          <span className="flex items-center gap-1.5 text-[10px] font-semibold text-black/55">
             <ShieldCheck size={13} />
             {data ? (data.solvent ? "Solvent" : "Reserve shortfall") : "Awaiting contract data"}
           </span>
@@ -391,13 +391,13 @@ function FundingCard({ asset }: { asset: "ARVO" | "USDG" }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold">{asset}</p>
-          <p className="mt-0.5 text-[11px] text-black/35">
+          <p className="mt-0.5 text-[11px] text-black/55">
             Available in wallet: {amount(manager.accounting, asset, "walletBalance")}
           </p>
         </div>
 
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/[0.035]">
-          <Coins size={16} className="text-black/45" />
+          <Coins size={16} className="text-black/60" />
         </div>
       </div>
 
@@ -410,7 +410,7 @@ function FundingCard({ asset }: { asset: "ARVO" | "USDG" }) {
           placeholder="0"
           className="min-w-0 flex-1 bg-white px-3 py-3 text-sm outline-none placeholder:text-black/20"
         />
-        <span className="flex items-center bg-black/[0.025] px-3 text-[10px] font-semibold text-black/35">
+        <span className="flex items-center bg-black/[0.025] px-3 text-[10px] font-semibold text-black/55">
           {asset}
         </span>
       </div>
@@ -440,7 +440,7 @@ function SurplusCard({ asset }: { asset: "ARVO" | "USDG" }) {
           </p>
         </div>
 
-        <WalletCards size={18} className="text-black/30" />
+        <WalletCards size={18} className="text-black/50" />
       </div>
 
       <div className="mt-5 space-y-3">
@@ -512,7 +512,7 @@ function Field({
         />
 
         {suffix && (
-          <span className="flex items-center border-l border-black/[0.06] bg-black/[0.02] px-3 text-[10px] font-semibold text-black/35">
+          <span className="flex items-center border-l border-black/[0.06] bg-black/[0.02] px-3 text-[10px] font-semibold text-black/55">
             {suffix}
           </span>
         )}
@@ -531,14 +531,14 @@ function FormulaBlock({
   return (
     <div className="rounded-xl border border-black/[0.07] p-4">
       <p className="text-xs font-semibold">{label}</p>
-      <p className="mt-1 text-[11px] leading-4 text-black/35">{copy}</p>
+      <p className="mt-1 text-[11px] leading-4 text-black/55">{copy}</p>
     </div>
   );
 }
 
 function FormulaSymbol({ symbol }: { symbol: string }) {
   return (
-    <div className="hidden text-center text-lg font-medium text-black/25 lg:block">
+    <div className="hidden text-center text-lg font-medium text-black/50 lg:block">
       {symbol}
     </div>
   );

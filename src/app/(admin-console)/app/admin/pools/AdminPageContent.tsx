@@ -164,7 +164,7 @@ function LifecycleRow({
 }) {
   return (
     <div className="flex gap-4 py-4">
-      <span className="pt-0.5 text-[9px] font-bold tracking-[0.16em] text-[#ad7058]">
+      <span className="pt-0.5 text-[10px] font-bold tracking-[0.16em] text-[#ad7058]">
         {number}
       </span>
 

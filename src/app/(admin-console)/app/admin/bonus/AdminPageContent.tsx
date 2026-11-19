@@ -48,10 +48,22 @@ export default function AdminBonusPage() {
 
   return <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
     <PageTitle eyebrow="Rewards" title="Shared bonus." copy="Fixed ARVO bonus pots shared by stake size, one bonus contract per vault. These actions are open to any wallet; no special role is needed." />
-    <p className="mt-4 text-xs"><a href="/api/admin/founding-stakers" className="font-semibold underline">Download founding stakers (CSV)</a> <span className="text-black/45">· First Edition depositors from onchain events, excluding emergency exits.</span></p>
+    <p className="mt-4 text-xs"><a href="/api/admin/founding-stakers" className="font-semibold underline">Download founding stakers (CSV)</a> <span className="text-black/60">· First Edition depositors from onchain events, excluding emergency exits.</span></p>
     {error && <p role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
     {hash && <p className="mt-4 break-all text-xs">Submitted: {hash}</p>}
-    {configured === 0 && <p className="mt-8 rounded-2xl border border-dashed border-black/15 p-6 text-sm text-black/55">No bonus contracts configured. Deploy one with <code>script/DeploySharedBonus.s.sol</code> before the vault opens, fund it from the Treasury Safe, then add its address to <code>NEXT_PUBLIC_BONUS_ADDRESSES</code> and rebuild.</p>}
+    {configured === 0 && <section className="mt-8 rounded-2xl border border-black/[0.08] bg-white p-6 shadow-sm md:p-7">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#ad7058]">Not set up yet</p>
+      <h2 className="mt-2 text-xl font-semibold tracking-[-0.02em]">No bonus pot is connected to the app</h2>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-black/65">The “+5% bonus” on First Edition is paid from a separate bonus contract that holds the ARVO pot. Until one is set up for this network, the card shows the planned bonus but nobody can earn it. Setting it up takes three steps, done once per vault, before deposits open:</p>
+      <ol className="mt-5 grid gap-3 md:grid-cols-3">
+        {[
+          ["Create the bonus contract", "A one-off deployment linked to the vault. It is tested with a dry run first and only goes live with your approval."],
+          ["Fund the pot", "Send exactly the bonus amount of ARVO from the Treasury Safe to the new contract. This needs the Safe owners to approve."],
+          ["Connect it to the app", "Add the contract address to the server settings and rebuild. This page then shows the pot, shares and claims."],
+        ].map(([title, copy], i) => <li key={title} className="rounded-xl border border-black/[0.07] bg-[#fbfaf9] p-4"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#07090b] text-xs font-semibold text-white">{i + 1}</span><p className="mt-3 text-sm font-semibold">{title}</p><p className="mt-1 text-xs leading-5 text-black/65">{copy}</p></li>)}
+      </ol>
+      <p className="mt-4 text-xs leading-5 text-black/55">Technical reference: <code>script/DeploySharedBonus.s.sol</code> in the contracts repo, and the <code>NEXT_PUBLIC_BONUS_ADDRESSES</code> setting.</p>
+    </section>}
     {configured > 0 && bonuses === null && !error && <p role="status" className="mt-8 text-sm">Reading bonus contracts…</p>}
     {bonuses?.length === 0 && configured > 0 && <p className="mt-8 text-sm text-amber-800">Configured bonus addresses were found, but none is bound to this staking proxy and chain.</p>}
 
@@ -78,7 +90,7 @@ export default function AdminBonusPage() {
         <div className="flex flex-wrap gap-3 border-t border-black/[0.06] p-5 md:p-6">
           <button disabled={!canSnapshot || Boolean(busy)} onClick={() => act(b, "snapshot")} className="rounded-xl bg-[#07090b] px-4 py-3 text-xs font-semibold text-white disabled:opacity-40">{busy === `${b.address}:snapshot` ? "Confirm in wallet…" : "Record bonus totals"}</button>
           <button disabled={returnable === 0n || Boolean(busy)} onClick={() => act(b, "returnToTreasury")} className="rounded-xl border border-black/10 px-4 py-3 text-xs font-semibold disabled:opacity-40">{busy === `${b.address}:returnToTreasury` ? "Confirm in wallet…" : `Return ${returnable > 0n ? arvo(returnable) : "unclaimed ARVO"} to Treasury`}</button>
-          <p className="w-full text-xs leading-5 text-black/45">
+          <p className="w-full text-xs leading-5 text-black/60">
             Record totals once, after entries close and before the first maturity. If it is missed, no bonus can be paid and the whole pot returns to the Treasury.
             Only ARVO above what is still owed to stakers can be returned before the claim deadline.
           </p>
@@ -89,5 +101,5 @@ export default function AdminBonusPage() {
 }
 
 function Row({ label, value }: { label: string; value: string }) {
-  return <div className="flex items-start justify-between gap-5 border-b border-black/[0.06] py-3"><span className="text-xs text-black/40">{label}</span><span className="max-w-[65%] break-all text-right text-xs font-semibold">{value}</span></div>;
+  return <div className="flex items-start justify-between gap-5 border-b border-black/[0.06] py-3"><span className="text-xs text-black/55">{label}</span><span className="max-w-[65%] break-all text-right text-xs font-semibold">{value}</span></div>;
 }

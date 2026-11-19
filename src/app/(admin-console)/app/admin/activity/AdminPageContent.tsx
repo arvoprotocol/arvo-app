@@ -72,7 +72,7 @@ export default function AdminActivityPage() {
               <div className="relative">
                 <Search
                   size={14}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-black/25"
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-black/50"
                 />
 
                 <input
@@ -86,12 +86,12 @@ export default function AdminActivityPage() {
               <div className="relative">
                 <Filter
                   size={13}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-black/25"
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-black/50"
                 />
 
                 <select
                   disabled
-                  className="w-full cursor-not-allowed appearance-none rounded-xl border border-black/[0.08] bg-white py-3 pl-10 pr-4 text-sm text-black/40 opacity-55 outline-none"
+                  className="w-full cursor-not-allowed appearance-none rounded-xl border border-black/[0.08] bg-white py-3 pl-10 pr-4 text-sm text-black/55 opacity-55 outline-none"
                   defaultValue="all"
                 >
                   <option value="all">All activity</option>
@@ -106,7 +106,7 @@ export default function AdminActivityPage() {
 
               <select
                 disabled
-                className="w-full cursor-not-allowed rounded-xl border border-black/[0.08] bg-white px-4 py-3 text-sm text-black/40 opacity-55 outline-none"
+                className="w-full cursor-not-allowed rounded-xl border border-black/[0.08] bg-white px-4 py-3 text-sm text-black/55 opacity-55 outline-none"
                 defaultValue="newest"
               >
                 <option value="newest">Newest first</option>
@@ -117,7 +117,7 @@ export default function AdminActivityPage() {
 
           <div className="p-5 md:p-6">
             <div className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-black/[0.12] bg-black/[0.018] px-6 text-center">
-              <Activity size={21} className="text-black/25" />
+              <Activity size={21} className="text-black/50" />
 
               <p className="mt-4 text-sm font-semibold">
                 No contract activity connected.
@@ -210,7 +210,7 @@ export default function AdminActivityPage() {
             <button
               type="button"
               disabled
-              className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-black/[0.08] px-4 py-3 text-xs font-semibold text-black/35"
+              className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-black/[0.08] px-4 py-3 text-xs font-semibold text-black/55"
             >
               <ExternalLink size={13} />
               View transaction on explorer
@@ -236,7 +236,7 @@ export default function AdminActivityPage() {
                   Activity is not manually editable.
                 </p>
 
-                <p className="mt-1.5 text-xs leading-5 text-black/40">
+                <p className="mt-1.5 text-xs leading-5 text-black/55">
                   Protocol activity is derived from confirmed transactions and
                   emitted contract events. The admin console does not maintain
                   a separate mutable record of on-chain actions.
@@ -310,7 +310,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-5 py-3.5">
-      <span className="text-xs text-black/40">{label}</span>
+      <span className="text-xs text-black/55">{label}</span>
       <span className="max-w-[60%] truncate text-right text-xs font-semibold">
         {value}
       </span>
@@ -329,11 +329,11 @@ function SourceRow({
 }) {
   return (
     <div className="flex gap-3 rounded-xl bg-black/[0.025] px-4 py-3">
-      <div className="mt-0.5 text-black/30">{icon}</div>
+      <div className="mt-0.5 text-black/50">{icon}</div>
 
       <div>
         <p className="text-xs font-semibold">{label}</p>
-        <p className="mt-0.5 text-[10px] leading-4 text-black/35">
+        <p className="mt-0.5 text-[10px] leading-4 text-black/55">
           {copy}
         </p>
       </div>

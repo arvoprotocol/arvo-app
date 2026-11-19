@@ -27,11 +27,11 @@ export function StatCard({ label, value, detail, accent = false, icon }: { label
   return (
     <div className={`rounded-2xl border p-5 md:p-6 ${accent ? "border-[#c9846a]/30 bg-[linear-gradient(145deg,#fff9f5,#f4ded3)]" : "border-black/[0.08] bg-white/70"}`}>
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/35">{label}</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/55">{label}</p>
         {icon && <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${accent ? "bg-[#c9846a]/12 text-[#9e5e47]" : "bg-black/[0.045] text-black/45"}`}>{icon}</div>}
       </div>
-      <p className="mt-5 text-3xl font-semibold tracking-[-0.045em] md:text-4xl">{value}</p>
-      {detail && <p className="mt-1.5 text-sm text-black/38">{detail}</p>}
+      <p className={`mt-5 font-semibold tracking-[-0.04em] ${value.length > 14 ? "text-xl leading-snug md:text-2xl" : "text-3xl md:text-4xl"}`}>{value}</p>
+      {detail && <p className="mt-1.5 text-sm text-black/55">{detail}</p>}
     </div>
   );
 }

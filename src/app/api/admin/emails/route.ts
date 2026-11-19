@@ -157,6 +157,11 @@ export async function POST(request: Request) {
       (recipient) => !failures.includes(recipient.email)
     );
 
+    // Mark real waitlist sends so the Waitlist page can show who has been invited.
+    if (successful.length && waitlist && mode !== "test") {
+      await prisma.platformSignup.updateMany({ where: { type: "email", normalized: { in: successful.map(r => r.email) } }, data: { notifiedAt: new Date() } }).catch(() => undefined);
+    }
+
     if (successful.length) {
       await prisma.adminBroadcastEmail.create({
         data: {

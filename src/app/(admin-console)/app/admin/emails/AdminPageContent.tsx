@@ -85,7 +85,7 @@ export default async function AdminEmailsPage() {
 
       <div className="mt-7 rounded-2xl border border-black/[0.08] bg-white p-5 shadow-sm md:p-6">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-black/30">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-black/50">
             History
           </p>
           <h2 className="mt-1 text-lg font-semibold">
@@ -95,7 +95,7 @@ export default async function AdminEmailsPage() {
 
         <div className="mt-5 divide-y divide-black/[0.06]">
           {history.length === 0 ? (
-            <div className="py-8 text-center text-sm text-black/35">
+            <div className="py-8 text-center text-sm text-black/55">
               No emails have been sent yet.
             </div>
           ) : (
@@ -111,18 +111,18 @@ export default async function AdminEmailsPage() {
                     </p>
 
                     {item.isTest && (
-                      <span className="rounded-full border border-amber-500/20 bg-amber-500/[0.07] px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.12em] text-amber-700">
+                      <span className="rounded-full border border-amber-500/20 bg-amber-500/[0.07] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-amber-700">
                         Test
                       </span>
                     )}
                   </div>
 
-                  <p className="mt-1 text-[11px] text-black/35">
+                  <p className="mt-1 text-[11px] text-black/55">
                     {formatDate(item.sentAt)}
                   </p>
                 </div>
 
-                <p className="text-xs font-semibold text-black/45">
+                <p className="text-xs font-semibold text-black/60">
                   {item.recipientCount} recipient
                   {item.recipientCount === 1 ? "" : "s"}
                 </p>

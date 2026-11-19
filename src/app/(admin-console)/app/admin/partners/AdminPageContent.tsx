@@ -77,11 +77,11 @@ function StatusBadge({ status }: { status: string }) {
         ? "border-amber-500/20 bg-amber-500/8 text-amber-700"
         : status === "needs_help"
           ? "border-red-500/15 bg-red-500/7 text-red-700"
-          : "border-black/[0.08] bg-black/[0.035] text-black/40";
+          : "border-black/[0.08] bg-black/[0.035] text-black/55";
 
   return (
     <span
-      className={`inline-flex rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${classes}`}
+      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${classes}`}
     >
       {label}
     </span>
@@ -162,7 +162,7 @@ export default async function AdminPartnersPage() {
           {partners.length === 0 ? (
             <div className="p-5 md:p-6">
               <div className="flex min-h-[250px] flex-col items-center justify-center rounded-2xl border border-dashed border-black/[0.12] bg-black/[0.018] px-6 text-center">
-                <Wallet size={23} className="text-black/25" />
+                <Wallet size={23} className="text-black/50" />
 
                 <p className="mt-4 text-sm font-semibold">
                   No partners added yet.
@@ -188,7 +188,7 @@ export default async function AdminPartnersPage() {
                       {partner.name}
                     </h3>
 
-                    <p className="mt-1 truncate text-xs text-black/40">
+                    <p className="mt-1 truncate text-xs text-black/55">
                       {partner.email}
                     </p>
                   </div>
@@ -293,7 +293,7 @@ function Datum({
 }) {
   return (
     <div className="min-w-0">
-      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/28">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-black/28">
         {label}
       </p>
 
@@ -325,7 +325,7 @@ function Stage({
 
       <p className="mt-3 text-sm font-semibold">{title}</p>
 
-      <p className="mt-1.5 text-xs leading-5 text-black/40">
+      <p className="mt-1.5 text-xs leading-5 text-black/55">
         {copy}
       </p>
     </div>

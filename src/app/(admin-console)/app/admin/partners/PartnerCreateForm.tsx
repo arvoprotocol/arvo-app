@@ -81,7 +81,7 @@ export function PartnerCreateForm() {
       >
         <div className="flex items-start justify-between gap-5">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#a9654f]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a9654f]">
               Strategic partner
             </p>
 
@@ -96,7 +96,7 @@ export function PartnerCreateForm() {
               setOpen(false);
               setError("");
             }}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-black/[0.08] bg-white text-black/40 transition hover:text-black"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-black/[0.08] bg-white text-black/55 transition hover:text-black"
             aria-label="Close"
           >
             <X size={15} />
@@ -130,7 +130,7 @@ export function PartnerCreateForm() {
           />
 
           <label className="block">
-            <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-black/35">
+            <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-black/55">
               Notes
             </span>
 
@@ -182,7 +182,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-black/35">
+      <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-black/55">
         {label}
       </span>
 
@@ -196,7 +196,7 @@ function Field({
       />
 
       {hint && (
-        <span className="mt-1.5 block text-[10px] leading-4 text-black/30">
+        <span className="mt-1.5 block text-[10px] leading-4 text-black/50">
           {hint}
         </span>
       )}

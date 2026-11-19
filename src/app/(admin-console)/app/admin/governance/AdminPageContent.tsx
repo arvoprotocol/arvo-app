@@ -162,7 +162,7 @@ export default function AdminGovernancePage() {
           />
 
           <div className="p-5 md:p-6">
-            <p className="text-sm leading-6 text-black/45">
+            <p className="text-sm leading-6 text-black/60">
               Once the destination authorities have been independently
               verified, the original deployment wallet must renounce every
               staking role.
@@ -199,7 +199,7 @@ export default function AdminGovernancePage() {
                   No generic role editor.
                 </p>
 
-                <p className="mt-1.5 text-xs leading-5 text-black/40">
+                <p className="mt-1.5 text-xs leading-5 text-black/55">
                   The console verifies the approved governance architecture
                   rather than exposing unrestricted grant or revoke controls.
                   Governance changes should follow the established Safe and
@@ -209,7 +209,7 @@ export default function AdminGovernancePage() {
             </div>
 
             <div className="mt-6 rounded-xl bg-black/[0.025] p-4">
-              <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/30">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-black/50">
                 Upgrade path
               </p>
 
@@ -268,7 +268,7 @@ function RoleCard({
         <ShieldCheck size={16} />
       </div>
 
-      <p className="mt-4 text-[9px] font-bold uppercase tracking-[0.14em] text-black/30">
+      <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.14em] text-black/50">
         {role}
       </p>
 
@@ -279,7 +279,7 @@ function RoleCard({
       </p>
 
       <div className="mt-4 border-t border-black/[0.05] pt-3">
-        <p className="text-[10px] text-black/30">
+        <p className="text-[10px] text-black/50">
           Actual holder: –
         </p>
       </div>
@@ -300,19 +300,19 @@ function AuthorityRow({
 }) {
   return (
     <div className="flex gap-3 py-4">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/[0.035] text-black/40">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/[0.035] text-black/55">
         {icon}
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs font-semibold">{label}</p>
-          <p className="truncate text-xs font-semibold text-black/45">
+          <p className="truncate text-xs font-semibold text-black/60">
             {value}
           </p>
         </div>
 
-        <p className="mt-1 text-[11px] leading-4 text-black/35">
+        <p className="mt-1 text-[11px] leading-4 text-black/55">
           {detail}
         </p>
       </div>
@@ -325,7 +325,7 @@ function CheckRow({ label }: { label: string }) {
     <div className="flex items-center justify-between gap-4 py-3.5">
       <span className="text-xs text-black/42">{label}</span>
 
-      <span className="flex items-center gap-1.5 text-[10px] font-semibold text-black/30">
+      <span className="flex items-center gap-1.5 text-[10px] font-semibold text-black/50">
         <CheckCircle2 size={13} />
         Awaiting verification
       </span>
@@ -345,11 +345,11 @@ function HandoffRole({
       <div>
         <p className="text-xs font-semibold">{role}</p>
         {note && (
-          <p className="mt-0.5 text-[10px] text-black/35">{note}</p>
+          <p className="mt-0.5 text-[10px] text-black/55">{note}</p>
         )}
       </div>
 
-      <span className="rounded-full bg-black/[0.04] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-black/35">
+      <span className="rounded-full bg-black/[0.04] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black/55">
         Unverified
       </span>
     </div>

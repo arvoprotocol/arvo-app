@@ -100,7 +100,7 @@ export default async function AdminInvitationsPage() {
           {invitations.length === 0 ? (
             <div className="p-5 md:p-6">
               <div className="flex min-h-[240px] flex-col items-center justify-center rounded-2xl border border-dashed border-black/[0.12] bg-black/[0.018] px-6 text-center">
-                <KeyRound size={22} className="text-black/25" />
+                <KeyRound size={22} className="text-black/50" />
 
                 <p className="mt-4 text-sm font-semibold">
                   No invitation codes yet.
@@ -132,12 +132,12 @@ export default async function AdminInvitationsPage() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span
-                          className={`inline-flex rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${
+                          className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${
                             status === "Available"
                               ? "border-emerald-500/20 bg-emerald-500/8 text-emerald-700"
                               : status === "Claimed"
                                 ? "border-[#c9846a]/15 bg-[#c9846a]/8 text-[#a9654f]"
-                                : "border-black/[0.08] bg-black/[0.035] text-black/40"
+                                : "border-black/[0.08] bg-black/[0.035] text-black/55"
                           }`}
                         >
                           {status}
@@ -204,7 +204,7 @@ function InvitationDatum({
 }) {
   return (
     <div className="min-w-0">
-      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/25">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-black/50">
         {label}
       </p>
       <p className="mt-1.5 truncate text-xs font-semibold text-black/60">

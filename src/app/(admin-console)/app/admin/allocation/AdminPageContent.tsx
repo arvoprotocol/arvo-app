@@ -62,12 +62,12 @@ export default function AdminAllocationPage() {
           />
 
           <div className="p-5 md:p-6">
-            <p className="max-w-2xl text-sm leading-6 text-black/45">
+            <p className="max-w-2xl text-sm leading-6 text-black/60">
               Select a pool and assign unused ARVO or USDG capacity to the
               protocol. Allocation is additive and cannot be reduced through
               the staking contract.
             </p>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-black/45">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-black/60">
               For a USDG vault, the USDG allocation is shown publicly as
               &ldquo;committed outside the app&rdquo;. Record only real, signed
               commitments. It fills capacity but earns no onchain reward, so
@@ -108,7 +108,7 @@ export default function AdminAllocationPage() {
                 Review allocation
               </button>
 
-              <p className="text-[11px] leading-5 text-black/35">
+              <p className="text-[11px] leading-5 text-black/55">
                 Transaction controls will become available after the staking
                 contract and authorised Vault Manager wallet are connected.
               </p>
@@ -161,7 +161,7 @@ export default function AdminAllocationPage() {
 
           <div className="p-5 md:p-6">
             <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-black/[0.12] bg-black/[0.018] px-6 text-center">
-              <Landmark size={20} className="text-black/25" />
+              <Landmark size={20} className="text-black/50" />
 
               <p className="mt-4 text-sm font-semibold">
                 No contract data yet.
@@ -225,7 +225,7 @@ function Field({
         />
 
         {suffix && (
-          <span className="flex items-center border-l border-black/[0.06] bg-black/[0.02] px-3 text-[10px] font-semibold text-black/35">
+          <span className="flex items-center border-l border-black/[0.06] bg-black/[0.02] px-3 text-[10px] font-semibold text-black/55">
             {suffix}
           </span>
         )}
@@ -243,7 +243,7 @@ function PoolMetric({
 }) {
   return (
     <div className="rounded-xl bg-black/[0.025] px-4 py-3">
-      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-black/30">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-black/50">
         {label}
       </p>
       <p className="mt-1.5 text-base font-semibold">{value}</p>
@@ -260,7 +260,7 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 py-3.5">
-      <span className="text-xs text-black/40">{label}</span>
+      <span className="text-xs text-black/55">{label}</span>
       <span className="text-xs font-semibold">{value}</span>
     </div>
   );

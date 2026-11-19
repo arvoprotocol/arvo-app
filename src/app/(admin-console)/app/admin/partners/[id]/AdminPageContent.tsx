@@ -99,7 +99,7 @@ export default async function PartnerManagementPage({
     <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
       <Link
         href="/app/admin/partners"
-        className="mb-7 inline-flex items-center gap-2 text-xs font-semibold text-black/40 transition hover:text-black"
+        className="mb-7 inline-flex items-center gap-2 text-xs font-semibold text-black/55 transition hover:text-black"
       >
         <ArrowLeft size={14} />
         Partners
@@ -182,7 +182,7 @@ export default async function PartnerManagementPage({
 
               {partner.walletChangeReason && (
                 <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/28">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-black/28">
                     Change reason
                   </p>
 
@@ -258,11 +258,11 @@ export default async function PartnerManagementPage({
             />
 
             <div className="p-5 md:p-6">
-              <p className="break-all rounded-xl bg-black/[0.025] p-4 font-mono text-[10px] leading-5 text-black/45">
+              <p className="break-all rounded-xl bg-black/[0.025] p-4 font-mono text-[10px] leading-5 text-black/60">
                 {registrationUrl}
               </p>
 
-              <p className="mt-3 text-[10px] leading-4 text-black/30">
+              <p className="mt-3 text-[10px] leading-4 text-black/50">
                 Treat this URL as private. Anyone with the link can access
                 this partner's wallet registration page.
               </p>
@@ -283,7 +283,7 @@ function Datum({
 }) {
   return (
     <div>
-      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/28">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-black/28">
         {label}
       </p>
 
@@ -305,7 +305,7 @@ function WalletRecord({
 }) {
   return (
     <div>
-      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/28">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-black/28">
         {label}
       </p>
 
@@ -333,7 +333,7 @@ function HistoryRow({
 }) {
   return (
     <div className="flex items-center gap-4 py-4">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black/[0.035] text-black/35">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black/[0.035] text-black/55">
         {icon}
       </div>
 
@@ -341,7 +341,7 @@ function HistoryRow({
         {label}
       </p>
 
-      <p className="text-right text-[11px] text-black/35">
+      <p className="text-right text-[11px] text-black/55">
         {value}
       </p>
     </div>

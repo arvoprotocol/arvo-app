@@ -100,7 +100,7 @@ export default async function AdminProjectsPage() {
           {projects.length === 0 ? (
             <div className="p-5 md:p-6">
               <div className="flex min-h-[240px] flex-col items-center justify-center rounded-2xl border border-dashed border-black/[0.12] bg-black/[0.018] px-6 text-center">
-                <FolderKanban size={22} className="text-black/25" />
+                <FolderKanban size={22} className="text-black/50" />
 
                 <p className="mt-4 text-sm font-semibold">
                   No projects yet.
@@ -130,7 +130,7 @@ export default async function AdminProjectsPage() {
                       {project.title}
                     </h3>
 
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-black/40">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-black/55">
                       <span>{project.location}</span>
                       <ProjectTitleBadge titleNumber={project.titleNumber}/>
                     </div>
@@ -201,10 +201,10 @@ function PublishBadge({
 
   return (
     <span
-      className={`inline-flex rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${
+      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${
         published
           ? "border-emerald-500/20 bg-emerald-500/8 text-emerald-700"
-          : "border-black/[0.08] bg-black/[0.035] text-black/40"
+          : "border-black/[0.08] bg-black/[0.035] text-black/55"
       }`}
     >
       {published ? "Published" : "Draft"}
@@ -218,7 +218,7 @@ function OperationalBadge({
   status: string;
 }) {
   return (
-    <span className="inline-flex rounded-full border border-[#c9846a]/15 bg-[#c9846a]/8 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#a9654f]">
+    <span className="inline-flex rounded-full border border-[#c9846a]/15 bg-[#c9846a]/8 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#a9654f]">
       {status}
     </span>
   );
@@ -233,7 +233,7 @@ function ProjectDatum({
 }) {
   return (
     <div>
-      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-black/28">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-black/28">
         {label}
       </p>
       <p className="mt-1.5 text-xs font-semibold">{value}</p>
@@ -256,7 +256,7 @@ function FlowStep({
         {number}
       </p>
       <p className="mt-3 text-sm font-semibold">{title}</p>
-      <p className="mt-1.5 text-xs leading-5 text-black/40">{copy}</p>
+      <p className="mt-1.5 text-xs leading-5 text-black/55">{copy}</p>
     </div>
   );
 }

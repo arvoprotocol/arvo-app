@@ -162,7 +162,7 @@ export function AdminLogin() {
             <div className="flex gap-3">
               <Wallet
                 size={16}
-                className="mt-0.5 shrink-0 text-white/35"
+                className="mt-0.5 shrink-0 text-white/55"
               />
 
               <div>
@@ -170,7 +170,7 @@ export function AdminLogin() {
                   Wallet verification
                 </p>
 
-                <p className="mt-1 text-[11px] leading-5 text-white/35">
+                <p className="mt-1 text-[11px] leading-5 text-white/55">
                   You will be asked to sign a one-time message. This
                   does not submit a blockchain transaction and does
                   not cost gas.
@@ -207,9 +207,9 @@ export function AdminLogin() {
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 px-4 py-3 text-xs font-semibold text-white/75 transition hover:bg-white/5 disabled:opacity-50">
             <Wallet size={15} /> Use browser wallet
           </button>
-          <p className="mt-3 text-center text-[11px] leading-5 text-white/40">Keep your wallet on your phone. No recovery phrase is needed on this computer.</p>
+          <p className="mt-3 text-center text-[11px] leading-5 text-white/55">Keep your wallet on your phone. No recovery phrase is needed on this computer.</p>
 
-          <p className="mt-5 text-center text-[10px] leading-4 text-white/25">
+          <p className="mt-5 text-center text-[10px] leading-4 text-white/50">
             Access is restricted to authorised Arvo administrators.
           </p>
         </div>

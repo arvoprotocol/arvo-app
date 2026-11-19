@@ -224,14 +224,14 @@ export function EmailComposer({
 
             <div>
               <h2 className="text-lg font-semibold">Compose email</h2>
-              <p className="mt-0.5 text-xs text-black/40">
+              <p className="mt-0.5 text-xs text-black/55">
                 Create a branded Arvo email for {audienceLabel}. Keep this tab open while sending. Each recipient receives a separate email.
               </p>
             </div>
           </div>
 
           <div className="mt-7">
-            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/35">
+            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/55">
               Subject
             </label>
 
@@ -244,11 +244,11 @@ export function EmailComposer({
 
           <div className="mt-5">
             <div className="flex items-center justify-between gap-4">
-              <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/35">
+              <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/55">
                 Email content
               </label>
 
-              <span className="text-[10px] text-black/30">
+              <span className="text-[10px] text-black/50">
                 Use [First name] to personalise
               </span>
             </div>
@@ -291,7 +291,7 @@ export function EmailComposer({
 
             <div className="my-5 border-t border-black/[0.07]" />
 
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/35">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/55">
               Add manually
             </p>
 
@@ -320,7 +320,7 @@ export function EmailComposer({
 
             <div className="mt-5 space-y-2">
               {recipients.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-black/10 px-4 py-5 text-center text-xs text-black/35">
+                <div className="rounded-xl border border-dashed border-black/10 px-4 py-5 text-center text-xs text-black/55">
                   No recipients added yet.
                 </div>
               ) : (
@@ -335,7 +335,7 @@ export function EmailComposer({
                           {recipient.name}
                         </p>
                       )}
-                      <p className="truncate text-[11px] text-black/40">
+                      <p className="truncate text-[11px] text-black/55">
                         {recipient.email}
                       </p>
                     </div>
@@ -345,7 +345,7 @@ export function EmailComposer({
                       onClick={() =>
                         removeRecipient(recipient.email)
                       }
-                      className="text-black/25 transition hover:text-red-600"
+                      className="text-black/50 transition hover:text-red-600"
                     >
                       <X size={15} />
                     </button>
@@ -354,7 +354,7 @@ export function EmailComposer({
               )}
             </div>
 
-            <p className="mt-3 text-[11px] text-black/35">
+            <p className="mt-3 text-[11px] text-black/55">
               {recipients.length} recipient
               {recipients.length === 1 ? "" : "s"} selected
             </p>
@@ -366,7 +366,7 @@ export function EmailComposer({
               <h2 className="font-semibold">Test email</h2>
             </div>
 
-            <p className="mt-2 text-xs leading-5 text-black/40">
+            <p className="mt-2 text-xs leading-5 text-black/55">
               Send the finished branded email to yourself before sending it to the real list.
             </p>
 
@@ -428,7 +428,7 @@ export function EmailComposer({
         <div className="rounded-2xl border border-black/[0.08] bg-white p-5 shadow-sm md:p-7">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/35">
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/55">
                 Email preview
               </p>
               <p className="mt-1 text-sm font-semibold">{subject}</p>

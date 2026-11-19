@@ -111,7 +111,7 @@ export default function AdminOverviewPage() {
             <div className="mt-5 flex items-start gap-3 rounded-xl bg-black/[0.035] p-4">
               <ShieldCheck
                 size={17}
-                className="mt-0.5 shrink-0 text-black/40"
+                className="mt-0.5 shrink-0 text-black/55"
               />
 
               <div>
@@ -119,7 +119,7 @@ export default function AdminOverviewPage() {
                   Protected balance rule
                 </p>
 
-                <p className="mt-1 text-[11px] leading-5 text-black/40">
+                <p className="mt-1 text-[11px] leading-5 text-black/55">
                   Token balance must cover user principal, committed reward
                   liabilities and reserved pool reward budgets.
                 </p>
@@ -221,7 +221,7 @@ export default function AdminOverviewPage() {
 
           <div className="p-5 md:p-6">
             <div className="flex items-center gap-3 rounded-xl border border-black/[0.07] bg-black/[0.025] p-4">
-              <WalletCards size={18} className="text-black/35" />
+              <WalletCards size={18} className="text-black/55" />
 
               <div>
                 <p className="text-sm font-semibold">
@@ -313,7 +313,7 @@ function MiniStat({
 }) {
   return (
     <div className="rounded-xl bg-black/[0.035] p-4">
-      <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-black/28">
+      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/28">
         {label}
       </p>
       <p className="mt-2 text-2xl font-semibold tracking-[-0.04em]">
@@ -348,7 +348,7 @@ function OperationCard({
 
       <ArrowRight
         size={15}
-        className="mt-auto pt-4 box-content text-black/25 transition group-hover:translate-x-1 group-hover:text-black"
+        className="mt-auto pt-4 box-content text-black/50 transition group-hover:translate-x-1 group-hover:text-black"
       />
     </a>
   );

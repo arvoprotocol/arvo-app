@@ -189,7 +189,7 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
     <div className="px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
       <Link
         href="/app/admin/pools"
-        className="mb-6 inline-flex items-center gap-2 text-xs font-semibold text-black/40 transition hover:text-black"
+        className="mb-6 inline-flex items-center gap-2 text-xs font-semibold text-black/55 transition hover:text-black"
       >
         <ArrowLeft size={14} />
         Back to pools
@@ -207,7 +207,7 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
           <label className="text-xs font-semibold">Preview visibility<select value={visibility} onChange={e => setVisibility(e.target.value as "hidden" | "openingSoon")} disabled={busy || linked || Boolean(hash)} className="mt-2 w-full rounded-xl border border-black/10 p-3 text-sm font-normal"><option value="hidden">Hidden</option><option value="openingSoon">Opening soon</option></select></label>
           <label className="text-xs font-semibold">Display order<input value={sortOrder} onChange={e => setSortOrder(e.target.value)} inputMode="numeric" disabled={busy || linked || Boolean(hash)} className="mt-2 w-full rounded-xl border border-black/10 p-3 text-sm font-normal" /></label>
           <div className="md:col-span-3"><button type="button" onClick={saveDraft} disabled={busy || linked || Boolean(hash) || Boolean(result)} className="rounded-xl bg-[#07090b] px-5 py-3 text-sm font-semibold text-white disabled:opacity-40">{busy ? "Saving…" : savedDraft ? "Save draft changes" : "Save vault draft"}</button>
-            <p className="mt-3 text-xs leading-5 text-black/45">{linked ? `Linked to pool #${savedDraft?.linkedPoolId}. On-chain terms are locked.` : "Drafts can be saved without an opening date. Opening soon previews have no deposit button."}</p>
+            <p className="mt-3 text-xs leading-5 text-black/60">{linked ? `Linked to pool #${savedDraft?.linkedPoolId}. On-chain terms are locked.` : "Drafts can be saved without an opening date. Opening soon previews have no deposit button."}</p>
             {draftMessage && <p role="status" className="mt-3 text-sm text-emerald-700">{draftMessage}</p>}
           </div>
         </div>
@@ -259,7 +259,7 @@ export default function CreatePoolPage({ draft }: { draft?: VaultDraft } = {}) {
                   catch (e) { setError(e instanceof Error ? e.message : "Check the reference price."); }
                 }}>Calculate $500 / 110% minimums</button>
               </div>
-              <p className="text-[11px] leading-5 text-black/45">Rounds the base up to the next 10 ARVO. USDG-reward eligibility is 110% of that amount, approximately $550 at this same price. Save each draft after applying the approved amounts.</p>
+              <p className="text-[11px] leading-5 text-black/60">Rounds the base up to the next 10 ARVO. USDG-reward eligibility is 110% of that amount, approximately $550 at this same price. Save each draft after applying the approved amounts.</p>
               <div className="grid gap-5 md:grid-cols-2">
                 <Field label="Minimum ARVO" suffix="ARVO" placeholder="Approved token amount" />
                 <Field label="ARVO minimum for USDG rewards" suffix="ARVO" placeholder="110% of the base" />
@@ -451,7 +451,7 @@ function CustomConfiguration() {
       </div>
 
       <div className="border-t border-black/[0.06] px-5 py-4 md:px-6">
-        <div className="flex items-center gap-3 text-xs text-black/40">
+        <div className="flex items-center gap-3 text-xs text-black/55">
           <LockKeyhole size={14} />
           Mixed ARVO/USDG reward mode remains disabled. Its value-based split is not
           introduced.
@@ -516,7 +516,7 @@ function Capacity() {
       </div>
 
       <div className="border-t border-black/[0.06] px-5 py-4 md:px-6">
-        <p className="text-xs leading-5 text-black/40">
+        <p className="text-xs leading-5 text-black/55">
           Protocol allocation can only be added against a defined capacity.
           An uncapped asset cannot receive protocol allocation.
         </p>
@@ -578,7 +578,7 @@ function TypeCard({
         </span>
       </div>
 
-      <p className="mt-2 max-w-sm text-xs leading-5 text-black/40">{copy}</p>
+      <p className="mt-2 max-w-sm text-xs leading-5 text-black/55">{copy}</p>
     </button>
   );
 }
@@ -610,13 +610,13 @@ function Field({
           className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm outline-none placeholder:text-black/20"
         />
 
-        <span className="flex items-center border-l border-black/[0.06] bg-black/[0.02] px-3 text-[10px] font-semibold text-black/35">
+        <span className="flex items-center border-l border-black/[0.06] bg-black/[0.02] px-3 text-[10px] font-semibold text-black/55">
           {suffix}
         </span>
       </div>
 
       {help && (
-        <span className="mt-1.5 block text-[11px] leading-4 text-black/35">
+        <span className="mt-1.5 block text-[11px] leading-4 text-black/55">
           {help}
         </span>
       )}
@@ -647,7 +647,7 @@ function DateField({
         className="mt-2 w-full rounded-xl border border-black/[0.09] bg-white px-4 py-3 text-sm outline-none focus:border-[#c9846a]/50"
       />
 
-      <span className="mt-1.5 block text-[11px] leading-4 text-black/35">
+      <span className="mt-1.5 block text-[11px] leading-4 text-black/55">
         {help}
       </span>
     </label>
@@ -680,7 +680,7 @@ function MiniMetric({
 }) {
   return (
     <div className="rounded-xl bg-black/[0.025] px-3 py-2.5">
-      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-black/30">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-black/50">
         {label}
       </p>
       <p className="mt-1 text-sm font-semibold">{value}</p>
@@ -697,7 +697,7 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 py-3.5">
-      <span className="text-xs text-black/40">{label}</span>
+      <span className="text-xs text-black/55">{label}</span>
       <span className="min-w-0 break-words text-right text-xs font-semibold">{value}</span>
     </div>
   );
@@ -716,7 +716,7 @@ function CardDetailsControls() {
         <label className="block">
           <span className="text-xs font-semibold text-black/65">Project this vault supports</span>
           <input value={values.projectSlug} onChange={e => changeValue("projectSlug", e.target.value.trim().toLowerCase())} placeholder="project-slug" className="mt-2 w-full rounded-xl border border-black/[0.09] bg-white px-4 py-3 text-sm outline-none placeholder:text-black/20 focus:border-[#c9846a]/50" />
-          <span className="mt-2 block text-[11px] leading-5 text-black/45">The slug from Admin → Projects (the end of the project’s link). Shows a thumbnail in “What am I staking in?”. Leave empty for a general explanation only.</span>
+          <span className="mt-2 block text-[11px] leading-5 text-black/60">The slug from Admin → Projects (the end of the project’s link). Shows a thumbnail in “What am I staking in?”. Leave empty for a general explanation only.</span>
         </label>
         <label className="block md:col-span-2">
           <span className="text-xs font-semibold text-black/65">“What am I staking in?” explanation</span>

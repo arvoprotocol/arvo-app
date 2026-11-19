@@ -48,7 +48,7 @@ export function IntelligenceAdmin({ configured, model, projects, documents, ques
     <Panel className="mt-8"><PanelHeader eyebrow="Step 1" title="Projects in the beta" /><div className="divide-y divide-black/[0.06] px-5 md:px-6">
       {projects.length === 0 && <p className="py-5 text-sm text-black/50">No projects yet. Create one under Projects.</p>}
       {projects.map(p => <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
-        <div><p className="text-sm font-semibold">{p.title}</p><p className="text-xs text-black/45">{p.publishStatus === "published" ? "Published" : "Not published: hidden from users even if enabled"} · {documents.filter(d => d.projectId === p.id && d.status === "ready").length} ready document(s)</p></div>
+        <div><p className="text-sm font-semibold">{p.title}</p><p className="text-xs text-black/60">{p.publishStatus === "published" ? "Published" : "Not published: hidden from users even if enabled"} · {documents.filter(d => d.projectId === p.id && d.status === "ready").length} ready document(s)</p></div>
         <button disabled={busy} onClick={() => run(async () => { await json({ action: "enable", projectId: p.id, enabled: !p.enabled }); return p.enabled ? "Project removed from the beta." : "Project added to the beta."; })} className={`rounded-xl px-4 py-2 text-xs font-semibold disabled:opacity-40 ${p.enabled ? "bg-[#07090b] text-white" : "border border-black/15"}`}>{p.enabled ? "Enabled · turn off" : "Enable"}</button>
       </div>)}
     </div></Panel>
@@ -70,12 +70,12 @@ export function IntelligenceAdmin({ configured, model, projects, documents, ques
       <label className="text-xs font-semibold text-black/60">Document date<input name="documentDate" type="date" className={field} /></label>
       <label className="text-xs font-semibold text-black/60 md:col-span-2">Source (optional, not shown to users)<input name="source" maxLength={300} placeholder="e.g. HM Land Registry, auction house legal pack" className={field} /></label>
       <label className="text-xs font-semibold text-black/60 md:col-span-2">PDF<input name="file" type="file" accept="application/pdf" required className={field} /></label>
-      <p className="text-xs leading-5 text-black/45 md:col-span-2">Users never see or download the file. Answers quote facts with the title, page and date above, and personal details (names, addresses, contact details of private individuals) are withheld.</p>
+      <p className="text-xs leading-5 text-black/60 md:col-span-2">Users never see or download the file. Answers quote facts with the title, page and date above, and personal details (names, addresses, contact details of private individuals) are withheld.</p>
       <button disabled={busy} className="w-fit rounded-xl bg-[#07090b] px-5 py-3 text-sm font-semibold text-white disabled:opacity-40">{busy ? "Working…" : "Upload and index"}</button>
     </form></Panel>
 
     <Panel className="mt-8"><PanelHeader eyebrow="Library" title="Documents" action={<StatusPill>{documents.length} total</StatusPill>} /><div className="overflow-x-auto px-5 pb-4 md:px-6">
-      {documents.length === 0 ? <p className="py-5 text-sm text-black/50">No documents yet.</p> : <table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="border-b border-black/10 text-xs text-black/45"><th className="py-3 pr-3">Project</th><th className="px-3">Title</th><th className="px-3">Type</th><th className="px-3">Date</th><th className="px-3">Pages</th><th className="px-3">Status</th><th className="pl-3" /></tr></thead><tbody>
+      {documents.length === 0 ? <p className="py-5 text-sm text-black/50">No documents yet.</p> : <table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="border-b border-black/10 text-xs text-black/60"><th className="py-3 pr-3">Project</th><th className="px-3">Title</th><th className="px-3">Type</th><th className="px-3">Date</th><th className="px-3">Pages</th><th className="px-3">Status</th><th className="pl-3" /></tr></thead><tbody>
         {documents.map(d => <tr key={d.id} className="border-b border-black/[0.06]"><td className="py-3 pr-3 text-xs">{titles.get(d.projectId) ?? `#${d.projectId}`}</td><td className="px-3 font-medium">{d.title}</td><td className="px-3 text-xs">{DOC_TYPES[d.docType] ?? d.docType}</td><td className="px-3 text-xs">{d.documentDate ?? "–"}</td><td className="px-3 text-xs">{d.pages}</td><td className="px-3 text-xs">{d.status === "ready" ? `Ready · ${d.chunks} passages` : "No text found"}</td>
           <td className="pl-3"><button disabled={busy} onClick={() => { if (window.confirm(`Delete “${d.title}” and its indexed text?`)) run(async () => { await json({ action: "delete", documentId: d.id }); return "Document deleted."; }); }} className="text-xs font-semibold text-red-700 disabled:opacity-40">Delete</button></td></tr>)}
       </tbody></table>}
@@ -84,7 +84,7 @@ export function IntelligenceAdmin({ configured, model, projects, documents, ques
     <Panel className="mt-8"><PanelHeader eyebrow="Review" title="Recent questions" /><div className="divide-y divide-black/[0.06] px-5 md:px-6">
       {questions.length === 0 && <p className="py-5 text-sm text-black/50">No questions yet.</p>}
       {questions.map(q => <div key={q.id} className="py-4">
-        <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-semibold">{q.question}</p><span className="text-xs text-black/45">{titles.get(q.projectId) ?? `#${q.projectId}`} · {when(q.createdAt)}{q.rating === 1 ? " · 👍" : q.rating === -1 ? " · 👎" : ""}</span></div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-semibold">{q.question}</p><span className="text-xs text-black/60">{titles.get(q.projectId) ?? `#${q.projectId}`} · {when(q.createdAt)}{q.rating === 1 ? " · 👍" : q.rating === -1 ? " · 👎" : ""}</span></div>
         <p className="mt-1 text-sm text-black/60">{q.summary}</p>
         {q.feedback && <p className="mt-1 text-xs text-amber-800">Feedback: {q.feedback}</p>}
       </div>)}

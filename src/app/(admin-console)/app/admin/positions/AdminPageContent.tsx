@@ -63,7 +63,7 @@ export default function AdminPositionsPage() {
           />
 
           <div className="p-5 md:p-6">
-            <p className="text-sm leading-6 text-black/45">
+            <p className="text-sm leading-6 text-black/60">
               Retrieve a single staking position directly from the contract.
             </p>
 
@@ -94,7 +94,7 @@ export default function AdminPositionsPage() {
           />
 
           <div className="p-5 md:p-6">
-            <p className="text-sm leading-6 text-black/45">
+            <p className="text-sm leading-6 text-black/60">
               Retrieve every staking position ID associated with a wallet.
             </p>
 
@@ -173,11 +173,11 @@ export default function AdminPositionsPage() {
           <PanelHeader
             eyebrow="Lineage"
             title="Position chain"
-            action={<GitBranch size={15} className="text-black/30" />}
+            action={<GitBranch size={15} className="text-black/50" />}
           />
 
           <div className="p-5 md:p-6">
-            <p className="text-xs leading-5 text-black/40">
+            <p className="text-xs leading-5 text-black/55">
               Restakes and compound settlements create a linked history between
               the previous and next position IDs.
             </p>
@@ -188,18 +188,18 @@ export default function AdminPositionsPage() {
                 value="–"
               />
 
-              <div className="flex justify-center text-black/20">
+              <div className="flex justify-center text-black/50">
                 <ArrowRight size={15} className="rotate-90" />
               </div>
 
               <div className="rounded-xl border border-[#c9846a]/30 bg-[#c9846a]/[0.06] px-4 py-4">
-                <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#a9654f]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#a9654f]">
                   Selected
                 </p>
                 <p className="mt-1 text-sm font-semibold">Position –</p>
               </div>
 
-              <div className="flex justify-center text-black/20">
+              <div className="flex justify-center text-black/50">
                 <ArrowRight size={15} className="rotate-90" />
               </div>
 
@@ -221,7 +221,7 @@ export default function AdminPositionsPage() {
 
           <div className="p-5 md:p-6">
             <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-black/[0.12] bg-black/[0.018] px-6 text-center">
-              <Search size={20} className="text-black/25" />
+              <Search size={20} className="text-black/50" />
 
               <p className="mt-4 text-sm font-semibold">
                 No wallet selected.
@@ -272,7 +272,7 @@ function DetailGroup({
 }) {
   return (
     <div className="bg-white/70 p-5 md:p-6">
-      <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#ad7058]">
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#ad7058]">
         {title}
       </p>
 
@@ -302,7 +302,7 @@ function LineageItem({
 }) {
   return (
     <div className="rounded-xl border border-black/[0.07] px-4 py-3">
-      <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-black/30">
+      <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-black/50">
         {label}
       </p>
       <p className="mt-1 text-sm font-semibold">{value}</p>
