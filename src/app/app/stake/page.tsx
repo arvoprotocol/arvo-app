@@ -83,10 +83,10 @@ export default function StakePage(){
   <CardStatus dot={`${tone} ${open?"animate-pulse":""}`} label={status} bonus={bonusLabel?{label:bonusLabel.replace(" bonus pot"," bonus"),tip:<>On top of the fixed reward, a bonus pot{liveBonus?` of ${tokenDisplay(liveBonus.pot,18)} ARVO`:""} is shared between everyone in this vault by how much they stake. {fullBps!==null||plannedBonus>0?<>If the vault fills up it works out at about {fullBps!==null?bpsLabel(fullBps):`${plannedBonus}%`} extra; </>:null}if it is less full, each share is bigger.{bonusNow&&bonusNow!=="Fixed"?` If you joined now: ${bonusNow}.`:""} Shares are fixed when deposits close; claim the bonus when your stake unlocks. Paid by a separate bonus contract, independently tested with automated security analysis and AI review (not part of the Soken audit).</>}:null}/>
   <CardTitle title={title} share={<VaultShare title={title} days={days} anchor={`vault-pool-${row.id}`} dark/>}/>
   <LockLine days={days} className="mt-1"/>
-  <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+  <div className="mt-5">
    <div>{products.map(key=>{const i=keys.indexOf(key),rate=(i===0||i===3?row.vault.arvoRewardBps:row.vault.usdcRewardBps)/100;const pays=i===0||i===3?"ARVO":"USDG";
     return <div key={key}><p className="text-xs leading-5 text-white/60">{productLabels[key]}</p>{key==="dualMixed"?<MixedRewardRates arvoRate={row.vault.arvoRewardBps/100} usdcRate={row.vault.usdcRewardBps/100} share={row.vault.mixedArvoShareBps/100} days={days} dark/>:<><AnnualReward percent={rate} days={days} dark prominent/><RewardLine percent={rate} days={days} asset={pays} bonus={Boolean(bonusLabel)} note={i>=3?"before dual uplift":undefined}/></>}</div>;})}</div>
-   <dl className="w-full space-y-2 self-end text-xs leading-5 md:max-w-[24rem] md:border-l md:border-white/10 md:pl-6">
+   <dl className="mt-5 space-y-2 border-t border-white/10 pt-4 text-xs leading-5">
     <TermRow label="Minimum deposit" value={minRow?.value??"–"} usdArvo={minRow?.usd} tip={minRow?.i===1?"Rewards are paid in USDG, worked out from the ARVO price fixed when you deposit.":undefined}/>
     <TermRow label="Vault size" value={size} usdArvo={!usdgOnly&&row.pool.maxArvoPrincipal>0n?Number(formatUnits(row.pool.maxArvoPrincipal,18)):undefined} tip="The most this vault can hold. Once it is full, it stops taking new deposits."/>
     {bonusNow?<TermRow label="Bonus if you join now" value={bonusNow==="Fixed"?"Shares fixed":bonusNow} tip="Your share of the bonus pot at today's vault size. It gets smaller as more ARVO joins and is fixed when deposits close."/>:<TermRow label="Reward paid in" value={paidIn}/>}
@@ -95,7 +95,7 @@ export default function StakePage(){
   <AcquisitionFunding state={row.acquisition} dark/>
   <div className="mt-5 border-t border-white/10 pt-4"><VaultCapacity row={row} bare/></div>
   <div className="mt-4 space-y-3"><VaultMomentum poolId={row.id} flush/><StakingIn asset={usdgOnly?"USDG":"ARVO"} project={extras[row.id]?.project} acquisition={Boolean(row.acquisition)}/>{products.length===1&&products[0]==="arvoArvo"?<VaultCalculator row={row}/>:<EstimateButton onClick={()=>setCalculator(row)}/>}</div>
-  <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+  <div className="mt-auto space-y-3 pt-4">
    <VaultTiming opensAt={dateFor(row.pool.opensAt)} closesAt={dateFor(row.pool.closesAt)} dark inline/>
    <button data-sound="confirm" disabled={busy||Boolean(pending)||!availability.available} onClick={()=>selected?.id===row.id?setSelected(null):choose(row)} aria-expanded={selected?.id===row.id} className="w-full rounded-xl bg-[#f8f2ed] px-4 py-3.5 text-sm font-semibold text-[#07090b] transition hover:bg-white disabled:opacity-40">{selected?.id===row.id?"Hide stake details":availability.available ? open ? "Stake in this vault" : "View terms" : availabilityLabel(availability.reason,beforeOpen)}</button>
   </div>
