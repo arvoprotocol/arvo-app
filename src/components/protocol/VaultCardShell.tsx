@@ -1,7 +1,7 @@
 "use client";
 import { useLayoutEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowUpRight, ChevronDown, MapPin, Sparkles } from "lucide-react";
+import { ArrowUpRight, Calculator, ChevronDown, MapPin } from "lucide-react";
 import { InfoTip } from "./InfoTip";
 import { appPath } from "@/lib/protocol/app-url";
 import type { VaultProject } from "@/lib/staking/vault-draft";
@@ -50,9 +50,10 @@ export function PlannedActivity() {
 
 /** Corner strip for vaults with a shared bonus pot. */
 export function BonusRibbon({ label, tip }: { label: string; tip: ReactNode }) {
-  return <div className="absolute right-0 top-0 z-10 flex items-center gap-1.5 rounded-bl-2xl bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.4),transparent_35%),linear-gradient(135deg,#b9775d_0%,#e2a98e_45%,#f0d2b0_70%,#a98bf0_140%)] py-2 pl-4 pr-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[#07090b] shadow-[0_8px_24px_rgba(201,132,106,.25)]">
-    <Sparkles size={13} />{label}
-    <InfoTip label="About the bonus" align="right" size={12}>{tip}</InfoTip>
+  // Sits over the card's corner (-1px) so no border line shows around it.
+  return <div className="absolute -right-px -top-px z-10 flex items-center gap-1.5 rounded-bl-2xl rounded-tr-[26px] bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.4),transparent_35%),linear-gradient(135deg,#b9775d_0%,#e2a98e_45%,#f0d2b0_70%,#a98bf0_140%)] py-2 pl-4 pr-4 text-[12px] font-extrabold uppercase tracking-[0.1em] text-[#07090b]">
+    {label}
+    <InfoTip ink label="About the bonus" align="right" size={13}>{tip}</InfoTip>
   </div>;
 }
 
@@ -112,4 +113,10 @@ export function useRowEndOrder(cardId: string | null): number | null {
     return () => window.removeEventListener("resize", measure);
   }, [cardId]);
   return value;
+}
+
+/** The one style for "Estimate my reward" everywhere (matches the inline estimator). */
+export const estimateStyle = "flex w-full items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs font-semibold text-[#e2a98e] hover:border-[#c9846a]/40 hover:bg-white/[0.05]";
+export function EstimateButton({ onClick }: { onClick: () => void }) {
+  return <button type="button" aria-haspopup="dialog" onClick={onClick} className={estimateStyle}><span className="inline-flex items-center gap-2"><Calculator size={14} />Estimate my reward</span><ChevronDown size={14} className="-rotate-90" /></button>;
 }

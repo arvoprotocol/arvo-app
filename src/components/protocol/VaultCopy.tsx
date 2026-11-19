@@ -6,7 +6,7 @@ import { useArvoPrice, usdApprox } from "@/hooks/useArvoPrice";
 /** "≈ $448" next to an ARVO amount, using the live market price. Renders nothing until a price is known. */
 export function UsdHint({ arvo, dark = true, prefix = "", suffix = "" }: { arvo: number; dark?: boolean; prefix?: string; suffix?: string }) {
   const price = useArvoPrice(), usd = usdApprox(arvo, price);
-  return usd ? <span className={`${prefix ? "" : "ml-1.5 "}font-normal ${dark ? "text-white/40" : "text-black/40"}`} title="Approximate value at the current ARVO market price">{prefix}≈ {usd}{suffix}</span> : null;
+  return usd ? <span className={`${prefix ? "" : "ml-1.5 "}whitespace-nowrap font-normal ${dark ? "text-white/40" : "text-black/40"}`} title="Approximate value at the current ARVO market price">{prefix}≈ {usd}{suffix}</span> : null;
 }
 
 /** "Locked for 60 days from your deposit (i)" */
@@ -20,19 +20,19 @@ export function LockLine({ days, dark = true, className = "" }: { days: number; 
 }
 
 /** "10% fixed reward over 60 days (i)" */
-export function RewardLine({ percent, days, asset, dark = true, note }: { percent: number; days: number; asset: string; dark?: boolean; note?: string }) {
+export function RewardLine({ percent, days, asset, dark = true, note, bonus = false }: { percent: number; days: number; asset: string; dark?: boolean; note?: string; bonus?: boolean }) {
   return <p className={`mt-3 flex flex-wrap items-center gap-x-1 text-sm ${dark ? "text-white/55" : "text-black/55"}`}>
-    <span className={`font-semibold ${dark ? "text-white/85" : "text-black/85"}`}>{percent}% fixed reward</span> over {termLabel(days)}{note ? ` · ${note}` : ""}
+    <span className={`font-semibold ${dark ? "text-white/85" : "text-black/85"}`}>{percent}% fixed reward</span>{bonus && <span className={`font-semibold ${dark ? "text-[#e2a98e]" : "text-[#ad7058]"}`}>+ bonus</span>} <span className="inline-flex items-center gap-1 whitespace-nowrap">over {termLabel(days)}{note ? ` · ${note}` : ""}
     <InfoTip dark={dark} label="How the reward is fixed">
-      You receive {percent}% of your deposit, paid in {asset}, when the term ends. The amount is locked in the moment you deposit: it does not change if prices move or more people join.
-    </InfoTip>
+      You receive {percent}% of your deposit, paid in {asset}, when the term ends. The amount is locked in the moment you deposit: it does not change if prices move or more people join.{bonus ? " The bonus pot is shared on top of this; see the bonus strip on this card." : ""}
+    </InfoTip></span>
   </p>;
 }
 
 /** Label + value pair used in the card's terms list. */
 export function TermRow({ label, value, tip, dark = true, usdArvo }: { label: string; value: string; tip?: string; dark?: boolean; usdArvo?: number }) {
-  return <div className="flex items-center justify-between gap-3">
-    <dt className={`flex items-center gap-1 ${dark ? "text-white/50" : "text-black/50"}`}>{label}{tip && <InfoTip dark={dark} label={`About ${label.toLowerCase()}`}>{tip}</InfoTip>}</dt>
-    <dd className={`text-right font-semibold tabular-nums ${dark ? "text-white/85" : "text-black/85"}`}>{value}{usdArvo !== undefined && <UsdHint arvo={usdArvo} dark={dark} />}</dd>
+  return <div className="flex items-start justify-between gap-3">
+    <dt className={`flex shrink-0 items-center gap-1 whitespace-nowrap ${dark ? "text-white/50" : "text-black/50"}`}>{label}{tip && <InfoTip dark={dark} label={`About ${label.toLowerCase()}`}>{tip}</InfoTip>}</dt>
+    <dd className={`min-w-0 text-right font-semibold tabular-nums ${dark ? "text-white/85" : "text-black/85"}`}><span className="whitespace-nowrap">{value}</span>{usdArvo !== undefined && <span className="block text-[11px] leading-4 [&>span]:ml-0"><UsdHint arvo={usdArvo} dark={dark} /></span>}</dd>
   </div>;
 }

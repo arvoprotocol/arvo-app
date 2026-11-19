@@ -28,7 +28,7 @@ export function VaultCalculator({ row }: { row: PoolRow }) {
   const rates = annualRates(row.vault.arvoRewardBps / 100, days);
   const start = Math.max(now, Number(row.pool.opensAt));
   const belowMin = amount > 0n && amount < row.vault.minArvo;
-  return <details className="group rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 open:pb-4">
+  return <details className="group rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 hover:border-[#c9846a]/40 open:pb-4">
     <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-xs font-semibold text-[#e2a98e] [&::-webkit-details-marker]:hidden"><span className="inline-flex items-center gap-2"><Calculator size={14} />Estimate my reward</span><ChevronDown size={14} className="transition-transform duration-200 group-open:rotate-180" /></summary>
     <label className="mt-3 block text-[11px] text-white/50">How much ARVO would you stake?
       <input value={input} onChange={e => setInput(e.target.value)} inputMode="decimal" placeholder={fmt(row.vault.minArvo, 18, 0)} className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c9846a]/60" />

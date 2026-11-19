@@ -21,7 +21,9 @@ const standard = { minArvo: "1500000", minArvoUsdc: "1500000", maxArvo: "1000000
 const plan = [
   { match: ["community welcome"], order: 1 },
   { match: ["first edition"], order: 2, values: { bonusPct: "5" } },
-  { match: ["genesis pilot"], order: 3, values: { bonusPct: "5" }, linkProject: true },
+  // Opens two days after First Edition closes (29 Nov), with the same 5-day window. Planned dates only:
+  // Genesis opens for real only once the plot-sale contribution has funded its rewards.
+  { match: ["genesis pilot"], order: 3, values: { bonusPct: "5", opens: "2026-12-01T12:00", closes: "2026-12-06T12:00" }, linkProject: true },
   { match: ["usdg 12-month vault", "whole site finance"], order: 4, title: "Whole Site Finance", values: { usdcRate: "14", minUsdc: "10000" } },
   { match: ["build"], order: 5, values: standard },
   { match: ["advance"], order: 6, values: standard },
