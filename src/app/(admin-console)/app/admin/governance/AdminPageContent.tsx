@@ -33,7 +33,15 @@ export default function AdminGovernancePage() {
       setError(""); setHeld(roles); setPaused(p); setContracts(new Set(codes.filter(([, c]) => c).map(([a]) => a)));
     } catch (e) { setError(e instanceof Error ? e.message : "Could not read the contract."); }
   }, [account]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    let cancelled = false;
+    const addresses = [...savedGovernanceAddresses().map(s => s.address), ...(account ? [account] : [])];
+    if (!stakingConnection()) return;
+    Promise.all([rolesHeld(addresses), isPaused(), Promise.all(addresses.map(async a => [a, await isContract(a)] as const))])
+      .then(([roles, p, codes]) => { if (!cancelled) { setError(""); setHeld(roles); setPaused(p); setContracts(new Set(codes.filter(([, c]) => c).map(([a]) => a))); } })
+      .catch(e => { if (!cancelled) setError(e instanceof Error ? e.message : "Could not read the contract."); });
+    return () => { cancelled = true; };
+  }, [account]);
 
   async function check() {
     setLookupError(""); setLookupResult(null);
