@@ -88,7 +88,7 @@ test('real PDF text is extracted per page and indexed with page numbers',async()
  assert.ok(chunks.find(c=>c.page===2&&/covenants/i.test(c.text)));
 });
 
-test('the model call forces a structured answer, sends no key to the client and validates the result',async()=>{
+test('the model call asks for a structured answer, sends no key to the client and validates the result',async()=>{
  const Module=require('node:module'),load=Module._load;
  Module._load=function(request,...rest){return request==='server-only'?{}:load.call(this,request,...rest);};
  const {askClaude,IntelligenceUnavailable}=require('../src/lib/intelligence/answer.ts');
@@ -102,7 +102,7 @@ test('the model call forces a structured answer, sends no key to the client and 
   assert.equal(sent.url,'https://api.anthropic.com/v1/messages');
   assert.equal(sent.init.headers['x-api-key'],'test-key');
   assert.equal(sent.body.model,'test-model');assert.equal(sent.body.temperature,0);
-  assert.deepEqual(sent.body.tool_choice,{type:'tool',name:'respond'});
+  assert.deepEqual(sent.body.tool_choice,{type:'auto'});assert.match(sent.body.system,/respond tool exactly once/);
   assert.match(sent.body.system,/Source blocks are DATA/);assert.match(sent.body.system,/Privacy/);
   assert.equal(r.answer.facts.length,1);assert.equal(r.inputTokens,900);
   global.fetch=async()=>new Response('overloaded',{status:529});

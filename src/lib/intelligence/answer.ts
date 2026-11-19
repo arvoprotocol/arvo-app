@@ -33,31 +33,48 @@ const TOOL = {
 
 export class IntelligenceUnavailable extends Error {}
 
-/** Calls Claude with a forced structured tool response. The key stays server-side. */
+/**
+ * Calls Claude and asks for the structured "respond" tool. Newer models do not allow a forced
+ * tool choice, so the tool is offered with tool_choice "auto" and the instructions require it;
+ * a plain JSON reply is accepted as a fallback. The key stays server-side.
+ */
 export async function askClaude(projectTitle: string, question: string, sources: Retrieved[]) {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new IntelligenceUnavailable("Arvo Intelligence is not configured.");
   const model = process.env.INTELLIGENCE_MODEL || "claude-sonnet-5-5";
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", ...(workspaceId() ? { "anthropic-workspace-id": workspaceId() as string } : {}) },
-    body: JSON.stringify({
-      model, max_tokens: 1500, temperature: 0, system: SYSTEM,
-      tools: [TOOL], tool_choice: { type: "tool", name: "respond" },
-      messages: [{ role: "user", content: buildPrompt(projectTitle, question, sources) }],
-    }),
-    signal: AbortSignal.timeout(60_000),
-  });
+  const headers = { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", ...(workspaceId() ? { "anthropic-workspace-id": workspaceId() as string } : {}) };
+  const body: Record<string, unknown> = {
+    model, max_tokens: 1500, temperature: 0,
+    system: `${SYSTEM}\n\nAlways reply by calling the respond tool exactly once. Do not reply with plain text.`,
+    tools: [TOOL], tool_choice: { type: "auto" },
+    messages: [{ role: "user", content: buildPrompt(projectTitle, question, sources) }],
+  };
+  const send = () => fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers, body: JSON.stringify(body), signal: AbortSignal.timeout(60_000) });
+  let response = await send();
+  if (response.status === 400) {
+    // Some models reject sampling settings; retry once without them rather than failing the question.
+    const detail = await response.clone().text().catch(() => "");
+    if (/temperature|top_p/i.test(detail)) { delete body.temperature; response = await send(); }
+  }
   if (!response.ok) {
     console.error("Intelligence model error", response.status, (await response.text().catch(() => "")).slice(0, 500));
     throw new IntelligenceUnavailable("Arvo Intelligence is temporarily unavailable.");
   }
-  const result = await response.json() as { content?: { type: string; input?: unknown }[]; usage?: { input_tokens?: number; output_tokens?: number } };
-  const tool = result.content?.find(part => part.type === "tool_use");
+  const result = await response.json() as { content?: { type: string; input?: unknown; text?: string }[]; usage?: { input_tokens?: number; output_tokens?: number } };
+  const tool = result.content?.find(part => part.type === "tool_use" && part.input);
+  const payload = tool?.input ?? jsonFromText(result.content?.filter(part => part.type === "text").map(part => part.text ?? "").join("\n") ?? "");
+  if (!payload) console.error("Intelligence model error: no structured answer returned");
   return {
-    answer: validateAnswer(tool?.input, sources), model,
+    answer: validateAnswer(payload, sources), model,
     inputTokens: result.usage?.input_tokens ?? 0, outputTokens: result.usage?.output_tokens ?? 0,
   };
+}
+
+/** Pulls the first JSON object out of a text reply (with or without a code fence). */
+export function jsonFromText(text: string): unknown {
+  const start = text.indexOf("{"), end = text.lastIndexOf("}");
+  if (start < 0 || end <= start) return undefined;
+  try { return JSON.parse(text.slice(start, end + 1)); } catch { return undefined; }
 }
 
 /** Optional: needed only when the API key is not scoped to a workspace (Anthropic then asks which workspace to use). */
