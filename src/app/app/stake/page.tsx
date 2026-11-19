@@ -76,7 +76,6 @@ export default function StakePage(){
  const usdgOnly=products.length>0&&products.every(k=>k==="usdcUsdc");
  const minRow=products.map(key=>{const i=keys.indexOf(key);return {key,i,n:Number(formatUnits(i===2?row.vault.minUsdc:i===1?row.crossMinimum:row.vault.minArvo,i===2?6:18)),unit:i===2?"USDG":i>=3?"ARVO + USDG":"ARVO",value:i===2?`${tokenDisplay(row.vault.minUsdc,6)} USDG`:i>=3?`${tokenDisplay(row.vault.minArvo,18)} ARVO + ${tokenDisplay(row.vault.minUsdc,6)} USDG`:`${tokenDisplay(i===1?row.crossMinimum:row.vault.minArvo,18)} ARVO`,usd:i===0||i===1?Number(formatUnits(i===1?row.crossMinimum:row.vault.minArvo,18)):undefined};})[0];
  const sizeN=Number(formatUnits(usdgOnly?row.pool.maxUsdcPrincipal:row.pool.maxArvoPrincipal,usdgOnly?6:18));
- const size=usdgOnly?(row.pool.maxUsdcPrincipal>0n?`${tokenDisplay(row.pool.maxUsdcPrincipal,6)} USDG`:"No limit"):(row.pool.maxArvoPrincipal>0n?`${tokenDisplay(row.pool.maxArvoPrincipal,18)} ARVO`:"No limit");
  const paidIn=[...new Set(products.map(k=>{const i=keys.indexOf(k);return i===5?"ARVO + USDG":i===0||i===3?"ARVO":"USDG";}))].join(" or ");
  const bonusNow=liveBonus&&!liveBonus.snapshotTaken?(liveBonus.eligible===0n?"Whole pot":`+${bpsLabel(bonusBps(liveBonus,liveBonus.eligible))}`):liveBonus?.snapshotTaken?"Fixed":null;
  return <VaultCardShell key={row.id} id={`vault-pool-${row.id}`} order={cardOrder(orders[row.id]??0,row.id,false)} highlighted={selected?.id===row.id}
