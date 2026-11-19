@@ -19,7 +19,8 @@ const db = new Database(path);
 // no fixed dates yet (they show "Opening date: to be announced" until scheduled in admin).
 const standard = { minArvo: "1500000", minArvoUsdc: "1500000", maxArvo: "100000000", opens: "", closes: "" };
 const plan = [
-  { match: ["community welcome"], order: 1 },
+  // Hidden for launch (kept in admin, can be shown again by setting it back to "Opening soon").
+  { match: ["community welcome"], order: 1, hide: true },
   { match: ["first edition"], order: 2, values: { bonusPct: "5" } },
   // First Edition deposits close 29 Nov and each stake unlocks 60 days after it was made (23 to 28 Jan).
   // Genesis opens as the first ones unlock and stays open 5 days past the last, so everyone can move across.
@@ -27,15 +28,15 @@ const plan = [
   // Genesis opens for real only once the plot-sale contribution has funded its rewards.
   // Size: the 3,000 USDG base reserve at 5% covers $60,000 of stake. At ~$0.0003 per ARVO that is
   // ~200M ARVO. Re-check against the reference price fixed just before Genesis opens.
-  { match: ["genesis pilot"], order: 3, values: { bonusPct: "5", opens: "2027-01-23T12:00", closes: "2027-02-02T12:00", maxArvo: "200000000" }, linkProject: true },
-  { match: ["usdg 12-month vault", "whole site finance", "full site land acquisition"], order: 4, title: "Full Site Land Acquisition", values: { usdcRate: "14", minUsdc: "10000" } },
+  { match: ["genesis pilot"], order: 3, values: { bonusPct: "5", opens: "2027-01-23T12:00", closes: "2027-02-02T12:00", maxArvo: "200000000", explainer: "plotSale" }, linkProject: true },
+  { match: ["usdg 12-month vault", "whole site finance", "full site land acquisition"], order: 4, title: "Full Site Land Acquisition", values: { usdcRate: "14", minUsdc: "10000", explainer: "fullSite" } },
   { match: ["build"], order: 5, values: standard },
-  { match: ["advance"], order: 6, values: standard },
+  { match: ["advance"], order: 6, values: standard, hide: true },
   { match: ["compound"], order: 7, values: standard },
-  { match: ["foundation"], order: 8, values: standard },
+  { match: ["foundation"], order: 8, values: standard, hide: true },
 ];
 
-const rows = db.prepare("select id, title, valuesJson, sortOrder, linkedPoolId, revision from StakingVaultDraft").all();
+const rows = db.prepare("select id, title, valuesJson, sortOrder, linkedPoolId, revision, visibility from StakingVaultDraft").all();
 // Genesis is backed by a plot sale from the Ripe project. Override with --genesis-project <slug>.
 const argIndex = process.argv.indexOf("--genesis-project");
 const genesisSlug = argIndex >= 0 ? process.argv[argIndex + 1] : undefined;
@@ -55,12 +56,15 @@ const tx = db.transaction(() => {
       const live = row.linkedPoolId !== null;
       if (step.values && !live) Object.assign(values, step.values);
       if (step.values?.bonusPct && live) values.bonusPct = step.values.bonusPct; // display-only, safe on live vaults
+      if (step.values?.explainer && live) values.explainer = step.values.explainer; // display-only, safe on live vaults
+      const visibility = step.hide ? "hidden" : row.visibility;
+      if (step.hide && live) console.log(`! ${row.title} is a live vault: hiding it from the cards needs an onchain visibility change (not done here).`);
       if (step.linkProject && genesisProject) values.projectSlug = genesisProject.slug;
       const title = step.title ?? row.title;
-      const changed = JSON.stringify(values) !== before || title !== row.title || row.sortOrder !== step.order;
+      const changed = JSON.stringify(values) !== before || title !== row.title || row.sortOrder !== step.order || visibility !== row.visibility;
       if (!changed) { console.log(`· ${row.title}: already arranged`); continue; }
-      console.log(`${apply ? "✓" : "→"} ${row.title}${title !== row.title ? ` → "${title}"` : ""}: position ${step.order}${live ? " (live vault: order, name and bonus strip only)" : ""}${step.linkProject && values.projectSlug ? `, project ${values.projectSlug}${genesisProject ? ` (${genesisProject.title})` : ""}` : ""}`);
-      if (apply) db.prepare("update StakingVaultDraft set title=?, valuesJson=?, sortOrder=?, revision=revision+1, updatedAt=? where id=?").run(title, JSON.stringify(values), step.order, now, row.id);
+      console.log(`${apply ? "✓" : "→"} ${row.title}${title !== row.title ? ` → "${title}"` : ""}: position ${step.order}${visibility !== row.visibility ? ", hidden" : ""}${live ? " (live vault: order, name and bonus strip only)" : ""}${step.linkProject && values.projectSlug ? `, project ${values.projectSlug}${genesisProject ? ` (${genesisProject.title})` : ""}` : ""}`);
+      if (apply) db.prepare("update StakingVaultDraft set title=?, valuesJson=?, sortOrder=?, visibility=?, revision=revision+1, updatedAt=? where id=?").run(title, JSON.stringify(values), step.order, visibility, now, row.id);
       changes++;
     }
   }

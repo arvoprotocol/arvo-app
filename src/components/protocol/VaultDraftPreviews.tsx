@@ -20,23 +20,23 @@ import { VaultGridSkeleton } from "./VaultSkeleton";
 
 function draftUnits(raw: string | undefined, decimals: number) { try { return tokenAmount(raw || "0", decimals, "Amount"); } catch { return 0n; } }
 
-export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, hideDrafts=false, pending=false }: { hideDrafts?: boolean; compact?: boolean; refreshKey?: number; children?: ReactNode; pending?: boolean }) {
+export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, hideDrafts=false, pending=false, onlyProject, emptyMessage }: { hideDrafts?: boolean; compact?: boolean; refreshKey?: number; children?: ReactNode; pending?: boolean; onlyProject?: string; emptyMessage?: string }) {
   const [rows, setRows] = useState<DraftPreview[]>([]), [error, setError] = useState(""), [loading, setLoading] = useState(true), [selectedId, setSelectedId] = useState<number | null>(null), [retry, setRetry] = useState(0);
   useEffect(() => {
     const controller = new AbortController(); setLoading(true); setError("");if(hideDrafts)setRows([]);
     fetch("/app/vault-previews", { cache: "no-store", signal: controller.signal }).then(async response => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Vault previews are unavailable.");
-      if (!controller.signal.aborted) setRows(hideDrafts?[]:data.previews);
+      if (!controller.signal.aborted) setRows(hideDrafts ? [] : onlyProject ? (data.previews as DraftPreview[]).filter(p => p.projectSlug === onlyProject) : data.previews);
     }).catch(e => { if (!controller.signal.aborted) setError(e.message); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [refreshKey, retry,hideDrafts]);
+  }, [refreshKey, retry, hideDrafts, onlyProject]);
   useEffect(()=>{if(!rows.length)return;const hash=window.location.hash.slice(1);if(/^vault-preview-\d+$/.test(hash))document.getElementById(hash)?.scrollIntoView({block:"center"});},[rows]);
   const selected = rows.find(row => row.id === selectedId);
   if (error && !Children.count(children)) return <div role="alert" className="mt-4 rounded-2xl border border-black/10 p-5 text-sm"><p>{error}</p><button onClick={() => setRetry(n => n + 1)} className="mt-3 inline-flex items-center gap-2 font-semibold"><RefreshCw size={14} />Retry previews</button></div>;
   // Hold the whole grid until live vaults and planned vaults are both known, so cards never reshuffle.
   if (pending || (loading && !rows.length)) return <VaultGridSkeleton count={Math.max(2, Math.min(4, Children.count(children)))} />;
-  if (!rows.length && !Children.count(children)) return null;
+  if (!rows.length && !Children.count(children)) return emptyMessage ? <p className="mt-6 rounded-2xl border border-black/10 bg-white p-5 text-sm text-black/60">{emptyMessage}</p> : null;
   return <section className="arvo-fade mt-8" aria-label="Vaults">
       {error && <p role="alert" className="mb-4 text-xs text-red-700">{error}</p>}
       <div className="grid items-stretch gap-5 lg:grid-cols-2">{children}{(compact ? rows.slice(0, 3) : rows).map(row => { const bonus = Number(row.bonusPct || 0); const pays = (key: keyof Products) => key === "arvoArvo" || key === "dualArvo" ? "ARVO" : "USDG"; const enabled = (Object.keys(productLabels) as (keyof Products)[]).filter(key => row.products[key]); const first = enabled[0];
@@ -61,7 +61,7 @@ export function VaultDraftPreviews({ compact = false, refreshKey = 0, children, 
             { label: "Reward in", value: first ? pays(first) : "–" },
           ]} /></div>
           <div className="mt-5 border-t border-white/10 pt-4">{committed > 0n ? <CommittedCapacity bare preview asset="USDG" cap={draftUnits(row.maxUsdc, 6)} committed={committed} deposited={0n} decimals={6} committedLabel="committed outside the app" /> : <PlannedCapacity size={size} />}</div>
-          <CardList><PlannedActivity bare /><StakingIn bare asset={row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc ? "USDG" : "ARVO"} project={row.project} /><EstimateButton bare onClick={() => setSelectedId(row.id)} /></CardList>
+          <CardList><PlannedActivity bare /><StakingIn bare asset={row.products.usdcUsdc && !row.products.arvoArvo && !row.products.arvoUsdc ? "USDG" : "ARVO"} project={row.project} kind={row.explainer} /><EstimateButton bare onClick={() => setSelectedId(row.id)} /></CardList>
           <div className="mt-auto space-y-2.5 pt-4">
             <VaultTiming opensAt={row.opensAt} closesAt={row.closesAt} preview dark inline />
             <p className="text-right text-xs text-white/55">Deposits are not open yet</p>

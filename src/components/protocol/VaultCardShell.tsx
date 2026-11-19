@@ -55,7 +55,8 @@ export function PlannedActivity({ bare = false }: { bare?: boolean }) {
 }
 
 /** "What am I staking in?": the land model in plain words, plus the linked project when there is one. */
-export function StakingIn({ asset, project, acquisition = false, bare = false }: { asset: string; project?: VaultProject | null; acquisition?: boolean; bare?: boolean }) {
+export function StakingIn({ asset, project, acquisition = false, bare = false, kind = "" }: { asset: string; project?: VaultProject | null; acquisition?: boolean; bare?: boolean; kind?: string }) {
+  const site = project?.title ?? "the linked project";
   return <details className={`group ${bare ? "" : "rounded-2xl border border-white/10 bg-white/[0.03]"}`}>
     <summary className="flex min-h-[2.75rem] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-xs font-semibold text-white/85 [&::-webkit-details-marker]:hidden">
       <span className="flex min-w-0 items-center gap-3">
@@ -65,16 +66,25 @@ export function StakingIn({ asset, project, acquisition = false, bare = false }:
       <ChevronDown size={14} className="shrink-0 text-white/45 transition-transform duration-200 group-open:rotate-180" />
     </summary>
     <div className="space-y-2.5 border-t border-white/10 px-4 py-4 text-xs leading-5 text-white/70">
-      {acquisition
-        ? <p>Your {asset} deposit helps fund the purchase of the site below. It is repaid to you, with the fixed reward, at the end of the term, once the vault has been repaid.</p>
-        : <p>Your {asset} stays in the audited staking contract for the whole term and comes back to you at the end. It is not spent on land.</p>}
-      <p>Rewards come from Arvo’s land model: we buy land, divide it into plots and sell them, mostly at auction. Part of the profit from those sales funds the rewards paid to stakers.</p>
+      {kind === "fullSite" ? <>
+        <p>You are staking in the purchase of a whole site. Your {asset} goes towards buying the land. Arvo then divides it into around 20 plots and sells them at auction, and the proceeds repay your deposit and pay your reward.</p>
+        <p>Your deposit is locked for the full term, with no early withdrawal. Land sales can take longer or achieve less than planned.</p>
+        <div className="rounded-xl border border-[#c9846a]/30 bg-[#c9846a]/[0.08] px-3 py-2.5 text-white/80"><p className="font-semibold text-[#e2a98e]">Full details come when this vault opens onchain</p><p className="mt-1">The site, purchase price, timeline and payment schedule are published before deposits open. On deals like this, rewards are usually locked for the first 3 months while the site is prepared, with returns starting from month 4.</p></div>
+      </> : kind === "plotSale" ? <>
+        <p>Your {asset} stays in the audited staking contract for the whole term and comes back to you at the end. It is not spent on land.</p>
+        <p>Rewards for this vault come from selling one plot at {site}. Deposits open only once that sale has funded the rewards, so the fixed reward is already in place when you stake.</p>
+      </> : <>
+        {acquisition
+          ? <p>Your {asset} deposit helps fund the purchase of the site below. It is repaid to you, with the fixed reward, at the end of the term, once the vault has been repaid.</p>
+          : <p>Your {asset} stays in the audited staking contract for the whole term and comes back to you at the end. It is not spent on land.</p>}
+        <p>Rewards come from Arvo’s land model: we buy land, divide it into plots and sell them, mostly at auction. Part of the profit from those sales funds the rewards paid to stakers.</p>
+      </>}
       {project && <Link href={appPath(`/app/projects/${project.slug}`)} className="flex items-center gap-3 rounded-xl border border-white/10 p-2.5 text-white/80 hover:border-[#c9846a]/40 hover:bg-white/[0.04]">
         {project.image ? <img src={project.image} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" /> : <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#c9846a]/15 text-[#e2a98e]"><MapPin size={16} /></span>}
         <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-white">{project.title}</span><span className="block truncate text-[11px] text-white/45">{project.location}{project.stage ? ` · ${project.stage}` : ""}</span></span>
         <ArrowUpRight size={15} className="shrink-0 text-[#e2a98e]" />
       </Link>}
-      <p className="text-[11px] text-white/40">Staking does not give you ownership of any land or project.</p>
+      <p className="text-[11px] text-white/55">Staking does not give you ownership of any land or project.</p>
     </div>
   </details>;
 }

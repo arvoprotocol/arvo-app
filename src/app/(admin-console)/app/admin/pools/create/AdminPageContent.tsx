@@ -718,6 +718,14 @@ function CardDetailsControls() {
           <input value={values.projectSlug} onChange={e => changeValue("projectSlug", e.target.value.trim().toLowerCase())} placeholder="project-slug" className="mt-2 w-full rounded-xl border border-black/[0.09] bg-white px-4 py-3 text-sm outline-none placeholder:text-black/20 focus:border-[#c9846a]/50" />
           <span className="mt-2 block text-[11px] leading-5 text-black/45">The slug from Admin → Projects (the end of the project’s link). Shows a thumbnail in “What am I staking in?”. Leave empty for a general explanation only.</span>
         </label>
+        <label className="block md:col-span-2">
+          <span className="text-xs font-semibold text-black/65">“What am I staking in?” explanation</span>
+          <select value={values.explainer} onChange={e => changeValue("explainer", e.target.value)} className="mt-2 w-full rounded-xl border border-black/[0.09] bg-white px-4 py-3 text-sm outline-none focus:border-[#c9846a]/50">
+            <option value="">General: deposit stays in the contract, rewards from land sales</option>
+            <option value="plotSale">Plot sale: rewards funded by selling a plot from the linked project</option>
+            <option value="fullSite">Full site: deposits fund buying a whole site to subdivide and auction</option>
+          </select>
+        </label>
       </div>
     </Panel>
   );

@@ -34,7 +34,8 @@ const keys=Object.keys(productLabels) as (keyof Products)[];
 const modes=[[0,0],[0,1],[1,1],[2,0],[2,1],[2,2]] as const;
 export default function StakePage(){
  const now=useVaultClock();
- const [projectFilter,setProjectFilter]=useState("");useEffect(()=>{const key=new URLSearchParams(window.location.search).get("project");if(key&&/^0x[0-9a-fA-F]{64}$/.test(key))setProjectFilter(key.toLowerCase());},[]);
+ const [projectFilter,setProjectFilter]=useState<{hash:string;slug:string}|null>(null);useEffect(()=>{const q=new URLSearchParams(window.location.search),key=q.get("project")??"",extra=q.get("hash")??"";const isHash=(v:string)=>/^0x[0-9a-fA-F]{64}$/.test(v);if(isHash(key))setProjectFilter({hash:key.toLowerCase(),slug:""});else if(/^[a-z0-9-]{1,120}$/.test(key))setProjectFilter({slug:key,hash:isHash(extra)?extra.toLowerCase():""});},[]);
+ const linkedTo=(row:PoolRow)=>!projectFilter||Boolean(projectFilter.hash&&row.acquisition?.projectId.toLowerCase()===projectFilter.hash)||Boolean(projectFilter.slug&&extras[row.id]?.project?.slug===projectFilter.slug);
  const [calculator,setCalculator]=useState<PoolRow|null>(null);
  const state=useStakingData(),[pools,setPools]=useState<PoolRow[]>([]),[poolError,setPoolError]=useState(""),[loading,setLoading]=useState(true),[selected,setSelected]=useState<PoolRow|null>(null),[product,setProduct]=useState(0),[arvoAmount,setArvoAmount]=useState("100000"),[usdcAmount,setUsdcAmount]=useState("1000"),[quote,setQuote]=useState<bigint|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[pending,setPending]=useState<Hash|null>(null),[revision,setRevision]=useState(0);const sending=useRef(false),quoteVersion=useRef(0);
  const {titles,orders,extras,ready:metadataReady}=usePoolMetadata(revision);
@@ -63,8 +64,8 @@ export default function StakePage(){
  {(poolError||state.error||error)&&<p role="alert" className="mt-4 rounded-xl bg-red-50 p-4 text-sm text-red-800">{poolError||state.error||error}</p>}
  {pending&&<div className="mt-4 break-all text-xs">Submitted: {pending}<button disabled={busy} onClick={checkPending} className="ml-3 underline">Check confirmation</button></div>}
  {!state.configured?<p className="mt-8">Planned vaults · deposits opening soon.</p>:null}
- {projectFilter&&<p className="mt-6 text-sm">Showing vaults linked to this project. <button onClick={()=>{setProjectFilter("");window.history.replaceState(null,"","/app/stake");}} className="underline">Show all vaults</button>{!loading&&!pools.some(p=>p.acquisition?.projectId.toLowerCase()===projectFilter)&&<span className="block mt-2 text-black/50">No linked vaults have been published for this project yet.</span>}</p>}
- <VaultDraftPreviews refreshKey={revision} hideDrafts={Boolean(projectFilter)} pending={state.configured&&(loading||!bonusReady||!metadataReady)}>{pools.filter(row=>!projectFilter||row.acquisition?.projectId.toLowerCase()===projectFilter).map(row=>{
+ {projectFilter&&<p className="mt-6 text-sm">Showing vaults linked to this project. <button onClick={()=>{setProjectFilter(null);window.history.replaceState(null,"","/app/stake");}} className="underline">Show all vaults</button></p>}
+ <VaultDraftPreviews refreshKey={revision} hideDrafts={Boolean(projectFilter&&!projectFilter.slug)} onlyProject={projectFilter?.slug||undefined} emptyMessage={projectFilter&&!loading?"No vaults linked to this project have been published yet.":undefined} pending={state.configured&&(loading||!bonusReady||!metadataReady)}>{pools.filter(linkedTo).map(row=>{
  const availability=vaultAvailability(row);
  const closed=!row.pool.enabled||row.pool.finalized||(now!==null&&row.pool.closesAt!==0n&&BigInt(Math.floor(now/1000))>=row.pool.closesAt);
  const products=keys.filter((_,i)=>row.products?(row.products&2**i)!==0:i===0&&row.vault.arvoStakeEnabled&&row.vault.arvoRewardEnabled||i===2&&row.vault.usdcStakeEnabled&&row.vault.usdcRewardEnabled||i>=3&&row.vault.dualStakeEnabled&&(i===3?row.vault.arvoRewardEnabled:row.vault.usdcRewardEnabled));
@@ -94,7 +95,7 @@ export default function StakePage(){
   ]}/></div>
   <AcquisitionFunding state={row.acquisition} dark/>
   <div className="mt-5 border-t border-white/10 pt-4"><VaultCapacity row={row} bare/></div>
-  <CardList><VaultMomentum poolId={row.id} bare/><StakingIn bare asset={usdgOnly?"USDG":"ARVO"} project={extras[row.id]?.project} acquisition={Boolean(row.acquisition)}/>{products.length===1&&products[0]==="arvoArvo"?<VaultCalculator row={row} bare/>:<EstimateButton bare onClick={()=>setCalculator(row)}/>}</CardList>
+  <CardList><VaultMomentum poolId={row.id} bare/><StakingIn bare asset={usdgOnly?"USDG":"ARVO"} project={extras[row.id]?.project} kind={extras[row.id]?.explainer} acquisition={Boolean(row.acquisition)}/>{products.length===1&&products[0]==="arvoArvo"?<VaultCalculator row={row} bare/>:<EstimateButton bare onClick={()=>setCalculator(row)}/>}</CardList>
   <div className="mt-auto space-y-2.5 pt-4">
    <VaultTiming opensAt={dateFor(row.pool.opensAt)} closesAt={dateFor(row.pool.closesAt)} dark inline/>
    {selected?.id===row.id?<button type="button" onClick={()=>setSelected(null)} aria-expanded className="ml-auto block text-xs font-semibold text-[#e2a98e] hover:text-white">Hide stake details</button>

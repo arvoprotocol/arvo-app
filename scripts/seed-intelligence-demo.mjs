@@ -4,6 +4,7 @@
 //
 //   DATABASE_URL=file:/path/to/db node scripts/seed-intelligence-demo.mjs
 //   DATABASE_URL=file:/path/to/db node scripts/seed-intelligence-demo.mjs --remove
+//   DATABASE_URL=file:/path/to/db node scripts/seed-intelligence-demo.mjs --remove --enable ripe   (then switch a real project on)
 //
 // --remove deletes the sample project and every demo document, and switches Intelligence off for any
 // project left with no documents (undoing an earlier run on a real project).
@@ -41,6 +42,15 @@ if (flag("--remove")) {
   });
   tx();
   console.log(`Removed ${docs.length} demo documents${demo ? " and the sample project" : ""}. Intelligence was switched off for any project left without documents.`);
+  // --enable <slug> switches Intelligence on for a real project (no documents are added or changed).
+  const enableSlug = value("--enable");
+  if (enableSlug) {
+    const real = db.prepare("select id, title, publishStatus from Project where slug=?").get(enableSlug);
+    if (!real) throw new Error(`No project with slug "${enableSlug}".`);
+    const at = new Date().toISOString();
+    db.prepare("insert into IntelligenceProject (projectId, enabled, updatedAt) values (?,1,?) on conflict(projectId) do update set enabled=1, updatedAt=excluded.updatedAt").run(real.id, at);
+    console.log(`Intelligence switched on for ${real.title}${real.publishStatus === "published" ? "" : " (note: this project is not published, so it will not appear until it is)"}. Upload its documents in Admin → Intelligence.`);
+  }
   process.exit(0);
 }
 

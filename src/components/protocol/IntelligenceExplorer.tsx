@@ -63,10 +63,11 @@ export function IntelligenceExplorer({ projects, initialSlug }: { projects: Inte
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e2a98e]">Arvo Intelligence</p>
           <h1 className="mt-6 text-4xl font-semibold leading-[1.02] tracking-[-0.045em] md:text-5xl lg:text-6xl">Know the land.<br />Understand the model.</h1>
-          <p className="mt-6 max-w-md text-lg leading-8 text-white/60">Explore the evidence behind Arvo’s land projects. Answers come only from Arvo’s project records and documents, with sources.</p>
+          <p className="mt-6 max-w-md text-lg leading-8 text-white/70">Explore the evidence behind Arvo’s land projects. Answers come only from Arvo’s project records and documents, with sources.</p>
           <div className="mt-8 h-px w-16 bg-[#c9846a]" />
           <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e2a98e]">Beta preview</p>
-          <p className="mt-2 max-w-md text-sm leading-6 text-white/50">Answers can be incomplete. They are not legal, survey, planning or investment advice, and staking does not give ownership of land.</p>
+          <p className="mt-2 max-w-md text-sm leading-6 text-white/75">In the beta you can analyse <span className="font-semibold text-white">Ripe</span>, the land behind the Genesis Pilot vault. Full access across every Arvo site is coming soon.</p>
+          <p className="mt-3 max-w-md text-xs leading-5 text-white/50">Answers can be incomplete. They are not legal, survey, planning or investment advice, and staking does not give ownership of land.</p>
         </div>
 
         <div className="rounded-[24px] border border-[#c9846a]/30 bg-[#f6f2ec] p-5 text-[#07090b] md:p-7">
@@ -134,5 +135,26 @@ export function IntelligenceExplorer({ projects, initialSlug }: { projects: Inte
       </div>
       <p className="mt-5 text-[11px] leading-5 text-black/45">Beta. Answers use only Arvo’s project records and documents, may be incomplete, and are not legal, survey, planning, valuation or investment advice. Personal details from documents are never shown. Staking ARVO does not give ownership of land.</p>
     </section>}
+
+    <section aria-labelledby="intelligence-next" className="rounded-[24px] border border-black/[0.08] bg-white p-6 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="intelligence-next" className="text-2xl font-semibold tracking-[-0.03em]">Where Arvo Intelligence goes next</h2>
+        <span className="rounded-full border border-black/15 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-black/55">Planned, not live yet</span>
+      </div>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-black/60">The same source-backed answers, beyond Arvo’s own sites.</p>
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {nextUses.map(u => <div key={u.title} className="rounded-2xl border border-black/[0.07] bg-[#f6f2ec] p-5">
+          <p className="text-sm font-semibold">{u.title}</p>
+          <p className="mt-2 text-xs leading-5 text-black/65">{u.copy}</p>
+        </div>)}
+      </div>
+    </section>
   </div>;
 }
+
+const nextUses = [
+  { title: "Every Arvo site", copy: "Title, access, utilities, comparable sales and location for each Arvo project, as its documents are added." },
+  { title: "Land outside Arvo", copy: "Bring a site you are looking at and get a cited summary of its documents, with the gaps to check clearly marked." },
+  { title: "Other real-world projects", copy: "Source-cited summaries of other real-world-asset projects on Robinhood Chain, so Arvo is the place to check first." },
+  { title: "Sales data and alerts", copy: "Comparable sales from open Land Registry data, plus updates when a project’s documents or milestones change." },
+];

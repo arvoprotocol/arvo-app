@@ -7,7 +7,10 @@ export const standardPools = [
   {kind:"COMPOUND",name:"Compound",days:180,arvo:"10",usdc:"6.5"},
   {kind:"FOUNDATION",name:"Foundation",days:365,arvo:"22",usdc:"14"},
 ] as const;
-export const initialValues = {duration:"120",arvoRate:"0",usdcRate:"0",dualBoost:"10",boostCap:"15",minArvo:"",minArvoUsdc:"",minUsdc:"1000",opens:"",closes:"",maxArvo:"0",maxUsdc:"0",mixedShare:"50",committedUsdc:"0",bonusPct:"0",projectSlug:""};
+/** Which "What am I staking in?" explanation a vault card shows. Empty means the general one. */
+export const explainerKinds = ["plotSale", "fullSite"] as const;
+export type ExplainerKind = typeof explainerKinds[number];
+export const initialValues = {duration:"120",arvoRate:"0",usdcRate:"0",dualBoost:"10",boostCap:"15",minArvo:"",minArvoUsdc:"",minUsdc:"1000",opens:"",closes:"",maxArvo:"0",maxUsdc:"0",mixedShare:"50",committedUsdc:"0",bonusPct:"0",projectSlug:"",explainer:""};
 export type FormValues = typeof initialValues;
 export const initialProducts = {arvoArvo:true,arvoUsdc:false,usdcUsdc:false,dualArvo:false,dualUsdc:false,dualMixed:false};
 export type Products = typeof initialProducts;
@@ -50,6 +53,7 @@ export function preparePool(type:PoolType,kind:StandardKind,v:FormValues,p:Produ
  if(committedUsdc>BigInt(0)&&(maxUsdc===BigInt(0)||committedUsdc>=maxUsdc))throw new StakingInputError("USDG committed outside the app must be below a defined USDG capacity, leaving room for onchain deposits.");
  if(v.bonusPct&&!/^\d{1,3}(?:\.\d{1,2})?$/.test(v.bonusPct.trim())||Number(v.bonusPct||0)>100)throw new StakingInputError("Bonus at full capacity must be a percentage between 0 and 100.");
  if(v.projectSlug&&!/^[a-z0-9-]{1,120}$/.test(v.projectSlug.trim()))throw new StakingInputError("Project must be a project slug (lowercase letters, numbers and dashes).");
+ if(v.explainer&&!explainerKinds.includes(v.explainer as ExplainerKind))throw new StakingInputError("Choose a valid explanation for \"What am I staking in?\".");
  if(p.dualMixed&&(bps(v.mixedShare,100,"ARVO reward share")===0||bps(v.mixedShare,100,"ARVO reward share")===10000))throw new StakingInputError("Dual rewards need an ARVO share above 0% and below 100%.");
  const config={duration:days*86400,arvoRewardBps,usdcRewardBps,dualBoostBps,combinedBoostCapBps,mixedArvoShareBps:bps(v.mixedShare,100,"ARVO reward share"),minArvo,minUsdc,arvoStakeEnabled:p.arvoArvo||p.arvoUsdc,usdcStakeEnabled:p.usdcUsdc,dualStakeEnabled:(p.dualArvo||p.dualMixed)||(p.dualUsdc||p.dualMixed),arvoRewardEnabled:p.arvoArvo||(p.dualArvo||p.dualMixed),usdcRewardEnabled:p.arvoUsdc||p.usdcUsdc||(p.dualUsdc||p.dualMixed),mixedRewardEnabled:p.dualMixed};
  return {functionName:"createProductPool",args:[4,config,BigInt(opens),BigInt(closes),maxArvo,maxUsdc,mask,p.arvoUsdc?crossMinimum:BigInt(0)],summary:[

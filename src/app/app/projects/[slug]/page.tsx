@@ -21,6 +21,8 @@ import {
 } from "@/components/protocol/ProjectUI";
 
 import {getPublishedProject} from "@/lib/projects/data";
+import {projectVaultCount} from "@/lib/staking/vault-draft-data";
+import {LinkedVaults} from "@/components/protocol/LinkedVaults";
 export const dynamic="force-dynamic";
 export default async function ProjectPage({
   params,
@@ -34,6 +36,7 @@ export default async function ProjectPage({
   if (!project) notFound();
 
   const presentation=project.presentation??defaultPresentation;
+  const linkedVaults=await projectVaultCount(project.slug).catch(()=>0);
   const isPlots=presentation.kind==="plots";
   const sold = project.plotsSold ?? 0;
   const progress = project.plots ? Math.round((sold / project.plots) * 100) : 0;
@@ -43,10 +46,7 @@ export default async function ProjectPage({
 
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <Link href="/app/projects" className="inline-flex items-center gap-2 rounded-xl py-3 text-sm font-semibold text-black/55 hover:text-[#07090b]"><ArrowLeft size={15}/>All projects</Link>
-        {project.acquisitionProjectHash&&<div className="flex items-center gap-3">
-          <Link href={`/app/stake?project=${project.acquisitionProjectHash}`} className="inline-flex items-center gap-2 rounded-xl bg-[linear-gradient(110deg,#c9846a,#f0d2b0,#bba0ce)] px-5 py-3 text-sm font-semibold text-[#07090b] shadow-sm focus-visible:outline-2 focus-visible:outline-offset-4">Explore linked project vaults →</Link>
-          <details className="group relative"><summary aria-label="About project vaults" className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-full border border-black/15 text-sm font-semibold text-black/60 [&::-webkit-details-marker]:hidden">i</summary><p className="absolute right-0 top-10 z-20 w-64 rounded-2xl border border-black/10 bg-white p-4 text-xs leading-5 shadow-lg">Stake in a published vault linked to this project, when available. Each vault has its own deposit terms and rewards. This does not grant ownership of the project. Projects without a published vault cannot accept stakes yet.</p></details>
-        </div>}
+        <LinkedVaults slug={project.slug} hash={project.acquisitionProjectHash} count={linkedVaults} title={project.title} note={presentation.vaultNote}/>
       </div>
 
       {/* Heading */}
