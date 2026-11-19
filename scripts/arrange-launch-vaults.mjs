@@ -58,7 +58,7 @@ const tx = db.transaction(() => {
       if (step.values?.bonusPct && live) values.bonusPct = step.values.bonusPct; // display-only, safe on live vaults
       if (step.values?.explainer && live) values.explainer = step.values.explainer; // display-only, safe on live vaults
       const visibility = step.hide ? "hidden" : row.visibility;
-      if (step.hide && live) console.log(`! ${row.title} is a live vault: hiding it from the cards needs an onchain visibility change (not done here).`);
+      if (step.hide && live) { values.appHidden = "1"; console.log(`· ${row.title} is a live vault: hidden in the app only (display). The contract is unchanged; hide it onchain later through the Safe.`); }
       if (step.linkProject && genesisProject) values.projectSlug = genesisProject.slug;
       const title = step.title ?? row.title;
       const changed = JSON.stringify(values) !== before || title !== row.title || row.sortOrder !== step.order || visibility !== row.visibility;

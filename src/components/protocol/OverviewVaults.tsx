@@ -17,11 +17,11 @@ export function OverviewVaults(){
  useEffect(()=>{const controller=new AbortController();
   async function load(){
    if(!controller.signal.aborted)setError("");
-   const previews=await fetch("/app/vault-previews",{cache:"no-store",signal:controller.signal}).then(async r=>{if(!r.ok)throw new Error("Vault previews are unavailable.");return r.json() as Promise<{previews:DraftPreview[];poolTitles:{poolId:number;title:string;sortOrder?:number;bonusPct?:string}[]}>;});
+   const previews=await fetch("/app/vault-previews",{cache:"no-store",signal:controller.signal}).then(async r=>{if(!r.ok)throw new Error("Vault previews are unavailable.");return r.json() as Promise<{previews:DraftPreview[];poolTitles:{poolId:number;title:string;sortOrder?:number;bonusPct?:string;appHidden?:boolean}[]}>;});
    const metadata=new Map(previews.poolTitles.map(row=>[row.poolId,row]));
    const live:Card[]=[];const c=stakingConnection();
    if(c){try{if(await c.publicClient.getChainId()!==c.chain.id)throw new Error("Network mismatch.");const block=await c.publicClient.getBlock();const count=Number(await c.publicClient.readContract({address:c.address,abi:stakingAbi,functionName:"nextVaultId",blockTag:"latest"}));if(!Number.isSafeInteger(count)||count>1000)throw new Error("Too many pools.");
-    for(let end=count;end>0&&live.length<6;end-=20){const rows=await Promise.all(Array.from({length:Math.min(20,end)},(_,i)=>readPool(end-1-i)));for(const row of rows.filter(p=>p.visibility!==0)){
+    for(let end=count;end>0&&live.length<6;end-=20){const rows=await Promise.all(Array.from({length:Math.min(20,end)},(_,i)=>readPool(end-1-i)));for(const row of rows.filter(p=>p.visibility!==0&&!metadata.get(p.id)?.appHidden)){
      const closed=!row.pool.enabled||row.pool.finalized||(row.pool.closesAt!==0n&&block.timestamp>=row.pool.closesAt),availability=vaultAvailability(row);
      const status=row.visibility===1?"Opens soon":closed?"Deposits closed":block.timestamp<row.pool.opensAt?"Opens soon":availability.available?"Open now":availabilityLabel(availability.reason,false);
      live.push({key:`pool-${row.id}`,terms:{...poolPreview(row,metadata.get(row.id)?.title??`${vaultName(row)} #${row.id}`),sortOrder:metadata.get(row.id)?.sortOrder??0,bonusPct:metadata.get(row.id)?.bonusPct??"0"},status,href:`/app/stake#vault-pool-${row.id}`});

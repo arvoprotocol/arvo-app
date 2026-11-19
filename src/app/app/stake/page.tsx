@@ -35,7 +35,7 @@ const modes=[[0,0],[0,1],[1,1],[2,0],[2,1],[2,2]] as const;
 export default function StakePage(){
  const now=useVaultClock();
  const [projectFilter,setProjectFilter]=useState<{hash:string;slug:string}|null>(null);useEffect(()=>{const q=new URLSearchParams(window.location.search),key=q.get("project")??"",extra=q.get("hash")??"";const isHash=(v:string)=>/^0x[0-9a-fA-F]{64}$/.test(v);if(isHash(key))setProjectFilter({hash:key.toLowerCase(),slug:""});else if(/^[a-z0-9-]{1,120}$/.test(key))setProjectFilter({slug:key,hash:isHash(extra)?extra.toLowerCase():""});},[]);
- const linkedTo=(row:PoolRow)=>!projectFilter||Boolean(projectFilter.hash&&row.acquisition?.projectId.toLowerCase()===projectFilter.hash)||Boolean(projectFilter.slug&&extras[row.id]?.project?.slug===projectFilter.slug);
+ const linkedTo=(row:PoolRow)=>!extras[row.id]?.appHidden&&(!projectFilter||Boolean(projectFilter.hash&&row.acquisition?.projectId.toLowerCase()===projectFilter.hash)||Boolean(projectFilter.slug&&extras[row.id]?.project?.slug===projectFilter.slug));
  const [calculator,setCalculator]=useState<PoolRow|null>(null);
  const state=useStakingData(),[pools,setPools]=useState<PoolRow[]>([]),[poolError,setPoolError]=useState(""),[loading,setLoading]=useState(true),[selected,setSelected]=useState<PoolRow|null>(null),[product,setProduct]=useState(0),[arvoAmount,setArvoAmount]=useState("100000"),[usdcAmount,setUsdcAmount]=useState("1000"),[quote,setQuote]=useState<bigint|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[pending,setPending]=useState<Hash|null>(null),[revision,setRevision]=useState(0);const sending=useRef(false),quoteVersion=useRef(0);
  const {titles,orders,extras,ready:metadataReady}=usePoolMetadata(revision);

@@ -103,6 +103,7 @@ test('arranging launch vaults orders them, renames the USDG vault and keeps ever
  assert.equal(v('Build').minArvo,'1500000');assert.equal(v('Build').opens,'');assert.equal(v('Foundation').maxArvo,'100000000');
  assert.equal(v('Community Welcome').minArvo,'850000'); // live vault terms untouched
  const vis=t=>db.prepare('select visibility from StakingVaultDraft where title=?').get(t).visibility;
+ assert.equal(v('Community Welcome').appHidden,'1'); // live vault: hidden in the app only
  assert.equal(vis('Advance'),'hidden');assert.equal(vis('Foundation'),'hidden');assert.equal(vis('Build'),'openingSoon');
  assert.equal(v('Genesis Pilot').explainer,'plotSale');assert.equal(v('Full Site Land Acquisition').explainer,'fullSite');
 });

@@ -41,7 +41,7 @@ export async function shareableVaults(): Promise<SharedVault[]> {
     where: { OR: [{ visibility: "openingSoon", linkedPoolId: null }, ...(c ? [{ linkedChainId: c.chain.id, linkedProxy: c.address.toLowerCase(), linkedPoolId: { not: null } }] : [])] },
     orderBy: [{ sortOrder: "asc" }, { id: "asc" }], take: 200,
   });
-  const previews = rows.flatMap(row => { try { return [{ row, p: draftPreview(serializeDraft(row)) }]; } catch { return []; } });
+  const previews = rows.filter(row => { try { return !(row.linkedPoolId !== null && (JSON.parse(row.valuesJson) as { appHidden?: unknown }).appHidden === "1"); } catch { return true; } }).flatMap(row => { try { return [{ row, p: draftPreview(serializeDraft(row)) }]; } catch { return []; } });
   const projects = await vaultProjects(previews.map(x => x.p.projectSlug));
   const seen = new Set<string>();
   return previews.flatMap(({ row, p }) => {

@@ -53,9 +53,9 @@ export async function verifyDraftPool(draft: VaultDraft, poolId: number) {
 export async function publicPoolTitles(){
  const c=stakingConnection();if(!c)return [];
  const rows=await prisma.stakingVaultDraft.findMany({where:{linkedChainId:c.chain.id,linkedProxy:c.address.toLowerCase(),linkedPoolId:{not:null}},orderBy:[{sortOrder:"asc"},{id:"asc"}],take:200,select:{linkedPoolId:true,title:true,sortOrder:true,valuesJson:true}});
- const extras=rows.map(row=>{try{const v=JSON.parse(row.valuesJson) as Record<string,unknown>;return {bonusPct:typeof v.bonusPct==="string"?v.bonusPct:"0",explainer:v.explainer==="plotSale"||v.explainer==="fullSite"?v.explainer:"",projectSlug:typeof v.projectSlug==="string"&&/^[a-z0-9-]{1,120}$/.test(v.projectSlug)?v.projectSlug:""};}catch{return {bonusPct:"0",explainer:"",projectSlug:""};}});
+ const extras=rows.map(row=>{try{const v=JSON.parse(row.valuesJson) as Record<string,unknown>;return {appHidden:v.appHidden==="1",bonusPct:typeof v.bonusPct==="string"?v.bonusPct:"0",explainer:v.explainer==="plotSale"||v.explainer==="fullSite"?v.explainer:"",projectSlug:typeof v.projectSlug==="string"&&/^[a-z0-9-]{1,120}$/.test(v.projectSlug)?v.projectSlug:""};}catch{return {appHidden:false,bonusPct:"0",explainer:"",projectSlug:""};}});
  const projects=await vaultProjects(extras.map(e=>e.projectSlug));
- const seen=new Set<number>();return rows.flatMap((row,i)=>{if(row.linkedPoolId===null||seen.has(row.linkedPoolId))return [];seen.add(row.linkedPoolId);return [{poolId:row.linkedPoolId,title:row.title,sortOrder:row.sortOrder,bonusPct:extras[i].bonusPct,explainer:extras[i].explainer,project:extras[i].projectSlug?projects.get(extras[i].projectSlug)??null:null}];});
+ const seen=new Set<number>();return rows.flatMap((row,i)=>{if(row.linkedPoolId===null||seen.has(row.linkedPoolId))return [];seen.add(row.linkedPoolId);return [{poolId:row.linkedPoolId,title:row.title,sortOrder:row.sortOrder,appHidden:extras[i].appHidden,bonusPct:extras[i].bonusPct,explainer:extras[i].explainer,project:extras[i].projectSlug?projects.get(extras[i].projectSlug)??null:null}];});
 }
 
 /** Planned or live vaults that name this project. Used by the project page's "Explore linked vaults" button. */

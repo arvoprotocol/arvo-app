@@ -1,5 +1,5 @@
 "use client";
-import {usePoolTitles} from "@/hooks/usePoolTitles";
+import {usePoolMetadata} from "@/hooks/usePoolTitles";
 import {tokenDisplay} from "@/lib/staking/presentation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -42,7 +42,19 @@ export function PoolRegistry() {
   const [data, setData] = useState<{ total: number; rows: Row[] } | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const titles = usePoolTitles(refresh);
+  const { titles, extras } = usePoolMetadata(refresh);
+  const [appBusy, setAppBusy] = useState<number | null>(null);
+  async function setAppHidden(poolId: number, hidden: boolean) {
+    if (appBusy !== null) return;
+    setAppBusy(poolId); setError("");
+    try {
+      const response = await fetch("/api/admin/vault-drafts/app-hidden", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ poolId, hidden }) });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Could not update the app.");
+      setRefresh(x => x + 1);
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not update the app."); }
+    finally { setAppBusy(null); }
+  }
   const configured = Boolean(stakingConnection());
   useEffect(() => {
     let cancelled = false;
@@ -111,7 +123,7 @@ export function PoolRegistry() {
         {error && <p role="alert" className="rounded-xl bg-red-50 p-4 text-xs text-red-800">{error}</p>}
         {data && data.total === 0 && <p className="py-10 text-center text-sm text-black/50">No pools have been created on this staking contract.</p>}
         {data && data.rows.length > 0 && <div className="grid gap-4 xl:grid-cols-2">{data.rows.map(row => <article key={row.id} className="rounded-2xl border border-black/[0.08] bg-white p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-black/55">Vault #{row.id}</p><h3 className="mt-0.5 text-lg font-semibold tracking-[-0.02em]">{titles[row.id] ?? names[row.pool.kind] ?? "Vault"}</h3></div><div className="flex flex-wrap gap-1.5"><StatusPill tone={row.status === "Open" ? "good" : "neutral"}>{row.status}</StatusPill><StatusPill tone={row.visibility === 2 ? "warm" : "neutral"}>{visibilityLabels[row.visibility] ?? "Unknown"}</StatusPill></div></div>
+          <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-black/55">Vault #{row.id}</p><h3 className="mt-0.5 text-lg font-semibold tracking-[-0.02em]">{titles[row.id] ?? names[row.pool.kind] ?? "Vault"}</h3></div><div className="flex flex-wrap gap-1.5">{extras[row.id]?.appHidden && <StatusPill>Hidden in app</StatusPill>}<StatusPill tone={row.status === "Open" ? "good" : "neutral"}>{row.status}</StatusPill><StatusPill tone={row.visibility === 2 ? "warm" : "neutral"}>{visibilityLabels[row.visibility] ?? "Unknown"}</StatusPill></div></div>
           <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-xs sm:grid-cols-3">
             <Fact label="Term" value={`${row.vault.duration / 86400} days`} />
             <Fact label="Fixed reward" value={[row.vault.arvoRewardBps ? `${row.vault.arvoRewardBps / 100}% ARVO` : "", row.vault.usdcRewardBps ? `${row.vault.usdcRewardBps / 100}% USDG` : ""].filter(Boolean).join(" + ") || "None"} />
@@ -124,7 +136,8 @@ export function PoolRegistry() {
             <button disabled={busy || Boolean(pending) || row.pool.finalized || (!row.pool.enabled && Number(row.pool.opensAt) <= Date.now() / 1000)} onClick={() => control("setPoolEnabled", [row.id, !row.pool.enabled], `${row.pool.enabled ? "Close" : "Enable"} deposits: vault #${row.id}`)} className="rounded-lg border border-black/10 px-3 py-2 text-sm font-semibold hover:border-black/25 disabled:opacity-40">{row.pool.enabled ? "Close deposits" : "Enable deposits"}</button>
             <button disabled={busy || Boolean(pending) || row.pool.enabled || row.pool.finalized} onClick={() => { if (window.confirm(`Permanently finalize vault #${row.id}? This cannot be undone. Existing stakes stay claimable.`)) void control("finalizePool", [row.id], `Finalize vault #${row.id}`); }} className="rounded-lg border border-black/10 px-3 py-2 text-sm font-semibold hover:border-black/25 disabled:opacity-40">{row.pool.finalized ? "Finalized" : "Finalize"}</button>
           </div>
-          <p className="mt-3 text-[11px] leading-5 text-black/55">Hiding only removes it from the app’s lists. Closing deposits stops new stakes; once a vault has opened, closed deposits can’t be reopened. Finalize releases unused rewards after closing.</p>
+          {titles[row.id] !== undefined && <label className="mt-4 flex items-start gap-2.5 rounded-xl bg-[#fbfaf9] px-3 py-2.5 text-xs"><input type="checkbox" className="mt-0.5 accent-[#07090b]" checked={Boolean(extras[row.id]?.appHidden)} disabled={appBusy !== null} onChange={e => void setAppHidden(row.id, e.target.checked)} /><span><span className="font-semibold">Hide from the app’s vault lists</span><span className="block text-black/60">No transaction needed. The vault stays onchain and existing stakers still see and claim their positions.</span></span></label>}
+          <p className="mt-3 text-[11px] leading-5 text-black/55">“Shown in the app” is the onchain setting and needs the vault manager role. Closing deposits stops new stakes; once a vault has opened, closed deposits can’t be reopened. Finalize releases unused rewards after closing.</p>
         </article>)}</div>}
         {configured && <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs"><button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)} className="rounded-lg border border-black/10 px-3 py-2 disabled:opacity-40">Refresh</button><div className="flex items-center gap-3"><button type="button" disabled={loading || offset === 0} onClick={() => setOffset((value) => Math.max(0, value - PAGE_SIZE))} className="rounded-lg border border-black/10 px-3 py-2 disabled:opacity-40">Newer</button><span>Page {Math.floor(offset / PAGE_SIZE) + 1}</span><button type="button" disabled={loading || !data || offset + PAGE_SIZE >= data.total} onClick={() => setOffset((value) => value + PAGE_SIZE)} className="rounded-lg border border-black/10 px-3 py-2 disabled:opacity-40">Older</button></div></div>}
       </div>
