@@ -5,6 +5,8 @@ export type ProjectPresentation = {
  showMilestones:boolean;
  gallery:string[];
  videoUrl:string;
+ /** Optional second video, shown beside the first on wider screens. */
+ videoUrl2?:string;
  metrics:{label:string;value:string}[];
  milestones:{label:string;status:"planned"|"in_progress"|"completed";date?:string;note?:string}[];
  /** Shown when someone explores linked vaults and none are published yet, e.g. a planned rental-yield vault. */
@@ -20,6 +22,8 @@ export function presentationInput(value:unknown):ProjectPresentation {
  const gallery=galleryInput(v.gallery);
  if(v.videoUrl!==undefined&&(typeof v.videoUrl!=="string"||v.videoUrl.length>1000))throw new Error("Enter a video URL up to 1,000 characters.");
  const videoUrl=(v.videoUrl as string|undefined)?.trim()??"";projectVideoSource(videoUrl);
+ if(v.videoUrl2!==undefined&&(typeof v.videoUrl2!=="string"||v.videoUrl2.length>1000))throw new Error("Enter a second video URL up to 1,000 characters.");
+ const videoUrl2=(v.videoUrl2 as string|undefined)?.trim()??"";projectVideoSource(videoUrl2);
  if(v.vaultNote!==undefined&&(typeof v.vaultNote!=="string"||v.vaultNote.length>700))throw new Error("The linked vault note must be 700 characters or fewer.");
  const vaultNote=typeof v.vaultNote==="string"?v.vaultNote.trim():"";
  const metrics=v.metrics.map((row:unknown)=>{
@@ -35,7 +39,7 @@ export function presentationInput(value:unknown):ProjectPresentation {
   if(r.note!==undefined&&(typeof r.note!=="string"||r.note.length>280))throw new Error("Milestone updates must be 280 characters or fewer.");
   return {label:r.label.trim(),status:r.status as ProjectPresentation["milestones"][number]["status"],...(typeof r.date==="string"&&r.date?{date:r.date}:{}),...(typeof r.note==="string"&&r.note.trim()?{note:r.note.trim()}:{})};
  });
- return {kind:v.kind as ProjectPresentation["kind"],showFinancials:v.showFinancials,showMilestones:v.showMilestones===undefined?milestones.length>0:v.showMilestones,gallery,videoUrl,metrics,milestones,...(vaultNote?{vaultNote}:{})};
+ return {kind:v.kind as ProjectPresentation["kind"],showFinancials:v.showFinancials,showMilestones:v.showMilestones===undefined?milestones.length>0:v.showMilestones,gallery,videoUrl,...(videoUrl2?{videoUrl2}:{}),metrics,milestones,...(vaultNote?{vaultNote}:{})};
 }
 export function readPresentation(json:string|null|undefined):ProjectPresentation {
  if(!json)return {...defaultPresentation,metrics:[],milestones:[]};

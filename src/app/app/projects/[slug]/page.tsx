@@ -1,5 +1,5 @@
 import {ProjectGallery} from "@/components/protocol/ProjectGallery";
-import {ProjectVideo} from "@/components/protocol/ProjectVideo";
+import {ProjectVideos} from "@/components/protocol/ProjectVideo";
 import {defaultPresentation} from "@/lib/projects/presentation";
 import {plotStatuses} from "@/lib/projects/plots";
 import Link from "next/link";
@@ -128,7 +128,7 @@ export default async function ProjectPage({
 
       {project.description.trim()&&<section className="mt-6 rounded-[24px] border border-black/[.07] bg-white p-6 md:p-8"><p className="text-[11px] font-semibold uppercase tracking-[.14em] text-[#b9775d]">Project overview</p><h2 className="mt-2 text-2xl font-semibold tracking-[-.03em]">About this project</h2><p className="mt-4 max-w-4xl whitespace-pre-line break-words text-sm leading-7 text-black/60">{project.description}</p></section>}
 
-      {presentation.videoUrl&&<ProjectVideo key={presentation.videoUrl} url={presentation.videoUrl} title={project.title} poster={project.image}/>}
+      {(presentation.videoUrl||presentation.videoUrl2)&&<ProjectVideos key={`${presentation.videoUrl}|${presentation.videoUrl2??""}`} urls={[presentation.videoUrl,presentation.videoUrl2??""].filter(Boolean)} title={project.title} poster={project.image??undefined}/>}
 
       {/* Plot sales */}
       {isPlots&&project.plots>0&&<section className="mt-6 rounded-[24px] border border-black/[.07] bg-white p-6 shadow-[0_18px_55px_rgba(7,9,11,.04)] md:p-8">
