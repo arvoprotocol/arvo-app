@@ -5,15 +5,14 @@ import { Check, Plus, X } from "lucide-react";
 import { appPath } from "@/lib/protocol/app-url";
 import { PROJECT_SEEKING, PROJECT_STAGES } from "@/lib/projects/submission";
 
-/** Dashed "+" tile at the end of the projects grid. Opens a short form that emails the team. */
+/** Full-width dashed "+" band under the projects grid. Opens a short form that emails the team. */
 export function SubmitProjectTile() {
   const [open, setOpen] = useState(false);
   return <>
-    <button type="button" onClick={() => setOpen(true)} className="group flex min-h-[320px] w-full flex-col items-center justify-center rounded-[22px] border-2 border-dashed border-[#c9846a]/45 bg-[#f8ede6]/50 px-8 py-10 text-center transition hover:border-[#c9846a] hover:bg-[#f8ede6]">
-      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[linear-gradient(135deg,#b9775d_0%,#e2a98e_45%,#f0d2b0_100%)] text-[#07090b] shadow-[0_10px_30px_rgba(185,119,93,.35)] transition group-hover:scale-105"><Plus size={26} strokeWidth={2.2} /></span>
-      <span className="mt-5 text-xl font-semibold tracking-[-0.02em] text-[#07090b]">Bring your land project to Arvo</span>
-      <span className="mt-2 max-w-xs text-sm leading-6 text-black/55">Own or developing a site? Tell us about it. We review every submission; nothing is listed without due diligence.</span>
-      <span className="mt-5 text-sm font-semibold text-[#ad7058]">Submit a project →</span>
+    <button type="button" onClick={() => setOpen(true)} className="group flex w-full flex-col items-start gap-5 rounded-[22px] border-2 border-dashed border-[#c9846a]/45 bg-[#f8ede6]/50 p-6 text-left transition hover:border-[#c9846a] hover:bg-[#f8ede6] md:flex-row md:items-center md:gap-6 md:p-8">
+      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#b9775d_0%,#e2a98e_45%,#f0d2b0_100%)] text-[#07090b] shadow-[0_10px_30px_rgba(185,119,93,.35)] transition group-hover:scale-105"><Plus size={26} strokeWidth={2.2} /></span>
+      <span className="min-w-0 flex-1"><span className="block text-xl font-semibold tracking-[-0.02em] text-[#07090b]">Bring your land project to Arvo</span><span className="mt-1.5 block max-w-2xl text-sm leading-6 text-black/55">Own or developing a site? Tell us about it. We review every submission; nothing is listed without due diligence.</span></span>
+      <span className="inline-flex shrink-0 items-center rounded-full bg-[#07090b] px-5 py-3 text-sm font-semibold text-white transition group-hover:bg-[#1c1715]">Submit a project →</span>
     </button>
     {open && <SubmitProjectDialog onClose={() => setOpen(false)} />}
   </>;
