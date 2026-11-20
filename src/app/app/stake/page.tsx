@@ -26,6 +26,7 @@ import Link from "next/link";
 import {formatUnits,type Hash} from "viem";
 import {PageTitle,Panel,PanelHeader,StatusPill} from "@/components/protocol/ProtocolUI";
 import {BuyArvoButton,FiatSoon} from "@/components/protocol/BuyArvo";
+import {PrivatePartnershipsCard} from "@/components/protocol/PartnershipEnquiry";
 import {StakedShare,type StakedInfo} from "@/components/protocol/StakedShare";
 import {useStakingData,readPool,type PoolRow} from "@/hooks/useStakingData";
 import {stakingConnection,stakingAbi} from "@/lib/staking/pool-transactions";
@@ -131,6 +132,7 @@ export default function StakePage(){
  :<button data-sound="confirm" disabled={busy||Boolean(pending)||Boolean(amountError)||!productAvailability(selected,product).available||!open||!state.data||!state.network||(product===1&&quote===null)} onClick={deposit} className="w-full rounded-xl bg-[#07090b] px-5 py-3.5 font-semibold text-white disabled:opacity-40 sm:w-auto">{busy?"Confirm in your wallet…":"Approve and stake"}</button>}
  {state.account&&!busy&&<p className="text-[11px] text-black/45">If this is your first stake of this amount, your wallet asks you to approve it first, then to confirm the stake.</p>}</div></Panel></section>;})()}
  </VaultDraftPreviews>
+ {!projectFilter&&<PrivatePartnershipsCard/>}
  {calculator&&<RewardDialog row={poolPreview(calculator,titles[calculator.id]??`${vaultName(calculator)} #${calculator.id}`)} preview={false} onClose={()=>setCalculator(null)}/>}
 
  </div>;

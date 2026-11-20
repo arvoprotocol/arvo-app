@@ -1,4 +1,5 @@
 "use client";
+import { GenesisNotice } from "@/components/protocol/GenesisNotice";
 import { BuyArvoButton } from "@/components/protocol/BuyArvo";
 import {internalAppPath, appPath} from "@/lib/protocol/app-url";
 
@@ -84,6 +85,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="border-t border-black/[0.04] px-4 py-2 lg:hidden"><ProtocolHeaderInfo/></div>
         </header>
+        <GenesisNotice/>
         {walletError && <p role="alert" className="px-5 py-3 text-xs text-red-800">{walletError}</p>}
         <main className="pb-24">{children}</main>
       </div>
