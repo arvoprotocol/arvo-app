@@ -72,7 +72,7 @@ export function IntelligenceExplorer({ projects, initialSlug }: { projects: Inte
         </div>
       </div>
 
-      <div className="relative mt-7 rounded-[20px] border border-[#c9846a]/30 bg-[#f6f2ec] p-4 text-[#07090b] sm:p-6 md:mt-9 md:rounded-[24px] md:p-7">
+      <div className="relative mt-7 rounded-[20px] border border-[#c9846a]/30 bg-[#f6f2ec] p-4 text-[#07090b] sm:p-6 md:mt-10 lg:mt-14 md:rounded-[24px] md:p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-2xl font-semibold tracking-[-0.03em] md:text-3xl">Explore each plot.</h2>
           <span className="rounded-full border border-[#c9846a]/50 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#ad7058]">Beta preview</span>

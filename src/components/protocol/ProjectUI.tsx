@@ -37,17 +37,23 @@ export type Project = {
   description: string;
 };
 
+// Solid pills with dark text so the status reads on any photo.
 function statusStyles(status: ProjectStatus) {
   switch (status) {
     case "completed":
-      return "bg-[#bfd779]/30 text-[#d5ed87] border-[#bfd779]/45";
+      return "bg-[#cfe48a] text-[#1d2808] border-[#cfe48a]";
     case "auction":
-      return "bg-[#c9846a]/25 text-[#efb59d] border-[#c9846a]/35";
+      return "bg-[linear-gradient(135deg,#d9967a,#f0d2b0)] text-[#07090b] border-[#f0d2b0]";
     case "active":
-      return "bg-[#e6bd62]/30 text-[#ffdc78] border-[#e6bd62]/45";
+      return "bg-[#ffd772] text-[#2a1d00] border-[#ffd772]";
     default:
-      return "bg-[#c9846a]/40 text-[#ffc49f] border-[#e2a98e]/45";
+      return "bg-[#f8f2ed] text-[#07090b] border-[#f8f2ed]";
   }
+}
+
+/** The project status pill used on project cards and the Overview. */
+export function ProjectStatusPill({ status, label, className = "" }: { status: ProjectStatus; label: string; className?: string }) {
+  return <span className={`inline-flex max-w-full truncate rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] shadow-[0_4px_14px_rgba(7,9,11,.28)] ${statusStyles(status)} ${className}`}>{label}</span>;
 }
 
 export function ProjectVisual({ project }: { project: Project }) {
@@ -90,7 +96,7 @@ export function ProjectCard({project,compact=false}:{project:Project;compact?:bo
   <div className={`relative shrink-0 overflow-hidden ${compact?"h-[190px]":"h-[220px] 2xl:h-[240px]"}`}>
    <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.025] motion-reduce:transform-none"><ProjectVisual project={project}/></div>
    <div className="absolute inset-0" style={{backgroundImage:"linear-gradient(to top, rgba(7,9,11,.98) 0%, rgba(7,9,11,.82) 28%, rgba(7,9,11,.35) 58%, rgba(7,9,11,0) 85%)"}}/>
-   <span className={`absolute left-5 top-5 inline-flex max-w-[calc(100%-2.5rem)] rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[.1em] backdrop-blur-md ${statusStyles(project.status)}`}>{project.statusLabel}</span>
+   <ProjectStatusPill status={project.status} label={project.statusLabel} className="absolute left-5 top-5 max-w-[calc(100%-2.5rem)]"/>
    <div className="absolute inset-x-5 bottom-5" style={{textShadow:"0 1px 3px rgba(0,0,0,.6)"}}><h3 className="mt-1.5 line-clamp-2 text-xl font-semibold leading-tight tracking-[-.025em] text-white">{project.title}</h3><p className="mt-2 flex items-start gap-1.5 text-xs leading-5 text-white/70"><MapPin size={13} className="mt-0.5 shrink-0"/><span className="line-clamp-2">{project.location}</span></p>{project.titleNumber.trim()&&<div className="mt-2.5"><ProjectTitleBadge titleNumber={project.titleNumber} onImage/></div>}</div>
   </div>
   <div className="flex flex-1 flex-col p-5 sm:p-6">

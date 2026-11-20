@@ -17,7 +17,7 @@ export function TransparencyApp({ t }: { t: Transparency }) {
       <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#c9846a]/15 blur-3xl" />
       <div className="relative flex flex-wrap items-end justify-between gap-6">
         <div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#e2a98e]">Security</p><h2 id="security-title" className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-4xl">Audited by <span className="sr-only">Soken</span></h2></div>
-        <SokenLogo className="h-9 w-auto text-white" />
+        <SokenLogo className="h-6 w-auto text-white md:h-7" />
       </div>
       <div className="relative mt-8 grid gap-4 lg:grid-cols-2">{AUDITS.map(a => <article key={a.scope} className="rounded-2xl border border-white/10 bg-white/[0.035] p-6">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#e2a98e]">{a.auditor} · {a.date}</p>
@@ -27,10 +27,10 @@ export function TransparencyApp({ t }: { t: Transparency }) {
         <p className="mt-3 text-xs text-white/40">Reviewed code: {a.reviewed}</p>
         <a href={a.href} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#e2a98e] hover:text-white">View Soken’s audit index<ArrowUpRight size={14} /></a>
       </article>)}
-      {ADDITIONAL_REVIEWS.map(r => <article key={r.title} className="rounded-2xl border border-white/10 bg-white/[0.035] p-6">
+      {ADDITIONAL_REVIEWS.map(r => <article key={r.title} className="rounded-2xl border border-white/10 bg-white/[0.035] p-6 lg:col-span-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#e2a98e]">Additional review</p>
         <h3 className="mt-3 text-xl font-semibold">{r.title}</h3>
-        <p className="mt-3 text-sm leading-6 text-white/60">{r.body}</p>
+        <p className="mt-3 max-w-4xl text-sm leading-6 text-white/70">{r.body}</p>
         <a href={r.href} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#e2a98e] hover:text-white">{r.link}<ArrowUpRight size={14} /></a>
       </article>)}</div>
     </section>

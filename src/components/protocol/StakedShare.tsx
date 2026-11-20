@@ -38,7 +38,7 @@ export function StakedShare({ info, onClose }: { info: StakedInfo; onClose: () =
 
   return createPortal(<div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-6">
     <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 bg-black/55 backdrop-blur-sm" />
-    <div role="dialog" aria-modal="true" aria-labelledby="staked-title" className="arvo-fade relative w-full max-w-md max-h-[92dvh] overflow-y-auto overflow-hidden rounded-t-[26px] bg-[#0b0a09] p-6 text-white shadow-[0_30px_80px_rgba(0,0,0,.45)] sm:rounded-[26px] sm:p-7">
+    <div role="dialog" aria-modal="true" aria-labelledby="staked-title" className="arvo-fade relative w-full max-w-lg max-h-[92dvh] overflow-y-auto overflow-x-hidden overflow-hidden rounded-t-[26px] bg-[#0b0a09] p-6 text-white shadow-[0_30px_80px_rgba(0,0,0,.45)] sm:rounded-[26px] sm:p-7">
       <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#c9846a]/30 blur-3xl" />
       <div className="relative flex items-start justify-between gap-4">
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,#b9775d,#f0d2b0)] text-[#07090b]"><Check size={20} strokeWidth={2.5} /></span>
