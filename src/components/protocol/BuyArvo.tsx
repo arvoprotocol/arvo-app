@@ -48,18 +48,18 @@ function BuyArvoDialog({ onClose }: { onClose: () => void }) {
         <div className="min-w-0 flex-1"><p className="text-[11px] text-white/55">Official ARVO contract (check it matches in Uniswap)</p><p className="mt-0.5 truncate font-mono text-xs text-white/85">{ARVO_TOKEN}</p></div>
         <button type="button" onClick={copy} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-semibold hover:border-white/35">{copied ? <Check size={13} /> : <Copy size={13} />}{copied ? "Copied" : "Copy"}</button>
       </div>
-      <div className="relative mt-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border border-white/10 px-3 py-2.5 text-xs"><span className="text-white/75">Pay with pounds, dollars or euros</span><FiatSoon dark /></div>
+      <div className="relative mt-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border border-white/10 px-3 py-2.5 text-xs"><span className="text-white/75">Buy and stake with pounds, dollars or euros</span><FiatSoon dark /></div>
       <p className="relative mt-4 text-[11px] leading-5 text-white/50">Uniswap is an independent exchange; Arvo doesn’t sell ARVO. Prices move, so check the amount and slippage before you confirm. Need funds on Robinhood Chain first? Move ETH there with a bridge or from an exchange that supports the network.</p>
     </div>
   </div>, document.body);
 }
 
-const fiatNote = "We’re working on letting you take part with pounds, dollars and euros, not just crypto. It isn’t available yet: how it works, who it’s open to and the terms will be published before it launches.";
+const fiatNote = "We’re working on letting you buy ARVO and stake in Arvo vaults with pounds, dollars and euros, not just crypto. It isn’t available yet: how it works, who it’s open to and the terms will be published before it launches.";
 
 /** "GBP · USD · EUR coming soon" pill. Announcement only: nothing is accepted in fiat yet. */
-export function FiatSoon({ dark = false }: { dark?: boolean }) {
+export function FiatSoon({ dark = false, prefix }: { dark?: boolean; prefix?: string }) {
   return <span className={`inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold ${dark ? "border-white/15 text-white/80" : "border-[#c9846a]/35 bg-[#f8ede6] text-[#7a4a36]"}`}>
-    <span className="tracking-[0.06em]">GBP · USD · EUR</span><span className={dark ? "text-white/55" : "text-[#ad7058]"}>coming soon</span>
+    {prefix && <span className={dark ? "font-medium text-white/60" : "font-medium text-[#7a4a36]/80"}>{prefix}</span>}<span className="tracking-[0.06em]">GBP · USD · EUR</span><span className={dark ? "text-white/55" : "text-[#ad7058]"}>coming soon</span>
     <InfoTip dark={dark} size={12} label="About GBP, USD and EUR">{fiatNote}</InfoTip>
   </span>;
 }
