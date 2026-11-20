@@ -38,25 +38,23 @@ export type Project = {
 };
 
 // Solid pills with dark text so the status reads on any photo.
-// Frosted glass pill: dark translucent base so it reads on light and dark project images,
-// with the status colour on the border, dot and text.
+// Tinted translucent pill (the original look), slightly stronger so it reads on any image.
 function statusStyles(status: ProjectStatus) {
   switch (status) {
     case "completed":
-      return { pill: "border-[#cfe48a]/45 text-[#dff0a6]", dot: "bg-[#cfe48a]" };
+      return "bg-[#bfd779]/45 text-[#e6f8a2] border-[#bfd779]/70";
     case "auction":
-      return { pill: "border-[#f0d2b0]/50 text-[#f6dcc0]", dot: "bg-[linear-gradient(135deg,#d9967a,#f0d2b0)]" };
+      return "bg-[#c9846a]/45 text-[#ffd2bb] border-[#e2a98e]/65";
     case "active":
-      return { pill: "border-[#ffd772]/45 text-[#ffe08f]", dot: "bg-[#ffd772]" };
+      return "bg-[#e6bd62]/45 text-[#ffe697] border-[#e6bd62]/70";
     default:
-      return { pill: "border-white/30 text-white/90", dot: "bg-white/80" };
+      return "bg-[#c9846a]/55 text-[#ffd6bd] border-[#e2a98e]/65";
   }
 }
 
 /** The project status pill used on project cards and the Overview. */
 export function ProjectStatusPill({ status, label, className = "" }: { status: ProjectStatus; label: string; className?: string }) {
-  const style = statusStyles(status);
-  return <span className={`inline-flex max-w-full items-center gap-2 rounded-full border bg-[#07090b]/45 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] backdrop-blur-md ${style.pill} ${className}`}><span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${style.dot}`} /><span className="truncate">{label}</span></span>;
+  return <span className={`inline-flex max-w-full truncate rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.1em] shadow-[0_2px_10px_rgba(7,9,11,.25)] backdrop-blur-md [background-image:linear-gradient(rgba(7,9,11,.22),rgba(7,9,11,.22))] ${statusStyles(status)} ${className}`}>{label}</span>;
 }
 
 export function ProjectVisual({ project }: { project: Project }) {
