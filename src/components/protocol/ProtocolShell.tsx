@@ -1,4 +1,5 @@
 "use client";
+import { BuyArvoButton } from "@/components/protocol/BuyArvo";
 import {internalAppPath, appPath} from "@/lib/protocol/app-url";
 
 import {SupportNotifications} from "./SupportNotifications";
@@ -65,6 +66,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
             <div className="hidden min-w-0 flex-1 lg:block"><ProtocolHeaderInfo/></div>
             <div className="flex items-center gap-2">
               <SupportNotifications/>
+              <BuyArvoButton className="hidden items-center justify-center gap-2 rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-[#07090b] transition hover:-translate-y-0.5 hover:border-black/25 md:inline-flex"/>
               <Link
                 href={appPath("/app/stake")}
                 className="group hidden items-center justify-center rounded-xl bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] px-4 py-3 text-sm font-semibold text-[#07090b] shadow-[inset_0_1px_0_rgba(255,255,255,.34),0_14px_35px_rgba(201,132,106,.20)] transition duration-300 hover:-translate-y-0.5 sm:inline-flex"
@@ -93,6 +95,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
             <Image src="/arvo_logo.svg" alt="Arvo" width={160} height={34} className="h-8 w-[160px] min-w-0 object-contain object-left"/>
             <button autoFocus aria-label="Close navigation" onClick={() => setMobileOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10"><X size={19}/></button>
           </div>
+          <div className="grid grid-cols-2 gap-2 px-4 pt-5"><BuyArvoButton className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3 py-3 text-sm font-semibold text-white"/><Link href={appPath("/app/stake")} onClick={() => setMobileOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#a98bf0_135%)] px-3 py-3 text-sm font-semibold text-[#07090b]">Stake ARVO<ArrowRight size={14}/></Link></div>
           <nav className="px-4 py-5">{renderNav(nav)}<div className="my-4 border-t border-white/10"/>{renderNav(secondary)}</nav>
           <div className="px-5 pb-3"><SoundToggle className="text-white/50 hover:bg-white/[0.06] hover:text-white/80"/></div>
           <div className="mt-auto"><ProtocolSidebarFooter onNavigate={()=>setMobileOpen(false)}/></div>

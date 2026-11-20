@@ -48,7 +48,7 @@ export type Stat = { label: string; value: string; unit?: string; tip?: string; 
 export function TermStats({ items }: { items: Stat[] }) {
   return <dl className="grid grid-cols-3 gap-2">{items.map(item => <div key={item.label} className="min-w-0 rounded-xl bg-white/[0.045] px-3 py-2.5">
     <dt className="flex items-center gap-1 whitespace-nowrap text-[11px] text-white/65">{item.label}{item.tip && <InfoTip dark size={12} label={`About ${item.label.toLowerCase()}`}>{item.tip}</InfoTip>}</dt>
-    <dd className="mt-1 truncate text-sm font-semibold tabular-nums text-white">{item.value}{item.unit && <span className="ml-1 text-[11px] font-medium text-white/65">{item.unit}</span>}</dd>
+    <dd className="mt-1 text-sm font-semibold leading-tight tabular-nums text-white"><span className="block truncate sm:inline">{item.value}</span>{item.unit && <span className="block truncate text-[11px] font-medium text-white/65 sm:ml-1 sm:inline">{item.unit}</span>}</dd>
     {item.usdArvo !== undefined && <dd className="text-[11px] leading-4 [&>span]:ml-0"><UsdHint arvo={item.usdArvo} /></dd>}
   </div>)}</dl>;
 }

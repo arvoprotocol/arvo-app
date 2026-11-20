@@ -30,7 +30,7 @@ export const AUDITS = [
 export const ADDITIONAL_REVIEWS = [
   {
     title: "Shared bonus contract: independently tested",
-    body: "Shared bonuses are paid by a separate, non-upgradeable contract that can only read the staking contract and cannot access principal or base rewards. It is not covered by the Soken audit. It was tested with 37 dedicated unit, fuzz and invariant tests (308 in the full suite), Slither and Semgrep static analysis, and an independent AI security review; all findings were fixed.",
+    body: "Shared bonuses are paid by a separate, non-upgradeable contract that can only read the staking contract and cannot access principal or base rewards. It is not covered by the Soken audit. It was tested with dedicated unit, fuzz and invariant tests, Slither and Semgrep static analysis, and an independent AI security review; all findings were fixed. On 20 November 2026 it was extended to vaults that take ARVO and pay USDG; that change is covered by 39 bonus tests (310 in the full suite) but has not been separately reviewed.",
     href: GITHUB.bonusReview,
     link: "Read the review record",
   },
