@@ -122,6 +122,13 @@ model StrategicPartner {
   walletChangeReason String?
   notes              String?
 
+  // Agreed USD amount, and the ARVO amount locked in when it was entered
+  // (allocationUsd ÷ allocationPrice, rounded down). Releases use allocationArvo only.
+  allocationUsd   String?
+  allocationArvo  String?
+  allocationPrice String?
+  releases      PartnerRelease[]
+
   registrationSentAt DateTime?
   registeredAt       DateTime?
   confirmedAt        DateTime?
@@ -328,4 +335,18 @@ model ReminderSent {
   sentAt         DateTime             @default(now())
 
   @@unique([subscriptionId, positionId, kind])
+}
+
+// A manual ARVO release to a Strategic Partner, recorded by an admin after sending it.
+model PartnerRelease {
+  id         Int              @id @default(autoincrement())
+  partnerId  Int
+  partner    StrategicPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  tranche    Int
+  amountArvo String
+  txHash     String?
+  sentAt     DateTime
+  createdAt  DateTime         @default(now())
+
+  @@unique([partnerId, tranche])
 }

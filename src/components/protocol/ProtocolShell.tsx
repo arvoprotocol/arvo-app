@@ -16,7 +16,7 @@ import { usePathname } from "next/navigation";
 import { AuditedBySoken } from "@/components/protocol/SokenBadge";
 import { SoundToggle, UiClickSounds } from "@/components/protocol/UiFeedback";
 import { IntelligenceWidget } from "@/components/protocol/IntelligenceWidget";
-import { Activity, BrainCircuit, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Sparkles, Wallet, Users, X } from "lucide-react";
+import { Activity, BrainCircuit, ArrowRight, BarChart3, Coins, FolderKanban, Gift, Handshake, Landmark, LayoutDashboard, Menu, PieChart, ShieldCheck, Sparkles, Wallet, Users, X } from "lucide-react";
 
 const nav = [
   { label: "Overview", href: "/app", icon: LayoutDashboard },
@@ -32,6 +32,7 @@ const secondary = [
   { label: "Governance", href: "/app/governance", icon: BarChart3 },
   { label: "Activity", href: "/app/activity", icon: Activity },
   { label: "Transparency", href: "/app/transparency", icon: ShieldCheck },
+  { label: "Partner allocation", href: "/app/allocation", icon: Handshake },
 ] as const;
 
 export function ProtocolShell({ children }: { children: React.ReactNode }) {

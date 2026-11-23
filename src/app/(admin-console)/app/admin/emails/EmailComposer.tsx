@@ -24,7 +24,7 @@ type Recipient = {
   name: string;
 };
 
-const INITIAL_SUBJECT = "An update on LandFi and Arvo";
+const INITIAL_SUBJECT = "An update from Arvo";
 
 const INITIAL_BODY = `Hi [First name],
 
@@ -32,7 +32,7 @@ We wanted to send a quick update as some of you may not yet be aware of the chan
 
 ## Project update
 
-LandFi was closed down and we have since launched Arvo, a new venture built around the same underlying approach but with a much broader scope.
+Our previous project was closed down and we have since launched Arvo, a new venture built around the same underlying approach but with a much broader scope.
 
 One of the main reasons for the change was that we didn't want to remain restricted solely to land. Arvo gives us the ability to build around established, revenue-generating businesses across different sectors, with land and real estate forming the first part of that model.
 
