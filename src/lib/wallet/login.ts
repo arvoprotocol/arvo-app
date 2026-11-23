@@ -20,17 +20,20 @@ export function walletErrorCode(error:unknown):unknown{
  return undefined;
 }
 type Signer={request(args:{method:string;params?:unknown[]},chain?:string):Promise<unknown>};
-// personal_sign is [message, address]. Some wallets reject the request with -32602 ("must provide an Ethereum
-// address") when they don't recognise the account on the current network, e.g. a phone wallet over WalletConnect
-// that hasn't added the Robinhood network. The signature doesn't depend on the network, so retry: over
-// WalletConnect on Ethereum mainnet (approved in the session), otherwise with the older [address, message] order.
+type PhoneSession={namespaces?:Record<string,{accounts?:string[]}>};
+const isBadAddress=(error:unknown)=>walletErrorCode(error)===-32602||/must provide an ethereum address/i.test(error instanceof Error?error.message:typeof error==="object"&&error&&"message" in error?String((error as {message:unknown}).message):"");
+// personal_sign is [message, address]. Phone wallets over WalletConnect (MetaMask mobile) refuse to sign on a
+// network they haven't added, such as Robinhood testnet, with -32602 "must provide an Ethereum address".
+// The signature doesn't depend on the network, so for phone wallets sign on Ethereum mainnet when the session
+// includes it (the admin login signs the same way). Browser wallets: lowercase address, then the older order.
 async function personalSign(provider:{request(args:{method:string;params?:unknown[]}):Promise<unknown>},message:string,address:string){
- const account=address.toLowerCase();
- try{return await provider.request({method:"personal_sign",params:[message,account]});}
- catch(error){
-  if(walletErrorCode(error)!==-32602)throw error;
-  const signer=(provider as {signer?:Signer}).signer;
-  if(signer&&(provider as {session?:unknown}).session)return signer.request({method:"personal_sign",params:[message,account]},"eip155:1");
-  return provider.request({method:"personal_sign",params:[account,message]});
+ const account=address.toLowerCase(),args={method:"personal_sign",params:[message,account]};
+ const signer=(provider as {signer?:Signer}).signer,session=(provider as {session?:PhoneSession}).session;
+ if(signer&&session){
+  const mainnet=(session.namespaces?.eip155?.accounts??[]).some(a=>a.toLowerCase()===`eip155:1:${account}`);
+  if(mainnet)return signer.request(args,"eip155:1");
+  return provider.request(args);
  }
+ try{return await provider.request(args);}
+ catch(error){if(!isBadAddress(error))throw error;return provider.request({method:"personal_sign",params:[account,message]});}
 }

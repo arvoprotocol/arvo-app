@@ -73,7 +73,7 @@ function signInMessage(e: unknown) {
   if (code === 4001 || code === "ACTION_REJECTED") return "The signature request was declined in your wallet. Press Sign in with wallet to try again.";
   let message = typeof e === "object" && e && "message" in e && typeof (e as { message: unknown }).message === "string" ? (e as { message: string }).message : "";
   try { const inner = JSON.parse(message) as { message?: unknown }; if (typeof inner.message === "string") message = inner.message; } catch {}
-  if (code === -32602) return "Your wallet didn’t recognise this account for signing. In your wallet app, select the account you connected with, then try again. If you’re connected by phone, disconnect and reconnect.";
+  if (code === -32602 || /must provide an ethereum address/i.test(message)) return "Your wallet didn’t recognise this account for signing. In your wallet app, select the account you connected with, then try again. If you’re connected by phone, disconnect and reconnect.";
   if (/reject|denied|cancel/i.test(message)) return "The signature request was declined in your wallet. Press Sign in with wallet to try again.";
   return message ? `Unable to sign in: ${message}` : "Unable to sign in. Check your wallet app for a signature request and try again.";
 }
