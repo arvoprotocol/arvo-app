@@ -38,7 +38,7 @@ export const ADDITIONAL_REVIEWS = [
 
 export const SAFEGUARDS = [
   { title: "Time-locked upgrades", body: "Contract upgrades and admin changes must wait out a public timelock delay before they can execute." },
-  { title: "Two-signature control", body: "Vault and reward management is held by a 2-of-2 Safe; no single key can act alone." },
+  { title: "Two-signature control", body: "Vault and reward management is held by a Safe that needs 2 of its 3 owners to sign; no single key can act alone." },
   { title: "Emergency pause", body: "An emergency key can pause deposits immediately. Unpausing goes through the timelock. While paused, stakers can exit with their principal." },
   { title: "Reserved rewards", body: "Each vault's reward budget is reserved before it opens, and principal is accounted for separately from rewards." },
   { title: "Onchain caps", body: "Vault capacity and minimum deposits are enforced by the contract, not just the website." },

@@ -74,7 +74,7 @@ export async function readTransparency(): Promise<Transparency> {
       ...(implementation && implementation !== zeroAddress ? [{ label: "Staking implementation", address: implementation, note: "Read live from the proxy's EIP-1967 slot" }] : []),
       ...bonusAddresses().map((address, i) => ({ label: `Shared bonus contract${bonusAddresses().length > 1 ? ` ${i + 1}` : ""}`, address, note: "Separate contract; not covered by the Soken audit" })),
       ...(timelock ? [{ label: "Timelock", address: timelock, note: "Delays upgrades and admin changes" }] : []),
-      ...(safe ? [{ label: "Governance Safe (2-of-2)", address: safe }] : []),
+      ...(safe ? [{ label: "Staking Rewards Safe (2-of-3)", note: "Creates vaults and funds rewards; controls the timelock", address: safe }] : []),
       ...(treasury ? [{ label: "Treasury Safe", address: treasury }] : []),
       ...(rewardsWallet ? [{ label: "Staking rewards wallet", address: rewardsWallet }] : []),
       ...(oracle !== zeroAddress ? [{ label: "Price oracle", address: oracle as Address }] : []),
@@ -86,8 +86,8 @@ export async function readTransparency(): Promise<Transparency> {
     const checks: { role: string; hash: `0x${string}`; holder: string; address: Address | null; powers: string }[] = [
       { role: "Default admin", hash: ADMIN, holder: "Timelock", address: timelock, powers: "Grant and revoke roles; unpause" },
       { role: "Upgrader", hash: role("UPGRADER_ROLE"), holder: "Timelock", address: timelock, powers: "Upgrade the staking implementation, after the timelock delay" },
-      { role: "Vault manager", hash: role("VAULT_MANAGER_ROLE"), holder: "Governance Safe", address: safe, powers: "Create, open and close vaults" },
-      { role: "Reward manager", hash: role("REWARD_MANAGER_ROLE"), holder: "Governance Safe", address: safe, powers: "Fund and reserve reward budgets" },
+      { role: "Vault manager", hash: role("VAULT_MANAGER_ROLE"), holder: "Staking Rewards Safe", address: safe, powers: "Create, open and close vaults" },
+      { role: "Reward manager", hash: role("REWARD_MANAGER_ROLE"), holder: "Staking Rewards Safe", address: safe, powers: "Fund and reserve reward budgets" },
       { role: "Pauser", hash: role("PAUSER_ROLE"), holder: "Emergency key", address: pauser, powers: "Pause immediately in an emergency" },
     ];
     const roles: RoleRow[] = [];
