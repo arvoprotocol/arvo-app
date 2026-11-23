@@ -8,7 +8,7 @@
 // - Taken from Strategic Partners & Advisors (10% of supply, 100m ARVO), of which 48.5m was
 //   still available when the conversion was agreed.
 // - Published vesting for that allocation: 3-month lock from TGE, then linear over 12 months.
-//   Releases are sent manually as 12 monthly instalments, the first one month after the lock ends.
+//   Releases are sent manually as 12 monthly instalments, the first on the day the lock ends.
 
 export const ALLOCATION = {
   // ARVO graduation price: what ARVO opened at when it graduated to a DEX on 25 Sept 2026.
@@ -60,12 +60,12 @@ function addMonthsUtc(date: Date, months: number) {
 
 export type Tranche = { tranche: number; due: string | null; amountArvo: string };
 
-/** Twelve monthly instalments; the last one carries any rounding remainder. */
+/** Twelve monthly instalments from the end of the lock; the last one carries any rounding remainder. */
 export function releaseSchedule(totalArvo: bigint, tge: Date | null): Tranche[] {
   const n = BigInt(ALLOCATION.releaseMonths), each = totalArvo / n;
   return Array.from({ length: ALLOCATION.releaseMonths }, (_, i) => ({
     tranche: i + 1,
-    due: tge ? addMonthsUtc(tge, ALLOCATION.cliffMonths + i + 1).toISOString() : null,
+    due: tge ? addMonthsUtc(tge, ALLOCATION.cliffMonths + i).toISOString() : null,
     amountArvo: String(i === ALLOCATION.releaseMonths - 1 ? totalArvo - each * (n - 1n) : each),
   }));
 }
