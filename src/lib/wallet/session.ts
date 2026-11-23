@@ -13,7 +13,7 @@ function origin(request:Request){const value=request.headers.get("origin");if(!v
 export async function createWalletChallenge(request:Request,address:unknown,chainId:unknown){
  if(typeof address!=="string"||!isAddress(address)||typeof chainId!=="number"||!Number.isSafeInteger(chainId)||chainId<1||chainId>2147483647)throw new SupportError("Choose a valid wallet account and network.");
  const normalized=getAddress(address),url=origin(request),nonce=randomBytes(24).toString("hex"),expiresAt=new Date(Date.now()+300000);
- const message=createSiweMessage({domain:url.host,address:normalized,statement:"Sign in to your Arvo support tickets. No transaction or token approval is requested.",uri:`${url.origin}${appPath("/app/support")}`,version:"1",chainId,nonce,issuedAt:new Date(),expirationTime:expiresAt});
+ const message=createSiweMessage({domain:url.host,address:normalized,statement:"Sign in to the Arvo app with your wallet. No transaction or token approval is requested.",uri:`${url.origin}${appPath("/app")}`,version:"1",chainId,nonce,issuedAt:new Date(),expirationTime:expiresAt});
  const cookieStore=await cookies(),old=cookieStore.get(challengeCookie)?.value;
  await prisma.$transaction(async tx=>{await limit(tx,`wallet-login:${rateIdentity(request)}`,20,600000);await tx.walletChallenge.deleteMany({where:{OR:[{expiresAt:{lt:new Date()}},...(old?[{id:hash(old)}]:[])]}});await tx.walletChallenge.create({data:{id:hash(nonce),address:normalized.toLowerCase(),chainId,message,expiresAt}});});
  cookieStore.set(challengeCookie,nonce,{...options,maxAge:300});return {address:normalized,message,chainId};

@@ -4,6 +4,7 @@ import { CalendarClock, CheckCircle2, Clock3, ExternalLink, LockKeyhole, Wallet 
 import { openWalletPicker, walletSnapshot } from "@/lib/wallet/client";
 import { signInWallet } from "@/lib/wallet/login";
 import { useWalletConnection } from "@/hooks/useWalletConnection";
+import { usePartnerEligible } from "@/hooks/usePartnerEligible";
 import { ALLOCATION } from "@/lib/partners/allocation";
 
 type Tranche = { tranche: number; due: string | null; amountArvo: string; status: "sent" | "due" | "upcoming" | "unscheduled"; txHash: string | null; sentAt: string | null };
@@ -15,6 +16,7 @@ const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
 export function PartnerAllocation() {
   const wallet = useWalletConnection();
+  const eligible = usePartnerEligible(wallet.account);
   const [signed, setSigned] = useState<string | null>(null), [data, setData] = useState<Allocation | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState("");
   const version = useRef(0);
   const authenticated = Boolean(wallet.account && signed === wallet.account.toLowerCase());
@@ -45,21 +47,33 @@ export function PartnerAllocation() {
     const controller = new AbortController(), generation = version.current, timer = setTimeout(() => controller.abort(), 180000);
     setBusy(true); setError("");
     try { const result = await signInWallet(controller.signal); if (generation === version.current) setSigned(result.address); }
-    catch (e) { if (generation === version.current) setError(controller.signal.aborted ? "Sign-in cancelled or timed out. Try again." : e instanceof Error ? e.message : "Unable to sign in."); }
+    catch (e) { if (generation === version.current) setError(controller.signal.aborted ? "Sign-in cancelled or timed out. Try again." : signInMessage(e)); }
     finally { clearTimeout(timer); if (generation === version.current) setBusy(false); }
   }
 
-  return <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
+  const found = Boolean(data && data.found);
+  return <div className={`mt-8 grid gap-6 ${found ? "xl:grid-cols-[minmax(0,1fr)_400px]" : "max-w-2xl"}`}>
     <div className="min-w-0 space-y-6">
-      {!wallet.account ? <Gate icon={<Wallet size={20} />} title="Connect the wallet you registered" copy="Use the wallet you confirmed when you registered as a Strategic Partner. Your allocation and release schedule will show here." action={<button onClick={openWalletPicker} className="rounded-xl bg-[#07090b] px-5 py-3 text-sm font-semibold text-white">Connect wallet</button>} />
+      {!wallet.account ? <Gate icon={<Wallet size={20} />} title="Strategic Partners only" copy="This page is for Arvo Strategic Partners. Connect the wallet you registered with Arvo to see your allocation and release schedule." action={<button onClick={openWalletPicker} className="rounded-xl bg-[#07090b] px-5 py-3 text-sm font-semibold text-white">Connect wallet</button>} />
+        : eligible === false && !(data && data.found) ? <Gate icon={<Wallet size={20} />} title="No allocation for this wallet" copy={`There’s no Strategic Partner allocation linked to ${short(wallet.account)}. If you’re a partner, connect the wallet you registered with Arvo, or contact the team through Support.`} />
+        : eligible === null && !authenticated ? <div className="rounded-[22px] border border-black/[.07] bg-white p-8 text-sm text-black/50">Checking your wallet…</div>
         : !authenticated ? <Gate icon={<LockKeyhole size={20} />} title="Sign in to view your allocation" copy={`Connected as ${short(wallet.account)}. Sign a message to prove it’s your wallet. Signing is free and doesn’t send a transaction.`} action={<button onClick={() => void signIn()} disabled={busy} className="rounded-xl bg-[#07090b] px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{busy ? "Check your wallet…" : "Sign in with wallet"}</button>} />
         : busy && !data ? <div className="rounded-[22px] border border-black/[.07] bg-white p-8 text-sm text-black/50">Loading your allocation…</div>
-        : data && !data.found ? <Gate icon={<Wallet size={20} />} title="No allocation linked to this wallet" copy={`We couldn’t find a Strategic Partner allocation for ${short(wallet.account)}. Make sure you’ve connected the wallet you registered with Arvo. If you think this is wrong, contact the Arvo team through Support.`} />
+        : data && !data.found ? <Gate icon={<Wallet size={20} />} title="No allocation for this wallet" copy={`There’s no Strategic Partner allocation linked to ${short(wallet.account)}. If you’re a partner, connect the wallet you registered with Arvo, or contact the team through Support.`} />
         : data && data.found ? <Found data={data} /> : null}
       {error && <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-800">{error}</p>}
     </div>
-    <Explainer />
+    {found && <Explainer />}
   </div>;
+}
+
+// Wallets reject with plain objects ({ code, message }) rather than Error instances.
+function signInMessage(e: unknown) {
+  const code = typeof e === "object" && e && "code" in e ? (e as { code: unknown }).code : undefined;
+  if (code === 4001 || code === "ACTION_REJECTED") return "The signature request was declined in your wallet. Press Sign in with wallet to try again.";
+  const message = typeof e === "object" && e && "message" in e && typeof (e as { message: unknown }).message === "string" ? (e as { message: string }).message : "";
+  if (/reject|denied|cancel/i.test(message)) return "The signature request was declined in your wallet. Press Sign in with wallet to try again.";
+  return message ? `Unable to sign in: ${message}` : "Unable to sign in. Check your wallet app for a signature request and try again.";
 }
 
 function Gate({ icon, title, copy, action }: { icon: React.ReactNode; title: string; copy: string; action?: React.ReactNode }) {

@@ -7,6 +7,7 @@ import {SupportNotifications} from "./SupportNotifications";
 import {ProtocolHeaderInfo} from "./ProtocolHeaderInfo";
 import {ProtocolSidebarFooter} from "./ProtocolSidebarFooter";
 import {useWalletConnection} from "@/hooks/useWalletConnection";
+import {usePartnerEligible} from "@/hooks/usePartnerEligible";
 import {WalletPicker} from "./WalletPicker";
 import {connectStakingWallet} from "@/lib/staking/user-transactions";
 import { useState } from "react";
@@ -32,13 +33,15 @@ const secondary = [
   { label: "Governance", href: "/app/governance", icon: BarChart3 },
   { label: "Activity", href: "/app/activity", icon: Activity },
   { label: "Transparency", href: "/app/transparency", icon: ShieldCheck },
-  { label: "Partner allocation", href: "/app/allocation", icon: Handshake },
 ] as const;
+const partnerItem = { label: "Partner allocation", href: "/app/allocation", icon: Handshake } as const;
 
 export function ProtocolShell({ children }: { children: React.ReactNode }) {
   const pathname = internalAppPath(usePathname());
   const [mobileOpen, setMobileOpen] = useState(false);
   const wallet = useWalletConnection();
+  const isPartner = usePartnerEligible(wallet.account);
+  const protocolNav = isPartner === true || pathname === "/app/allocation" ? [...secondary, partnerItem] : secondary;
   const connected = Boolean(wallet.account);
   const [walletError,setWalletError] = useState("");
   const renderNav = (items: readonly any[]) => items.map((item) => {
@@ -55,7 +58,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
         <nav className="px-3 pt-3">{renderNav(nav)}</nav>
         <div className="mx-6 my-4 border-t border-white/8" />
         <p className="px-6 pb-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/22">Protocol</p>
-        <nav className="px-3">{renderNav(secondary)}</nav>
+        <nav className="px-3">{renderNav(protocolNav)}</nav>
         <div className="mx-6 mt-5"><AuditedBySoken href={appPath("/app/transparency#security")} compact /></div>
         <div className="mx-5 mt-3"><SoundToggle className="text-white/40 hover:bg-white/[0.06] hover:text-white/80"/></div>
         <div className="mt-auto"><ProtocolSidebarFooter/></div>
@@ -99,7 +102,7 @@ export function ProtocolShell({ children }: { children: React.ReactNode }) {
             <button autoFocus aria-label="Close navigation" onClick={() => setMobileOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10"><X size={19}/></button>
           </div>
           <div className="grid grid-cols-2 gap-2 px-4 pt-5"><BuyArvoButton className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3 py-3 text-sm font-semibold text-white"/><Link href={appPath("/app/stake")} onClick={() => setMobileOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#a98bf0_135%)] px-3 py-3 text-sm font-semibold text-[#07090b]">Stake ARVO<ArrowRight size={14}/></Link></div>
-          <nav className="px-4 py-5">{renderNav(nav)}<div className="my-4 border-t border-white/10"/>{renderNav(secondary)}</nav>
+          <nav className="px-4 py-5">{renderNav(nav)}<div className="my-4 border-t border-white/10"/>{renderNav(protocolNav)}</nav>
           <div className="px-5 pb-3"><SoundToggle className="text-white/50 hover:bg-white/[0.06] hover:text-white/80"/></div>
           <div className="mt-auto"><ProtocolSidebarFooter onNavigate={()=>setMobileOpen(false)}/></div>
         </div>
