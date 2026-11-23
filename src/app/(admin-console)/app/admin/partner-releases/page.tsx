@@ -29,7 +29,7 @@ export default async function PartnerReleasesPage() {
   const firstOpen = dates.findIndex(([, list]) => list.some(r => r.status !== "sent"));
 
   return <div className="space-y-8 px-4 py-8 md:px-7 md:py-10 lg:px-9 xl:px-11">
-    <PageTitle eyebrow="Strategic Partners" title="Partner releases" copy={`Enter each partner’s agreed amount in USD. It’s converted once at $${ALLOCATION.priceUsd} and the ARVO amount is locked in, so later price moves don’t change it. It’s released in ${ALLOCATION.releaseMonths} monthly instalments after a ${ALLOCATION.cliffMonths}-month lock. You send each release from your own wallet, then record it here.`} />
+    <PageTitle eyebrow="Strategic Partners" title="Partner releases" copy={`Enter each partner’s agreed amount in USD. It’s converted once at the ARVO graduation price ($${ALLOCATION.priceUsd}) and the ARVO amount is locked in, so later price moves don’t change it. It’s released in ${ALLOCATION.releaseMonths} monthly instalments after a ${ALLOCATION.cliffMonths}-month lock. You send each release from your own wallet, then record it here.`} />
 
     {!tge && <div className="flex gap-3 rounded-2xl border border-amber-500/25 bg-amber-50 p-4 text-sm text-amber-900"><AlertTriangle size={18} className="mt-0.5 shrink-0" /><p><strong>Release dates aren’t set.</strong> The TGE date is invalid. Check <code className="rounded bg-white/70 px-1">ARVO_TGE_DATE</code> on the server.</p></div>}
 
@@ -48,7 +48,7 @@ export default async function PartnerReleasesPage() {
           <td className="px-5 py-3.5 md:px-6"><Link href={appPath(`/app/admin/partners/${p.id}`)} className="font-semibold hover:text-[#ad7058]">{p.name}</Link><p className="text-xs text-black/45">{p.email}</p></td>
           <td className="px-3 py-3.5">{p.registeredWallet ? <CopyWallet wallet={p.registeredWallet} /> : <span className="text-xs text-black/40">Not registered</span>}{p.status !== "confirmed" && <p className="mt-1 text-[11px] font-semibold text-amber-700">Wallet not confirmed: can’t see allocation yet</p>}</td>
           <td className="px-3 py-3.5"><AllocationInput id={p.id} usd={p.allocationUsd} locked={p.releases.length > 0} /></td>
-          <td className="px-3 py-3.5 tabular-nums">{p.allocationArvo ? <><span className="font-semibold">{formatArvo(p.allocationArvo)}</span><p className="text-[11px] text-black/40">Locked at ${p.allocationPrice}</p></> : "–"}</td>
+          <td className="px-3 py-3.5 tabular-nums">{p.allocationArvo ? <><span className="font-semibold">{formatArvo(p.allocationArvo)}</span><p className="text-[11px] text-black/40">Graduation price ${p.allocationPrice}</p></> : "–"}</td>
           <td className="px-5 py-3.5 text-xs text-black/55 tabular-nums md:px-6">{view ? `${view.tranches.filter(t => t.status === "sent").length} of ${ALLOCATION.releaseMonths}` : "–"}</td>
         </tr>)}</tbody>
       </table></div>

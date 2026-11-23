@@ -11,6 +11,7 @@
 //   Releases are sent manually as 12 monthly instalments, the first one month after the lock ends.
 
 export const ALLOCATION = {
+  // ARVO graduation price: what ARVO opened at when it graduated to a DEX on 25 Sept 2026.
   priceUsd: "0.0014277",
   cliffMonths: 3,
   releaseMonths: 12,
