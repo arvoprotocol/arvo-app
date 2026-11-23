@@ -41,8 +41,9 @@ export default async function AdminInvitationsPage() {
     (item) => item.isActive && item.useCount < item.maxUses
   ).length;
 
+  // Used = opened the app with it (accessAt) or registered on the waitlist with it.
   const claimed = invitations.filter(
-    (item) => item.useCount > 0
+    (item) => item.useCount > 0 || item.accessAt !== null
   ).length;
 
   const disabled = invitations.filter(
@@ -75,9 +76,9 @@ export default async function AdminInvitationsPage() {
         />
 
         <StatCard
-          label="Claimed"
+          label="Used"
           value={`${claimed}`}
-          detail="Invitations used"
+          detail="Opened the app or joined the waitlist"
           icon={<UserCheck size={16} />}
         />
 
@@ -153,10 +154,16 @@ export default async function AdminInvitationsPage() {
                       </p>
                     </div>
 
-                    <InvitationDatum
-                      label="Usage"
-                      value={`${invitation.useCount} / ${invitation.maxUses}`}
-                    />
+                    <div className="space-y-3">
+                      <InvitationDatum
+                        label="Used in app"
+                        value={invitation.accessAt ? `First ${formatDate(invitation.accessAt)}` : "Not used yet"}
+                      />
+                      <InvitationDatum
+                        label="Waitlist sign-ups"
+                        value={`${invitation.useCount} / ${invitation.maxUses}`}
+                      />
+                    </div>
 
                     <InvitationDatum
                       label="Claimed by"
