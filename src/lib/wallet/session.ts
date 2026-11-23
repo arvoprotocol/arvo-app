@@ -1,11 +1,11 @@
 import "server-only";
-import {appCookiePath, appPath} from "@/lib/protocol/app-url";
+import {appCookiePath} from "@/lib/protocol/app-url";
 import {createHash,randomBytes} from "node:crypto";
 import {cookies} from "next/headers";
 import {getAddress,isAddress,verifyMessage,type Hex} from "viem";
-import {createSiweMessage} from "viem/siwe";
 import {prisma} from "@/lib/prisma";
 import {SupportError,limit,rateIdentity} from "@/lib/support/server";
+const MESSAGE_TITLE="Arvo wallet sign-in";
 const challengeCookie="arvo_wallet_challenge",sessionCookie="arvo_wallet_session";
 const options={httpOnly:true,secure:process.env.NODE_ENV==="production",sameSite:"strict" as const,path:appCookiePath()};
 const hash=(value:string)=>createHash("sha256").update(value).digest("hex");
@@ -13,7 +13,11 @@ function origin(request:Request){const value=request.headers.get("origin");if(!v
 export async function createWalletChallenge(request:Request,address:unknown,chainId:unknown){
  if(typeof address!=="string"||!isAddress(address)||typeof chainId!=="number"||!Number.isSafeInteger(chainId)||chainId<1||chainId>2147483647)throw new SupportError("Choose a valid wallet account and network.");
  const normalized=getAddress(address),url=origin(request),nonce=randomBytes(24).toString("hex"),expiresAt=new Date(Date.now()+300000);
- const message=createSiweMessage({domain:url.host,address:normalized,statement:"Sign in to the Arvo app with your wallet. No transaction or token approval is requested.",uri:`${url.origin}${appPath("/app")}`,version:"1",chainId,nonce,issuedAt:new Date(),expirationTime:expiresAt});
+ const issuedAt=new Date();
+ // Plain-text message (same approach as the admin login) rather than SIWE: some wallets reject SIWE-formatted
+ // personal_sign requests. It still binds the site, wallet, network, nonce and expiry, and the server only
+ // accepts the exact message it issued.
+ const message=[MESSAGE_TITLE,"","Sign in to the Arvo app with your wallet. No transaction or token approval is requested.","",`Website: ${url.host}`,`Wallet: ${normalized}`,`Network: ${chainId}`,`Nonce: ${nonce}`,`Issued: ${issuedAt.toISOString()}`,`Expires: ${expiresAt.toISOString()}`].join("\n");
  const cookieStore=await cookies(),old=cookieStore.get(challengeCookie)?.value;
  await prisma.$transaction(async tx=>{await limit(tx,`wallet-login:${rateIdentity(request)}`,20,600000);await tx.walletChallenge.deleteMany({where:{OR:[{expiresAt:{lt:new Date()}},...(old?[{id:hash(old)}]:[])]}});await tx.walletChallenge.create({data:{id:hash(nonce),address:normalized.toLowerCase(),chainId,message,expiresAt}});});
  cookieStore.set(challengeCookie,nonce,{...options,maxAge:300});return {address:normalized,message,chainId};
@@ -22,7 +26,7 @@ export async function verifyWalletChallenge(request:Request,value:Record<string,
  const cookieStore=await cookies(),nonce=cookieStore.get(challengeCookie)?.value;
  if(!nonce||typeof value.message!=="string"||value.message.length>3000||typeof value.signature!=="string"||!/^0x[a-f0-9]{130}$/i.test(value.signature))throw new SupportError("Invalid wallet login request.",401);
  const row=await prisma.walletChallenge.findUnique({where:{id:hash(nonce)}}),url=origin(request);
- if(!row||row.expiresAt.getTime()<=Date.now()||row.message!==value.message||!row.message.startsWith(`${url.host} wants you to sign in`))throw new SupportError("Login expired. Please sign in again.",401);
+ if(!row||row.expiresAt.getTime()<=Date.now()||row.message!==value.message||!row.message.startsWith(MESSAGE_TITLE+"\n")||!row.message.includes(`\nWebsite: ${url.host}\n`))throw new SupportError("Login expired. Please sign in again.",401);
  let valid=false;try{valid=await verifyMessage({address:row.address as `0x${string}`,message:row.message,signature:value.signature as Hex});}catch{}
  if(!valid)throw new SupportError("The signature does not match this wallet.",401);
  const token=randomBytes(32).toString("hex"),old=cookieStore.get(sessionCookie)?.value;
