@@ -119,7 +119,7 @@ function Stat({ label, value, detail }: { label: string; value: string; detail?:
 }
 
 function TrancheStatus({ t }: { t: Tranche }) {
-  if (t.status === "sent") return <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800"><CheckCircle2 size={12} />Sent{t.txHash && <a href={`https://robinscan.io/tx/${t.txHash}`} target="_blank" rel="noopener noreferrer" aria-label="View transaction" className="ml-0.5 text-emerald-700 hover:text-emerald-950"><ExternalLink size={11} /></a>}</span>;
+  if (t.status === "sent") return <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800"><CheckCircle2 size={12} />Sent{t.txHash && <a href={`https://robinhoodchain.blockscout.com/tx/${t.txHash}`} target="_blank" rel="noopener noreferrer" aria-label="View transaction" className="ml-0.5 text-emerald-700 hover:text-emerald-950"><ExternalLink size={11} /></a>}</span>;
   if (t.status === "due") return <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c9846a]/12 px-2.5 py-1 text-[11px] font-semibold text-[#a9654f]"><Clock3 size={12} />Being sent</span>;
   return <span className="inline-flex items-center gap-1.5 rounded-full bg-black/[.04] px-2.5 py-1 text-[11px] font-semibold text-black/45"><CalendarClock size={12} />{t.status === "upcoming" ? "Scheduled" : "Date to be confirmed"}</span>;
 }

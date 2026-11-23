@@ -44,7 +44,7 @@ export function ReleaseAction({ id, tranche, sent, txHash, due }: { id: number; 
   }
   if (sent) return <div className="flex items-center gap-2">
     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800"><Check size={12} />Sent</span>
-    {txHash && <a href={`https://robinscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-[#ad7058]">Tx ↗</a>}
+    {txHash && <a href={`https://robinhoodchain.blockscout.com/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-[#ad7058]">Tx ↗</a>}
     <button onClick={() => void run("DELETE")} disabled={busy} aria-label="Undo" title="Undo record" className="text-black/35 hover:text-black"><Undo2 size={13} /></button>
     {error && <span className="text-[11px] text-red-700">{error}</span>}
   </div>;

@@ -11,7 +11,7 @@ import { AnimatedHeadline } from "@/components/animations/AnimatedHeadline";
 
 const CONTRACT_ADDRESS = "0x6457dA6FCA3C807b7f430770DbBe8aB5a767234A";
 const VIRTUALS_URL = "https://app.virtuals.io/virtuals/139272";
-const ROBINHOOD_URL = "https://robinscan.io/token/0x6457da6fca3c807b7f430770dbbe8ab5a767234a";
+const ROBINHOOD_URL = "https://robinhoodchain.blockscout.com/token/0x6457da6fca3c807b7f430770dbbe8ab5a767234a";
 const UNISWAP_URL = "https://app.uniswap.org/explore/tokens/robinhood/0x6457dA6FCA3C807b7f430770DbBe8aB5a767234A";
 const COINGECKO_URL = "https://www.coingecko.com/en/coins/arvo";
 const DEXSCREENER_URL = "https://dexscreener.com/robinhood/0xb9b1139C812F4c9d0F3eC1dd502560777118E0E0";
