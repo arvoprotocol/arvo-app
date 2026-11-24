@@ -376,6 +376,11 @@ export type AdminBroadcastRecipient = {
   name?: string | null;
 };
 
+/** Turns https:// links (already HTML-escaped) into clickable links. */
+function linkify(escaped: string) {
+  return escaped.replace(/https:\/\/[^\s<]+[^\s<.,;:!?)]/g, (url) => `<a href="${url}" style="color:#e2a98e;text-decoration:underline;">${url}</a>`);
+}
+
 function broadcastBodyHtml(body: string, recipientName?: string | null, unsubscribeUrl?: string) {
   const firstName = recipientName?.trim().split(/\s+/)[0] || "";
 
@@ -384,10 +389,13 @@ function broadcastBodyHtml(body: string, recipientName?: string | null, unsubscr
     firstName || ""
   );
 
-  const blocks = personalised
+  const allBlocks = personalised
     .split(/\n{2,}/)
     .map((block) => block.trim())
     .filter(Boolean);
+  // A first block starting "# " becomes the email heading; otherwise the old default.
+  const heading = allBlocks[0]?.startsWith("# ") ? allBlocks[0].slice(2).trim() : "Project update.";
+  const blocks = allBlocks[0]?.startsWith("# ") ? allBlocks.slice(1) : allBlocks;
 
   const content = blocks
     .map((block) => {
@@ -395,6 +403,23 @@ function broadcastBodyHtml(body: string, recipientName?: string | null, unsubscr
         return `
           <div style="margin:32px 0 13px;font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#d9997b;">
             ${escapeHtml(block.slice(3))}
+          </div>
+        `;
+      }
+
+      if (block === "[Open Arvo app]") {
+        return `
+          <div style="margin:30px 0;">
+            <a
+              href="https://app.arvoprotocol.com"
+              style="display:inline-block;background:#ffffff;color:#07090b;text-decoration:none;font-size:12px;font-weight:700;padding:14px 20px;border-radius:8px;"
+            >
+              Open the Arvo app
+            </a>
+
+            <div style="margin-top:11px;font-size:11px;line-height:18px;color:#66666b;">
+              app.arvoprotocol.com
+            </div>
           </div>
         `;
       }
@@ -418,7 +443,7 @@ function broadcastBodyHtml(body: string, recipientName?: string | null, unsubscr
 
       return `
         <p style="margin:0 0 17px;font-size:15px;line-height:25px;color:#9b9b9f;">
-          ${escapeHtml(block).replace(/\n/g, "<br>")}
+          ${linkify(escapeHtml(block)).replace(/\n/g, "<br>")}
         </p>
       `;
     })
@@ -430,7 +455,7 @@ function broadcastBodyHtml(body: string, recipientName?: string | null, unsubscr
     </div>
 
     <h1 style="margin:18px 0 28px;font-size:34px;line-height:40px;letter-spacing:-1.3px;color:#ffffff;">
-      Project update.
+      ${escapeHtml(heading)}
     </h1>
 
     <div>
@@ -452,7 +477,8 @@ function broadcastPlainText(body: string, recipientName?: string | null, unsubsc
 
   return body
     .replace(/\[First name\]/gi, firstName)
-    .replace(/^##\s+/gm, "")
+    .replace(/^#{1,2}\s+/gm, "")
+    .replace(/\[Open Arvo app\]/g, "Open the Arvo app: https://app.arvoprotocol.com")
     .replace(
       /\[Visit Arvo\]/g,
       "Visit Arvo: https://arvoprotocol.com"
