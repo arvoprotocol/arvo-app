@@ -11,7 +11,7 @@ export function AppAccessGate({
 }) {
   const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://arvoprotocol.com").replace(/\/+$/, "");
   const publicLabel = publicAt
-    ? new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" }).format(new Date(publicAt)) + " UK time"
+    ? new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(new Date(publicAt)) + " UTC"
     : null;
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07090b] px-5 py-20 text-white">
