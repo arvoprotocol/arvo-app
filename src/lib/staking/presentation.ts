@@ -12,6 +12,15 @@ export function ungroupAmount(raw: string): string {
   return raw.replaceAll(",", "");
 }
 export function tokenDisplay(amount: bigint, decimals: number) { return formatAmount(formatUnits(amount, decimals)); }
+/** Rounded down to `places` decimals for summaries such as vault capacity, e.g. "3,004,854.89". */
+export function tokenDisplayShort(amount: bigint, decimals: number, places = 2): string {
+  if (amount < 0n) return "-" + tokenDisplayShort(-amount, decimals, places);
+  const scale = 10n ** BigInt(places);
+  const scaled = decimals >= places ? amount / 10n ** BigInt(decimals - places) : amount * 10n ** BigInt(places - decimals);
+  const whole = formatAmount((scaled / scale).toString());
+  const fraction = (scaled % scale).toString().padStart(places, "0");
+  return places === 0 || /^0+$/.test(fraction) ? whole : `${whole}.${fraction}`;
+}
 export function cycleReward(amount: bigint, rateBps: number, boostBps = 0): bigint {
   if (amount < 0n || !Number.isInteger(rateBps) || rateBps < 0 || rateBps > 10000 || !Number.isInteger(boostBps) || boostBps < 0 || boostBps > 5000) throw new Error("Invalid reward terms.");
   return amount * BigInt(rateBps) * BigInt(10000 + boostBps) / 100000000n;

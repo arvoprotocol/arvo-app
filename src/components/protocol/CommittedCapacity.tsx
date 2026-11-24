@@ -1,5 +1,5 @@
 "use client";
-import { tokenDisplay } from "@/lib/staking/presentation";
+import { tokenDisplayShort as tokenDisplay } from "@/lib/staking/presentation";
 import { InfoTip } from "./InfoTip";
 
 /**

@@ -2,7 +2,7 @@
 import type {PoolRow} from "@/hooks/useStakingData";
 import {useVaultClock} from "./VaultTiming";
 import {assetCapacity, vaultAvailability} from "@/lib/staking/capacity";
-import {tokenDisplay} from "@/lib/staking/presentation";
+import {tokenDisplayShort as tokenDisplay} from "@/lib/staking/presentation";
 import {CommittedCapacity} from "./CommittedCapacity";
 import {InfoTip} from "./InfoTip";
 export function VaultCapacity({row,bare=false}:{row:PoolRow;bare?:boolean}) {
