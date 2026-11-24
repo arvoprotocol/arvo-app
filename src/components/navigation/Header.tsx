@@ -125,47 +125,45 @@ export function Header({ launch = false }: { launch?: boolean }) {
                 </div>
 
                 <div className="flex h-[52px] items-stretch gap-3">
-                  <Link
-                    href={appUrl("/app")}
-                    className={`inline-flex h-[52px] items-center justify-center rounded-xl border border-white/15 bg-white/[0.035] px-5 text-[14px] font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.06] ${
-                      launch ? "" : "hidden xl:inline-flex"
-                    }`}
-                  >
-                    Launch app
-                  </Link>
-
                   <button
                     type="button"
                     onClick={openBuy}
-                    className="app-cta-pulse group relative inline-flex h-[52px] items-center justify-center gap-3 rounded-xl bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] px-5 text-[15px] font-semibold text-[#07090b] shadow-[inset_0_1px_0_rgba(255,255,255,.34),0_22px_60px_rgba(201,132,106,.24)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105"
+                    className={`inline-flex h-[52px] items-center justify-center rounded-xl border border-white/15 bg-white/[0.035] px-5 text-[14px] font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.06] ${
+                      launch ? "" : "hidden xl:inline-flex"
+                    }`}
                     aria-haspopup="dialog"
                   >
-                    <span>Buy</span>
+                    Buy
+                  </button>
+
+                  <Link
+                    href={appUrl("/app")}
+                    className="app-cta-pulse group relative inline-flex h-[52px] items-center justify-center gap-3 rounded-xl bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] px-5 text-[15px] font-semibold text-[#07090b] shadow-[inset_0_1px_0_rgba(255,255,255,.34),0_22px_60px_rgba(201,132,106,.24)] transition duration-300 hover:-translate-y-0.5 hover:brightness-105"
+                  >
+                    <span>Launch app</span>
                     <span
                       aria-hidden="true"
                       className="text-lg leading-none transition-transform duration-300 group-hover:translate-x-1"
                     >
                       →
                     </span>
-                  </button>
+                  </Link>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 lg:hidden">
-                <button
-                  type="button"
-                  onClick={openBuy}
-                  className="inline-flex h-[44px] min-w-[80px] items-center justify-center rounded-xl bg-[linear-gradient(135deg,#b9775d_0%,#e2a98e_45%,#f0d2b0_100%)] px-5 text-[14px] font-semibold text-[#07090b] shadow-[inset_0_1px_0_rgba(255,255,255,.3)] transition active:scale-[0.98]"
-                  aria-haspopup="dialog"
+                <Link
+                  href={appUrl("/app")}
+                  className="group inline-flex h-[44px] min-w-[80px] items-center justify-center rounded-xl bg-[linear-gradient(135deg,#b9775d_0%,#e2a98e_45%,#f0d2b0_100%)] px-4 text-[14px] font-semibold text-[#07090b] shadow-[inset_0_1px_0_rgba(255,255,255,.3)] transition active:scale-[0.98]"
                 >
-                  <span>Buy</span>
+                  <span>Launch app</span>
                   <span
                     aria-hidden="true"
-                    className="ml-3 text-lg leading-none transition-transform duration-300 group-hover:translate-x-1"
+                    className="ml-2 text-lg leading-none transition-transform duration-300 group-hover:translate-x-1"
                   >
                     →
                   </span>
-                </button>
+                </Link>
 
                 <button
                   type="button"
@@ -216,26 +214,26 @@ export function Header({ launch = false }: { launch?: boolean }) {
 
                 <div className="pt-6">
                   <div className="flex flex-col gap-3">
-                    <button
-                      type="button"
-                      onClick={openBuy}
+                    <Link
+                      href={appUrl("/app")}
+                      onClick={() => setOpen(false)}
                       className="group relative block w-full"
                     >
                       <span className="app-cta-pulse relative flex h-[60px] w-full items-center justify-center gap-3 rounded-xl bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.35),transparent_28%),linear-gradient(135deg,#b9775d_0%,#e2a98e_38%,#f0d2b0_58%,#8b5cf6_135%)] px-6 py-5 text-[16px] font-semibold text-[#07090b]">
-                        <span>Buy</span>
+                        <span>Launch app</span>
                         <span aria-hidden="true" className="text-xl leading-none">
                           →
                         </span>
                       </span>
-                    </button>
+                    </Link>
 
-                    <Link
-                      href={appUrl("/app")}
-                      onClick={() => setOpen(false)}
+                    <button
+                      type="button"
+                      onClick={openBuy}
                       className="flex h-[60px] w-full items-center justify-center rounded-xl border border-white/15 bg-white/[0.035] px-6 py-5 text-[16px] font-semibold text-white transition hover:border-white/25 hover:bg-white/[0.06]"
                     >
-                      Launch app
-                    </Link>
+                      Buy
+                    </button>
                   </div>
 
                   <div className="mt-8 flex items-center justify-center gap-6">
