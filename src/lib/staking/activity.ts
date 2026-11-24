@@ -19,7 +19,9 @@ const inflight = new Map<number, Promise<State>>();
 const blockTimes = new Map<bigint, number>();
 
 function client(): { c: PublicClient; proxy: Address } | null {
-  const rpc = process.env.NEXT_PUBLIC_STAKING_RPC_URL, proxy = process.env.NEXT_PUBLIC_STAKING_PROXY_ADDRESS;
+  // Event scans can use a separate RPC: some providers (e.g. Alchemy on Robinhood Chain)
+  // reject eth_getLogs. STAKING_LOGS_RPC_URL is server-only; it falls back to the app's RPC.
+  const rpc = process.env.STAKING_LOGS_RPC_URL || process.env.NEXT_PUBLIC_STAKING_RPC_URL, proxy = process.env.NEXT_PUBLIC_STAKING_PROXY_ADDRESS;
   if (!rpc || !proxy || !isAddress(proxy)) return null;
   return { c: createPublicClient({ transport: http(rpc, { timeout: 15_000 }) }) as PublicClient, proxy: proxy as Address };
 }
