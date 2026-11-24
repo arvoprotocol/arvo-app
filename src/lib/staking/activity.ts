@@ -9,7 +9,7 @@ import stakingArtifact from "@/lib/staking/ArvoStaking.abi.json";
 const stakingAbi = ((stakingArtifact as { abi?: unknown }).abi ?? stakingArtifact) as readonly unknown[];
 const STAKED = parseAbiItem("event Staked(uint256 indexed positionId, address indexed user, uint32 indexed vaultId, uint8 stakeMode, uint8 rewardMode, uint256 arvoPrincipal, uint256 usdcPrincipal, uint256 arvoReward, uint256 usdcReward, uint256 maturesAt)");
 const EXITED = parseAbiItem("event EmergencyExited(uint256 indexed positionId, address indexed user, uint256 arvoPrincipal, uint256 usdcPrincipal, uint256 arvoRewardForfeited, uint256 usdcRewardForfeited, uint64 settledAt)");
-const CHUNK = BigInt(Math.max(1_000, Number(process.env.STAKING_LOG_CHUNK) || 50_000));
+const CHUNK = BigInt(Math.max(100, Number(process.env.STAKING_LOG_CHUNK) || 50_000));
 
 export type Deposit = { positionId: bigint; user: Address; arvo: bigint; usdc: bigint; block: bigint; maturesAt: bigint };
 type State = { startBlock: bigint; scannedTo: bigint; deposits: Deposit[]; exited: Set<string>; at: number };
