@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Check, Copy, X } from "lucide-react";
 import { Container } from "@/components/layout/Container";
+import { appUrl } from "@/lib/protocol/app-url";
 
 const CONTRACT_ADDRESS = "0x6457dA6FCA3C807b7f430770DbBe8aB5a767234A";
 const VIRTUALS_URL = "https://app.virtuals.io/virtuals/139272";
@@ -125,12 +126,12 @@ export function Header({ launch = false }: { launch?: boolean }) {
 
                 <div className="flex h-[52px] items-stretch gap-3">
                   <Link
-                    href="/platform"
+                    href={appUrl("/app")}
                     className={`inline-flex h-[52px] items-center justify-center rounded-xl border border-white/15 bg-white/[0.035] px-5 text-[14px] font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.06] ${
                       launch ? "" : "hidden xl:inline-flex"
                     }`}
                   >
-                    Request app access
+                    Launch app
                   </Link>
 
                   <button
@@ -229,11 +230,11 @@ export function Header({ launch = false }: { launch?: boolean }) {
                     </button>
 
                     <Link
-                      href="/platform"
+                      href={appUrl("/app")}
                       onClick={() => setOpen(false)}
                       className="flex h-[60px] w-full items-center justify-center rounded-xl border border-white/15 bg-white/[0.035] px-6 py-5 text-[16px] font-semibold text-white transition hover:border-white/25 hover:bg-white/[0.06]"
                     >
-                      Request app access
+                      Launch app
                     </Link>
                   </div>
 
