@@ -21,9 +21,19 @@ function signature(payload:string) {
  if(!secret||secret.length<32)throw new Error("App session signing is not configured securely.");
  return crypto.createHmac("sha256",secret).update("arvo-app-access-v2:"+payload).digest("hex");
 }
-// Public release switch: set APP_PUBLIC_ACCESS=1 (server-side, exact value)
-// to open the app without the early-access password. Unset to re-enable the gate.
-export function appIsPublic() { return process.env.APP_PUBLIC_ACCESS === "1"; }
+// Public release. The app opens to everyone automatically at PUBLIC_ACCESS_AT
+// (26 Nov 2026 14:00 UTC, 48 hours after early access), or earlier with
+// APP_PUBLIC_ACCESS=1. APP_PUBLIC_ACCESS_AT (ISO time) moves the date;
+// APP_PUBLIC_ACCESS=0 keeps the gate closed regardless. Server-side settings: a restart applies them.
+const DEFAULT_PUBLIC_ACCESS_AT = "2026-11-26T14:00:00Z";
+export function publicAccessAt(): Date {
+ const configured = process.env.APP_PUBLIC_ACCESS_AT ? new Date(process.env.APP_PUBLIC_ACCESS_AT) : null;
+ return configured && !Number.isNaN(configured.getTime()) ? configured : new Date(DEFAULT_PUBLIC_ACCESS_AT);
+}
+export function appIsPublic() {
+ if (process.env.APP_PUBLIC_ACCESS === "0") return false;
+ return process.env.APP_PUBLIC_ACCESS === "1" || Date.now() >= publicAccessAt().getTime();
+}
 export async function hasAppAccess() {
  if(appIsPublic())return true;
  const value=(await cookies()).get(COOKIE_NAME)?.value;

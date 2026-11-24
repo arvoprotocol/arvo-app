@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { AppAccessGate } from "@/components/protocol/AppAccessGate";
 import { AppShellRouter } from "@/components/protocol/AppShellRouter";
-import { hasAppAccess, hasAppAccessError } from "@/lib/app-access/session";
+import { hasAppAccess, hasAppAccessError, publicAccessAt } from "@/lib/app-access/session";
 import { headers } from "next/headers";
 import { JurisdictionNotice, RestrictedRegion } from "@/components/protocol/JurisdictionNotice";
 import { isRestrictedCountry } from "@/lib/legal/jurisdictions";
@@ -35,7 +35,7 @@ export default async function AppLayout({
 
   if (!access) {
     const invalid = await hasAppAccessError();
-    return <AppAccessGate invalid={invalid} />;
+    return <AppAccessGate invalid={invalid} publicAt={publicAccessAt().toISOString()} />;
   }
 
   return <><JurisdictionNotice /><AppShellRouter>{children}</AppShellRouter></>;

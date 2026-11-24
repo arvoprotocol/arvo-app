@@ -1,10 +1,18 @@
 import Image from "next/image";
+import { PublicAccessCountdown } from "@/components/protocol/PublicAccessCountdown";
 
 export function AppAccessGate({
   invalid = false,
+  publicAt,
 }: {
   invalid?: boolean;
+  /** ISO time the app opens to everyone; shows the countdown. */
+  publicAt?: string;
 }) {
+  const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://arvoprotocol.com").replace(/\/+$/, "");
+  const publicLabel = publicAt
+    ? new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" }).format(new Date(publicAt)) + " UK time"
+    : null;
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07090b] px-5 py-20 text-white">
       <div className="pointer-events-none absolute inset-0">
@@ -31,9 +39,12 @@ export function AppAccessGate({
           <div className="px-7 py-10 sm:px-10">
             <div className="flex justify-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-[#c9846a]/20 bg-[#c9846a]/[0.07] px-3 py-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#e2a98e]" />
-                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#e2a98e]">
-                  Private access
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ade80] opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#4ade80]" />
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#e2a98e]">
+                  Early access open now
                 </span>
               </span>
             </div>
@@ -42,9 +53,19 @@ export function AppAccessGate({
               Arvo App
             </h1>
 
-            <p className="mx-auto mt-4 max-w-sm text-center text-[15px] leading-7 text-white/45">
-              The Arvo App is currently in private preparation ahead of public access.
+            <p className="mx-auto mt-4 max-w-sm text-center text-[15px] leading-7 text-white/55">
+              Early access is open now for waitlist members and Strategic Partners. Enter the code from your invitation to get in.
             </p>
+
+            {publicAt && (
+              <div className="mt-8">
+                <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">
+                  Public access opens in
+                </p>
+                <PublicAccessCountdown target={publicAt} />
+                <p className="mt-3 text-center text-xs text-white/35">{publicLabel}</p>
+              </div>
+            )}
 
             <form
               action="/api/app-access"
@@ -83,8 +104,12 @@ export function AppAccessGate({
               </button>
             </form>
 
-            <p className="mt-7 text-center text-xs leading-5 text-white/25">
-              Early access is by invitation. Use the code from your Arvo invitation email.
+            <p className="mt-7 text-center text-xs leading-5 text-white/40">
+              No code yet?{" "}
+              <a href={`${site}/platform#platform-notify`} className="font-semibold text-[#e2a98e] underline-offset-4 hover:underline">
+                Join the waitlist
+              </a>
+              {publicLabel ? <> or come back when public access opens.</> : null}
             </p>
           </div>
         </div>
