@@ -9,6 +9,14 @@ let snapshot=empty,provider:WalletProvider|null=null,phone:WalletProvider|null=n
 const listeners=new Set<()=>void>(),browserWallets=new Map<string,BrowserWallet>();
 const storage="arvo-public-wallet-choice";
 let discoverStarted=false,removeProviderListeners=()=>{};
+/** Thrown when Arvo's saved WalletConnect data is stale; the picker resets it and reloads the page. */
+export class PhoneResetError extends Error{constructor(){super("The wallet connection needed a reset.");this.name="PhoneResetError";}}
+/** Clears Arvo's saved WalletConnect data in this browser (the cause of blank or frozen connect windows). */
+export async function resetPhoneConnection(){
+ try{for(const key of Object.keys(localStorage))if(key.startsWith("arvo-public-wallet")||key.startsWith("wc@2")||key.startsWith("WCM_")||key.startsWith("WALLETCONNECT"))localStorage.removeItem(key);}catch{}
+ await new Promise<void>(resolve=>{try{const request=indexedDB.deleteDatabase("WALLET_CONNECT_V2_INDEXED_DB");request.onsuccess=request.onerror=request.onblocked=()=>resolve();setTimeout(resolve,1500);}catch{resolve();}});
+}
+function within<T>(promise:Promise<T>,ms:number):Promise<T>{return new Promise<T>((resolve,reject)=>{const timer=setTimeout(()=>reject(new PhoneResetError()),ms);promise.then(value=>{clearTimeout(timer);resolve(value);},error=>{clearTimeout(timer);reject(error);});});}
 function emit(){for(const listener of listeners)listener();if(typeof window!=="undefined")window.dispatchEvent(new Event("arvo-wallet-refresh"));}
 export function subscribeWallet(listener:()=>void){listeners.add(listener);return()=>{listeners.delete(listener);};}
 export function walletSnapshot(){return snapshot;}
@@ -77,9 +85,11 @@ async function waitForPhoneAccount(p:WalletProvider,signal?:AbortSignal){
  }
 }
 export async function connectPhoneWallet(signal?:AbortSignal){
- const init=phoneProvider();const p=await (signal?waitForLogin(init,signal):init);
+ const init=within(phoneProvider(),20000);const p=await (signal?waitForLogin(init,signal):init);
  const id=Number(process.env.NEXT_PUBLIC_STAKING_CHAIN_ID),chainId=Number.isSafeInteger(id)&&id>0?id:1;
  const wait=<T,>(promise:Promise<T>)=>signal?waitForLogin(promise,signal):promise;
+ // A saved session that no longer answers (e.g. removed in MetaMask) would hang every request.
+ if(p.session){try{await wait(within(p.request({method:"eth_chainId"}),10000));}catch(error){if(error instanceof PhoneResetError)await p.disconnect?.().catch(()=>{});throw error;}}
  if(!p.session)await wait((p as WalletProvider&{connect(options:{chains:number[]}):Promise<void>}).connect({chains:[chainId]}));
  signal?.throwIfAborted();
  const chain=await wait(p.request({method:"eth_chainId"}));
