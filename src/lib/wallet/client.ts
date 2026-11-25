@@ -87,5 +87,7 @@ export async function connectPhoneWallet(signal?:AbortSignal){
  await wait(clearLogin());signal?.throwIfAborted();await wait(attach(p,"walletconnect"));signal?.throwIfAborted();
  await wait(waitForPhoneAccount(p,signal));
 }
-export async function disconnectWallet(){const p=provider;removeProviderListeners();provider=null;selection++;snapshot=empty;remember("disconnected");emit();await clearLogin();if(p?.session){await p.disconnect?.().catch(()=>{});if(p===phone){phone=null;phoneInit=null;}}}
+// Keep the WalletConnect provider after disconnecting: initialising a second one in the same page
+// leaves two clients listening, so the next approval in MetaMask never reaches the page.
+export async function disconnectWallet(){const p=provider;removeProviderListeners();provider=null;selection++;snapshot=empty;remember("disconnected");emit();await clearLogin();if(p?.session){await p.disconnect?.().catch(()=>{});}}
 export function openWalletPicker(){window.dispatchEvent(new Event("arvo-open-wallet-picker"));}
